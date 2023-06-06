@@ -21,10 +21,14 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  Modal,
+  Chip,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
 import { getAllUser } from 'src/services/getAllUser';
+// eslint-disable-next-line import/no-unresolved
+import { deleteUser } from 'src/services/deleteUser';
 import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
@@ -41,6 +45,7 @@ const TABLE_HEAD = [
   { id: 'website', label: 'Website', alignRight: false },
   { id: 'phone', label: 'Phone', alignRight: false },
   { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -92,6 +97,8 @@ export default function UserPage() {
 
   const [user, setUser] = useState([]);
 
+  const [modalOpen, setModalOpen] = useState(false);
+
   // const [param, setParam] = useState({
   //   PageIndex: 1,
   //   PageSize: 10,
@@ -99,11 +106,11 @@ export default function UserPage() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllUser().then((response) => { 
+    getAllUser().then((response) => {
       setUser(response.data);
       console.log(response.data);
     });
-  }, [])
+  }, []);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -126,6 +133,20 @@ export default function UserPage() {
       return;
     }
     setSelected([]);
+  };
+
+  const handleEditButton = () => {
+    console.log('edit');
+  };
+
+  const handleDeleteButton = (id) => {
+    deleteUser(id)
+      .then(() => {
+        console.log(id);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleClick = (event, name) => {
@@ -157,6 +178,14 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
+  // const handleOpenModal = () => {
+  //   setModalOpen(true);
+  // };
+
+  // const handleCloseModal = () => {
+  //   setModalOpen(false);
+  // };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
   const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
@@ -166,7 +195,7 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> User | BIDS </title>
       </Helmet>
 
       <Container>
@@ -177,6 +206,7 @@ export default function UserPage() {
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button>
+          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
@@ -196,7 +226,7 @@ export default function UserPage() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { userId, userName, email, address, phone, createDate, avatarUrl} = row;
+                    const { userId, userName, email, address, phone, createDate, status, avatarUrl } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
@@ -213,18 +243,54 @@ export default function UserPage() {
                             </Typography>
                           </Stack>
                         </TableCell> */}
+
                         <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">{email}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{createDate}</TableCell>
+                        <TableCell align="left">
+                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
+                        </TableCell>
 
+                        <Popover
+                          open={Boolean(open)}
+                          anchorEl={open}
+                          onClose={handleCloseMenu}
+                          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                          PaperProps={{
+                            sx: {
+                              p: 1,
+                              width: 140,
+                              '& .MuiMenuItem-root': {
+                                px: 1,
+                                typography: 'body2',
+                                borderRadius: 0.75,
+                              },
+                            },
+                          }}
+                        >
+                          <MenuItem onClick={handleEditButton}>
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                            Edit
+                          </MenuItem>
+
+                          <MenuItem
+                            onClick={() => {
+                              handleDeleteButton(row.userId);
+                            }}
+                            sx={{ color: 'error.main' }}
+                          >
+                            <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                            Delete
+                          </MenuItem>
+                        </Popover>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
 
                         {/* <TableCell align="left">
                           <Label color={status === 'false' || 'true'}>{sentenceCase(status)}</Label>
                         </TableCell> */}
-
 
                         <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
@@ -279,35 +345,6 @@ export default function UserPage() {
           />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }
