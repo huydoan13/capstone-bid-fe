@@ -99,11 +99,15 @@ export default function UserPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
 
+  const [openPopoverId, setOpenPopoverId] = useState(null);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
   // const [param, setParam] = useState({
   //   PageIndex: 1,
   //   PageSize: 10,
   // });
-
+  console.log('render');
   // lay du lieu tat ca user
   useEffect(() => {
     getAllUser().then((response) => {
@@ -112,13 +116,23 @@ export default function UserPage() {
     });
   }, []);
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
+  const handleOpenMenu = (event, userId) => {
+    setAnchorEl(event.currentTarget);
+    setOpenPopoverId(userId);
   };
 
   const handleCloseMenu = () => {
-    setOpen(null);
+    setAnchorEl(null);
+    setOpenPopoverId(null);
   };
+
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
+
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -137,16 +151,27 @@ export default function UserPage() {
 
   const handleEditButton = () => {
     console.log('edit');
+    handleCloseMenu();
   };
 
-  const handleDeleteButton = (id) => {
-    deleteUser(id)
+  const handleDeleteButton = (userId) => {
+    deleteUser(userId)
       .then(() => {
-        console.log(id);
+        // const updatedUsers = user.filter((u) => u.userId !== userId);
+        // setUser(updatedUsers);
+        // console.log('Delete User Succesfully');
+        // getAllUser().then((response) => {
+        //   console.log('response.data', response.data)
+        //   setUser(response.data);
+        // })'
+        const updatedUser = user.find((u) => u.userId === userId);
+        updatedUser.status = false;
+        setUser([...user]);
       })
       .catch((err) => {
-        console.log(err);
+        console.log('Can not delete because:', err);
       });
+    handleCloseMenu();
   };
 
   const handleClick = (event, name) => {
@@ -253,7 +278,48 @@ export default function UserPage() {
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
-                        <Popover
+                        <TableCell align="right">
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                            <Iconify icon={'eva:more-vertical-fill'} />
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === userId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 140,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem onClick={handleEditButton}>
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Edit
+                            </MenuItem>
+
+                            <MenuItem
+                              onClick={() => {
+                                handleDeleteButton(row.userId);
+                              }}
+                              sx={{ color: 'error.main' }}
+                            >
+                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                              Delete
+                            </MenuItem>
+                          </Popover>
+                        </TableCell>
+
+                        {/* <Popover
                           open={Boolean(open)}
                           anchorEl={open}
                           onClose={handleCloseMenu}
@@ -285,18 +351,18 @@ export default function UserPage() {
                             <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                             Delete
                           </MenuItem>
-                        </Popover>
+                        </Popover> */}
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
 
                         {/* <TableCell align="left">
                           <Label color={status === 'false' || 'true'}>{sentenceCase(status)}</Label>
                         </TableCell> */}
-
+                        {/* 
                         <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}
