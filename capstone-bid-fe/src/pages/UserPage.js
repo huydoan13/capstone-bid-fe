@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
+import moment from 'moment';
 import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -42,7 +43,7 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 const TABLE_HEAD = [
   { id: 'name', label: 'Name', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'website', label: 'Website', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
   { id: 'phone', label: 'Phone', alignRight: false },
   { id: 'createDate', label: 'CreateDate', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
@@ -103,11 +104,8 @@ export default function UserPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  // const [param, setParam] = useState({
-  //   PageIndex: 1,
-  //   PageSize: 10,
-  // });
-  console.log('render');
+  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+
   // lay du lieu tat ca user
   useEffect(() => {
     getAllUser().then((response) => {
@@ -157,13 +155,6 @@ export default function UserPage() {
   const handleDeleteButton = (userId) => {
     deleteUser(userId)
       .then(() => {
-        // const updatedUsers = user.filter((u) => u.userId !== userId);
-        // setUser(updatedUsers);
-        // console.log('Delete User Succesfully');
-        // getAllUser().then((response) => {
-        //   console.log('response.data', response.data)
-        //   setUser(response.data);
-        // })'
         const updatedUser = user.find((u) => u.userId === userId);
         updatedUser.status = false;
         setUser([...user]);
@@ -273,7 +264,7 @@ export default function UserPage() {
                         <TableCell align="left">{email}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{createDate}</TableCell>
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell>
@@ -318,51 +309,7 @@ export default function UserPage() {
                             </MenuItem>
                           </Popover>
                         </TableCell>
-
-                        {/* <Popover
-                          open={Boolean(open)}
-                          anchorEl={open}
-                          onClose={handleCloseMenu}
-                          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                          PaperProps={{
-                            sx: {
-                              p: 1,
-                              width: 140,
-                              '& .MuiMenuItem-root': {
-                                px: 1,
-                                typography: 'body2',
-                                borderRadius: 0.75,
-                              },
-                            },
-                          }}
-                        >
-                          <MenuItem onClick={handleEditButton}>
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                            Edit
-                          </MenuItem>
-
-                          <MenuItem
-                            onClick={() => {
-                              handleDeleteButton(row.userId);
-                            }}
-                            sx={{ color: 'error.main' }}
-                          >
-                            <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                            Delete
-                          </MenuItem>
-                        </Popover> */}
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-
-                        {/* <TableCell align="left">
-                          <Label color={status === 'false' || 'true'}>{sentenceCase(status)}</Label>
-                        </TableCell> */}
-                        {/* 
-                        <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                        </TableCell> */}
                       </TableRow>
                     );
                   })}
