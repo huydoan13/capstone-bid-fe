@@ -30,7 +30,7 @@ NavItem.propTypes = {
 };
 
 function NavItem({ item }) {
-  const { title, path, icon, info } = item;
+  const { title, path, icon, items, info } = item;
 
   return (
     <StyledNavItem

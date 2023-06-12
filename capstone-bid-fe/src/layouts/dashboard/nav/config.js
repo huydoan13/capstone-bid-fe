@@ -1,4 +1,5 @@
 // component
+import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -14,7 +15,20 @@ const navConfig = [
   {
     title: 'user',
     path: '/dashboard/user',
-    icon: icon('ic_user'),
+    icon: <AccountCircleTwoToneIcon />,
+    items: [
+      { title: 'Active', path: '/dashboard/user' },
+    ]
+  },
+  {
+    title: 'staff',
+    path: '/dashboard/staff',
+    icon: icon('ic_staff'),
+  },
+  {
+    title: 'item-type',
+    path: '/dashboard/item-type',
+    icon: icon('ic_staff'),
   },
   {
     title: 'product',

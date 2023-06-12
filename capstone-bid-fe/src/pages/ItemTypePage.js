@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllUser } from 'src/services/user-actions';
+import { getAllItemType } from 'src/services/item-type-actions';
 // eslint-disable-next-line import/no-unresolved
 import { deleteUser } from 'src/services/deleteUser';
 import { fDate } from '../utils/formatTime';
@@ -42,12 +42,9 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
-  { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  { id: 'itemTypeName', label: 'ItemTypeName', alignRight: false },
+  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'createDate', label: 'CreateDate', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -83,7 +80,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function UserPage() {
+export default function ItemTypePage() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -98,7 +95,7 @@ export default function UserPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [user, setUser] = useState([]);
+  const [itemType, setItemType] = useState([]);
 
   // const [modalOpen, setModalOpen] = useState(false);
 
@@ -110,8 +107,8 @@ export default function UserPage() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllUser().then((response) => {
-      setUser(response.data);
+    getAllItemType().then((response) => {
+      setItemType(response.data);
       console.log(response.data);
     });
   }, []);
@@ -142,7 +139,7 @@ export default function UserPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = user.map((n) => n.name);
+      const newSelecteds = itemType.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -154,12 +151,12 @@ export default function UserPage() {
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (userId) => {
-    deleteUser(userId)
+  const handleDeleteButton = (itemTypeId) => {
+    deleteUser(itemTypeId)
       .then(() => {
-        const updatedUser = user.find((u) => u.userId === userId);
-        updatedUser.status = false;
-        setUser([...user]);
+        const updatedItemType = itemType.find((u) => u.itemTypeId === itemTypeId);
+        updatedItemType.status = false;
+        setItemType([...itemType]);
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -204,22 +201,22 @@ export default function UserPage() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - itemType.length) : 0;
 
-  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
+  const filteredItemTypes = applySortFilter(itemType, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredItemTypes.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> User | BIDS </title>
+        <title> ItemType | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            ItemType
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -237,20 +234,20 @@ export default function UserPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={user.length}
+                  rowCount={itemType.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
-                    const selectedUser = selected.indexOf(userName) !== -1;
+                  {filteredItemTypes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { itemTypeId, itemTypeName, updateDate, createDate, status } = row;
+                    const selectedUser = selected.indexOf(itemTypeName) !== -1;
 
                     return (
-                      <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={itemTypeId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemTypeName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -262,22 +259,19 @@ export default function UserPage() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{userName}</TableCell>
-                        <TableCell align="left">{email}</TableCell>
-                        <TableCell align="left">{cccdnumber}</TableCell>
-                        <TableCell align="left">{address}</TableCell>
-                        <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        <TableCell align="left">{itemTypeName}</TableCell>
+                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">{fDate(createDate)}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemTypeId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
-                            open={openPopoverId === userId}
+                            open={openPopoverId === itemTypeId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -353,7 +347,7 @@ export default function UserPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={user.length}
+            count={itemType.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
