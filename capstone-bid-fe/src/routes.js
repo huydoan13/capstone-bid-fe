@@ -10,6 +10,7 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import HomePage from './pages/HomePage';
+import SignUp from './pages/SignUp';
 // import StaffPage from './pages/StaffPage';
 
 // ----------------------------------------------------------------------
@@ -17,6 +18,7 @@ import HomePage from './pages/HomePage';
 export default function Router() {
   const routes = useRoutes([
     { path: 'home', element: <HomePage /> },
+    { path: 'signup', element: <SignUp /> },
     {
       path: '/dashboard',
       element: <DashboardLayout />,

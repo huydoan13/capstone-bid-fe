@@ -1,4 +1,4 @@
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Box, Button, Container, Pagination, Typography } from '@mui/material';
 import React from 'react'
 import theme from '../theme';
 import Appbar from '../components/appbar';
@@ -9,6 +9,7 @@ import Footer from '../components/footer';
 import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
+import AppPagination from '../components/pagination';
 
 
 
@@ -27,6 +28,10 @@ function HomePage() {
                 <Promotions />
                 <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
                     <Typography variant="h4">Tài Sản Sắp Được đấu giá</Typography>
+                </Box>
+                <Products />
+                <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
+                    <Typography variant="h4">Tài Sản Đang Được đấu giá</Typography>
                 </Box>
                 <Products />
                 <Footer />
