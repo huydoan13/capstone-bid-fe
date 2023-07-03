@@ -42,7 +42,7 @@ export default function  Actions({ matches }) {
                             justifyContent: 'center',
                             color: matches && Colors.White,
                         }}>
-                        <PersonIcon />
+                        <PersonIcon  />
                     </ListItemIcon>
                 </ListItemButton>
                 <Divider orientation="vertical" flexItem />

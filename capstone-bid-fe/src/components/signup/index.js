@@ -1,5 +1,7 @@
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormLabel, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Radio, RadioGroup, Select, TextField, Typography, useTheme } from "@mui/material";
 import React from "react";
+import FrontUploader from "../uploader";
+import BackUploader from "../uploader/backindex";
 
 
 const ITEM_HEIGHT = 48;
@@ -198,12 +200,22 @@ export default function SignUpForm() {
                         </Grid>
                     </Grid>
                 </Box>
+                {/* image upload */}
+
+                <Grid marginLeft={"1%"} alignItems={"center"} display={"flex"} justifyContent={"space-around"} container spacing={2}>
+                    <Grid marginTop={"2%"} xs={6}>
+                        <FrontUploader />
+                    </Grid>
+                    <Grid marginTop={"2%"} xs={6}>
+                        <BackUploader />
+                    </Grid>
+                </Grid>
                 {/* check box */}
                 <Grid container margin={"15px"}>
                     <FormControlLabel fullWidth control={<Checkbox />} label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá) 
                     , Chính sách bảo mật thông tin khách hàng  Cơ chế giải quyết tranh chấp , Quy chế hoạt động tại website đấu giá trực tuyến lacvietauction.vn" />
                 </Grid>
-                    {/* button */}
+                {/* button */}
                 <Grid container height={2} margin={"15px "}>
                     <Button fullWidth size="large" variant="contained">Đăng Kí Tài Khoản</Button>
                 </Grid>

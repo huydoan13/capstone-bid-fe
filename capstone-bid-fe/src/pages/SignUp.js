@@ -23,7 +23,7 @@ function SignUp() {
 
                 <Box display={"flex"} flexDirection={'column'} alignItems="center" justifyContent={"center"} sx={{ p: 4 }}>
                     <Typography variant="h4">Đăng Kí Tài Khoản</Typography>
-                    <Typography variant="h7">Bạn đã có tài khoản? <Link variant="subtitle2" >Đăng Nhập Ngay</Link></Typography>
+                    <Typography variant="h7">Bạn đã có tài khoản? <Link href="/login" variant="subtitle2" >Đăng Nhập Ngay</Link></Typography>
 
                 </Box>
 

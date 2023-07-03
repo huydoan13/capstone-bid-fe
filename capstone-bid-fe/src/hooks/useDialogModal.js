@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react";
 
 export default function useDialogModal(Component) {
   const [open, setOpen] = useState(false);
@@ -8,14 +8,16 @@ export default function useDialogModal(Component) {
   }, []);
 
   const DialogComponent = useCallback(({ ...props }) => {
-      if (!open) return null;
+    if (!open) return null;
 
-      if (Component) {
-        return (
-          <Component open={open} onClose={() => setOpen(false)} {...props} />
-        );
-      }
-    }, [open, Component]);
+    if (Component) {
+      return (
+        <Component open={open} onClose={() => setOpen(false)} {...props} />
+      );
+    }
 
-  return [DialogComponent, openDialog]
+    return null; // Add this line
+  }, [open, Component]);
+
+  return [DialogComponent, openDialog];
 }
