@@ -27,9 +27,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllItemType } from 'src/services/item-type-actions';
-// eslint-disable-next-line import/no-unresolved
-import { deleteUser } from 'src/services/deleteUser';
+import { createSession, deleteSession, getAllSessions } from 'src/services/session-actions';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -42,9 +40,12 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemTypeName', label: 'ItemTypeName', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'feeName', label: 'FeeName', alignRight: false },
+  { id: 'sessionName', label: 'SessionName', alignRight: false },
+  { id: 'beginTime', label: 'BeginTime', alignRight: false },
+  { id: 'auctionTime', label: 'AuctionTime', alignRight: false },
+  { id: 'endTime', label: 'EndTime', alignRight: false },
+  { id: 'finailPrice', label: 'FinailPrice', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -80,7 +81,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function ItemTypePage() {
+export default function SessionPage() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -95,7 +96,7 @@ export default function ItemTypePage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [itemType, setItemType] = useState([]);
+  const [session, setSession] = useState([]);
 
   // const [modalOpen, setModalOpen] = useState(false);
 
@@ -107,15 +108,15 @@ export default function ItemTypePage() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllItemType().then((response) => {
-      setItemType(response.data);
+    getAllSessions().then((response) => {
+      setSession(response.data);
       console.log(response.data);
     });
   }, []);
 
-  const handleOpenMenu = (event, userId) => {
+  const handleOpenMenu = (event, staffId) => {
     setAnchorEl(event.currentTarget);
-    setOpenPopoverId(userId);
+    setOpenPopoverId(staffId);
   };
 
   const handleCloseMenu = () => {
@@ -139,7 +140,7 @@ export default function ItemTypePage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = itemType.map((n) => n.name);
+      const newSelecteds = session.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -151,12 +152,16 @@ export default function ItemTypePage() {
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (itemTypeId) => {
-    deleteUser(itemTypeId)
+  const handleCreateSessionButton = () => {
+    createSession();
+  }
+
+  const handleDeleteButton = (sessionId) => {
+    deleteSession(sessionId)
       .then(() => {
-        const updatedItemType = itemType.find((u) => u.itemTypeId === itemTypeId);
-        updatedItemType.status = false;
-        setItemType([...itemType]);
+        const updatedSession = session.find((u) => u.sessionId === sessionId);
+        updatedSession.status = false;
+        setSession([...session]);
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -201,25 +206,25 @@ export default function ItemTypePage() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - itemType.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
 
-  const filteredItemTypes = applySortFilter(itemType, getComparator(order, orderBy), filterName);
+  const filteredSessions = applySortFilter(session, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredItemTypes.length && !!filterName;
+  const isNotFound = !filteredSessions.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> ItemType | BIDS </title>
+        <title> Session | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            ItemType
+            Session
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
+          <Button onClick={() => { handleCreateSessionButton() }} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Session
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
@@ -234,20 +239,20 @@ export default function ItemTypePage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={itemType.length}
+                  rowCount={session.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredItemTypes.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemTypeId, itemTypeName, updateDate, createDate, status } = row;
-                    const selectedUser = selected.indexOf(itemTypeName) !== -1;
+                  {filteredSessions.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finailPrice, status } = row;
+                    const selectedSession = selected.indexOf(sessionName) !== -1;
 
                     return (
-                      <TableRow hover key={itemTypeId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedSession}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemTypeName)} />
+                          <Checkbox checked={selectedSession} onChange={(event) => handleClick(event, sessionName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -259,19 +264,22 @@ export default function ItemTypePage() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{itemTypeName}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{feeName}</TableCell>
+                        <TableCell align="left">{sessionName}</TableCell>
+                        <TableCell align="left">{fDate(beginTime)}</TableCell>
+                        <TableCell align="left">{fDate(auctionTime)}</TableCell>
+                        <TableCell align="left">{fDate(endTime)}</TableCell>
+                        <TableCell align="left">{finailPrice}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemTypeId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, sessionId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
-                            open={openPopoverId === itemTypeId}
+                            open={openPopoverId === sessionId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -297,7 +305,7 @@ export default function ItemTypePage() {
 
                             <MenuItem
                               onClick={() => {
-                                handleDeleteButton(row.userId);
+                                handleDeleteButton(row.staffId);
                               }}
                               sx={{ color: 'error.main' }}
                             >
@@ -347,7 +355,7 @@ export default function ItemTypePage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={itemType.length}
+            count={session.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

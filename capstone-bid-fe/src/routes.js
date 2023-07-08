@@ -1,4 +1,4 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes, Route } from 'react-router-dom';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -10,7 +10,11 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import StaffPage from './pages/StaffPage';
-import ItemTypePage from './pages/ItemTypePage';
+import CategoryPage from './pages/CategoryPage';
+import SessionPage from './pages/SessionPage';
+import ItemPage from './pages/ItemPage';
+import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
+import { AuthProvider } from './context/AuthProvider'
 
 // ----------------------------------------------------------------------
 
@@ -22,11 +26,14 @@ export default function Router() {
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
+        { path: 'user', element: <AuthProvider> <UserPage/> </AuthProvider> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'staff', element: <StaffPage /> },
-        { path: 'item-type', element: <ItemTypePage /> },
+        { path: 'category', element: <CategoryPage /> },
+        { path: 'item-type-create', element: <ItemTypeCreate /> },
+        { path: 'sessions', element: <SessionPage /> },
+        { path: 'items', element: <ItemPage /> },
       ],
     },
     {
@@ -49,3 +56,31 @@ export default function Router() {
 
   return routes;
 }
+
+// const withAuth = (Component) => {
+//   const AuthenticatedComponent = (props) => {
+//     const token = localStorage.getItem('token');
+
+//     if (!token) {
+//       // Redirect to login page if token is not present
+//       return <Navigate to="/login" />;
+//     }
+
+//     try {
+//       // Verify the token's validity
+//       jwt.verify(token, 'secret_key');
+//       // Render the protected component if the token is valid
+//       return <Component {...props} />;
+//     } catch (error) {
+//       // Redirect to login page if token is invalid or expired
+//       return <Navigate to="/login" />;
+//     }
+//   };
+
+//   return AuthenticatedComponent;
+// };
+
+// const ProtectedRoute = withAuth(({ component: Component, ...rest }) => {
+//   return <Route {...rest} render={(props) => <Component {...props} />} />;
+// });
+

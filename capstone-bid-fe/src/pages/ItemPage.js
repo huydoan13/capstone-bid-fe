@@ -27,26 +27,31 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllStaff, deleteStaff } from 'src/services/staff-actions';
+import { getAllItems } from 'src/services/item-actions';
+// eslint-disable-next-line import/no-unresolved
+import { deleteUser } from 'src/services/deleteUser';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { StaffListHead, StaffListToolbar } from '../sections/staff';
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'staffName', label: 'StaffName', alignRight: false },
-  { id: 'email', label: 'Email', alignRight: false },
-  // { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.o.B', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
+  { id: 'itemName', label: 'ItemName', alignRight: false },
+  { id: 'description', label: 'Description', alignRight: false },
+  { id: 'quantity', label: 'Quantity', alignRight: false },
+  { id: 'image', label: 'Image', alignRight: false },
+  { id: 'fristPrice', label: 'FristPrice', alignRight: false },
+  { id: 'stepPrice', label: 'StepPrice', alignRight: false },
+  { id: 'deposit', label: 'Deposit', alignRight: false },
+  { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -81,7 +86,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function StaffPage() {
+export default function ItemPage() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -96,7 +101,7 @@ export default function StaffPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [staff, setStaff] = useState([]);
+  const [user, setUser] = useState([]);
 
   // const [modalOpen, setModalOpen] = useState(false);
 
@@ -108,15 +113,15 @@ export default function StaffPage() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllStaff().then((response) => {
-      setStaff(response.data);
+    getAllItems().then((response) => {
+      setUser(response.data);
       console.log(response.data);
     });
   }, []);
 
-  const handleOpenMenu = (event, staffId) => {
+  const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
-    setOpenPopoverId(staffId);
+    setOpenPopoverId(userId);
   };
 
   const handleCloseMenu = () => {
@@ -140,7 +145,7 @@ export default function StaffPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = staff.map((n) => n.name);
+      const newSelecteds = user.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -152,12 +157,12 @@ export default function StaffPage() {
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (staffId) => {
-    deleteStaff(staffId)
+  const handleDeleteButton = (userId) => {
+    deleteUser(userId)
       .then(() => {
-        const updatedStaff = staff.find((u) => u.staffId === staffId);
-        updatedStaff.status = false;
-        setStaff([...staff]);
+        const updatedUser = user.find((u) => u.userId === userId);
+        updatedUser.status = false;
+        setUser([...user]);
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -202,53 +207,53 @@ export default function StaffPage() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - staff.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
-  const filteredUsers = applySortFilter(staff, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Staff | BIDS </title>
+        <title> Items | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Staff
+            Items
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Staff
+            New Item
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <StaffListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <StaffListHead
+                <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={staff.length}
+                  rowCount={user.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { staffId, staffName, email, address, phone, dateOfBirth, status } = row;
-                    const selectedUser = selected.indexOf(staffName) !== -1;
+                    const { itemId, itemName, description, quantity, image, fristPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
-                      <TableRow hover key={staffId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={itemId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, staffName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -260,21 +265,25 @@ export default function StaffPage() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{staffName}</TableCell>
-                        <TableCell align="left">{email}</TableCell>
-                        <TableCell align="left">{address}</TableCell>
-                        <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
-                        {/* <TableCell align="left">
+                        <TableCell align="left">{itemName}</TableCell>
+                        <TableCell align="left">{description}</TableCell>
+                        <TableCell align="left">{quantity}</TableCell>
+                        <TableCell align="left">{image}</TableCell>
+                        <TableCell align="left">{fristPrice}</TableCell>
+                        <TableCell align="left">{stepPrice}</TableCell>
+                        <TableCell align="left">{deposit}</TableCell>
+                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
-                        </TableCell> */}
+                        </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, staffId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
-                            open={openPopoverId === staffId}
+                            open={openPopoverId === itemId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -300,7 +309,7 @@ export default function StaffPage() {
 
                             <MenuItem
                               onClick={() => {
-                                handleDeleteButton(row.staffId);
+                                handleDeleteButton(row.userId);
                               }}
                               sx={{ color: 'error.main' }}
                             >
@@ -350,7 +359,7 @@ export default function StaffPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={staff.length}
+            count={user.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

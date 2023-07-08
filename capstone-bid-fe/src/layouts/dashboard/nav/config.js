@@ -26,8 +26,18 @@ const navConfig = [
     icon: icon('ic_staff'),
   },
   {
-    title: 'item-type',
-    path: '/dashboard/item-type',
+    title: 'session',
+    path: '/dashboard/sessions',
+    icon: icon('ic_staff'),
+  },
+  {
+    title: 'item',
+    path: '/dashboard/items',
+    icon: icon('ic_staff'),
+  },
+  {
+    title: 'category',
+    path: '/dashboard/category',
     icon: icon('ic_staff'),
   },
   {
