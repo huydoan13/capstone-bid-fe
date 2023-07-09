@@ -40,7 +40,7 @@ export default function  Actions({ matches }) {
                         sx={{
                             display: 'flex',
                             justifyContent: 'center',
-                            color: matches && Colors.White,
+                            color: matches && Colors.white,
                         }}>
                         <PersonIcon  />
                     </ListItemIcon>

@@ -1,5 +1,5 @@
-import { Button, IconButton, Slide, TextField } from "@mui/material";
-import { Box, styled } from "@mui/system";
+import {  IconButton, Slide, TextField } from "@mui/material";
+import {  styled } from "@mui/system";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import { Colors } from "../../style/theme";
@@ -34,7 +34,7 @@ export default function SearchBox() {
         <SearchField
           color="secondary"
           variant="standard"
-          fullWidth
+          fullwidth
           placeholder="search..."
         />
         <IconButton>

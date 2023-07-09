@@ -9,9 +9,7 @@ import {
     DialogContent,
     Typography,
     Button,
-    Stack,
 } from "@mui/material";
-import { useRef } from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
 
@@ -19,10 +17,8 @@ import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { BannerShopButton } from "../../style/banner";
 import { Colors } from "../../style/theme";
-import {  ProductAddToCart,Product, ProductImage } from "../../style/Products";
-import IncDec from "../ui/incdec";
+import {  Product, ProductImage } from "../../style/Products";
 
 
 
@@ -74,7 +70,7 @@ export default function ProductDetail({ open, onClose, product }) {
                         <ProductImage src={product.image} />
                     </Product>
                     <ProductDetailInfoWrapper>
-                        
+
                         <Typography sx={{ lineHeight: 4 }} variant="h4">
                             {product.name}
                         </Typography>
@@ -84,7 +80,7 @@ export default function ProductDetail({ open, onClose, product }) {
                         <Typography variant="subtitle">Time : 11:00:00 AM</Typography>
                         <Typography variant="body">
                             {product.description}
-                            
+
                         </Typography>
                         <Box
                             sx={{ mt: 4 }}

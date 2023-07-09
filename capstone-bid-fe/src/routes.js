@@ -11,6 +11,9 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import HomePage from './pages/HomePage';
 import SignUp from './pages/SignUp';
+import AddProduct from './pages/AddProduct'
+import AuctionPage from './pages/AuctionPage';
+import Profile from './pages/Profile';
 // import StaffPage from './pages/StaffPage';
 
 // ----------------------------------------------------------------------
@@ -18,7 +21,10 @@ import SignUp from './pages/SignUp';
 export default function Router() {
   const routes = useRoutes([
     { path: 'home', element: <HomePage /> },
+    { path: 'auction', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
+    { path: 'addproduct', element: <AddProduct /> },
+    { path: 'profile', element: <Profile /> },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
