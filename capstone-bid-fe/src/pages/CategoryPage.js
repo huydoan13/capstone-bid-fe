@@ -322,7 +322,7 @@ export default function CaterogyPage() {
 
                             <MenuItem
                               onClick={() => {
-                                handleDeleteButton(row.itemTypeId);
+                                handleDeleteButton(row.categoryId);
                               }}
                               sx={{ color: 'error.main' }}
                             >

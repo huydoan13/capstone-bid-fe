@@ -244,7 +244,7 @@ export default function UserPage() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { userId, userName, email, cccdNumber, address, phone, dateOfBirth, status } = row;
+                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
@@ -264,7 +264,7 @@ export default function UserPage() {
 
                         <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">{email}</TableCell>
-                        <TableCell align="left">{cccdNumber}</TableCell>
+                        <TableCell align="left">{cccdnumber}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{fDate(dateOfBirth)}</TableCell>

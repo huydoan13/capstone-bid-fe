@@ -10,14 +10,14 @@ import axiosInstance from '../../../services/axios-instance';
 // components
 import Iconify from '../../../components/iconify';
 import { login } from '../../../services/login';
-import AuthContext from '../../../context/AuthProvider';
+// import AuthContext from '../../../context/RolesAuthRoute';
 import './LoginForm.less';
 
 // ----------------------------------------------------------------------
 
 export default function LoginForm() {
 
-  const { setAuth } = useContext(AuthContext);
+  // const { setAuth } = useContext(AuthContext);
   const userRef = useRef();
   const errRef = useRef();
 
@@ -62,10 +62,11 @@ const handlePasswordChange = (e) => {
           const token = response?.data?.token;
           const decoded = jwt_decode(token);
           localStorage.setItem('token', token);
-          navigate('/dashboard', { replace: true });
+          localStorage.setItem('loginUser', JSON.stringify(decoded));
+          navigate('/dashboard/app', { replace: true });
           const role = response?.data?.role;
           console.log(decoded.role);
-          setAuth({ email, password, role, token });
+          // setAuth({ email, password, role, token });
           setEmail('');
           setPassword('');
           setSuccess(true);

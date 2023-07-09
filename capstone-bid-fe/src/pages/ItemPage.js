@@ -48,10 +48,10 @@ const TABLE_HEAD = [
   { id: 'image', label: 'Image', alignRight: false },
   { id: 'fristPrice', label: 'FristPrice', alignRight: false },
   { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'deposit', label: 'Deposit', alignRight: false },
   { id: 'createDate', label: 'CreateDate', alignRight: false },
   { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'deposit', label: 'Deposit', alignRight: false },
+  // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -101,7 +101,7 @@ export default function ItemPage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [user, setUser] = useState([]);
+  const [item, setItem] = useState([]);
 
   // const [modalOpen, setModalOpen] = useState(false);
 
@@ -114,7 +114,7 @@ export default function ItemPage() {
   // lay du lieu tat ca user
   useEffect(() => {
     getAllItems().then((response) => {
-      setUser(response.data);
+      setItem(response.data);
       console.log(response.data);
     });
   }, []);
@@ -145,7 +145,7 @@ export default function ItemPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = user.map((n) => n.name);
+      const newSelecteds = item.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -157,12 +157,12 @@ export default function ItemPage() {
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (userId) => {
-    deleteUser(userId)
+  const handleDeleteButton = (itemId) => {
+    deleteUser(itemId)
       .then(() => {
-        const updatedUser = user.find((u) => u.userId === userId);
+        const updatedUser = item.find((u) => u.itemId === itemId);
         updatedUser.status = false;
-        setUser([...user]);
+        setItem([...item]);
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -207,11 +207,11 @@ export default function ItemPage() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - item.length) : 0;
 
-  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
+  const filteredItems = applySortFilter(item, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredItems.length && !!filterName;
 
   return (
     <>
@@ -240,14 +240,14 @@ export default function ItemPage() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={user.length}
+                  rowCount={item.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, description, quantity, image, fristPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                  {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { itemId, itemName, descriptionDetail, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -266,16 +266,16 @@ export default function ItemPage() {
                         </TableCell> */}
 
                         <TableCell align="left">{itemName}</TableCell>
-                        <TableCell align="left">{description}</TableCell>
+                        <TableCell align="left">{descriptionDetail}</TableCell>
                         <TableCell align="left">{quantity}</TableCell>
                         <TableCell align="left">{image}</TableCell>
-                        <TableCell align="left">{fristPrice}</TableCell>
+                        <TableCell align="left">{firstPrice}</TableCell>
                         <TableCell align="left">{stepPrice}</TableCell>
-                        <TableCell align="left">{deposit}</TableCell>
+                        {/* <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{fDate(createDate)}</TableCell>
                         <TableCell align="left">{fDate(updateDate)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
+                          <Chip label={deposit ? 'True' : 'False'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
@@ -359,7 +359,7 @@ export default function ItemPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={user.length}
+            count={item.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}

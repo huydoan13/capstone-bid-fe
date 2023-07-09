@@ -1,4 +1,5 @@
 import { Navigate, useRoutes, Route } from 'react-router-dom';
+import { Suspense } from 'react';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -14,7 +15,7 @@ import CategoryPage from './pages/CategoryPage';
 import SessionPage from './pages/SessionPage';
 import ItemPage from './pages/ItemPage';
 import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
-import { AuthProvider } from './context/AuthProvider'
+import { RolesAuthRoute } from './context/RolesAuthRoute';
 
 // ----------------------------------------------------------------------
 
@@ -26,7 +27,16 @@ export default function Router() {
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <AuthProvider> <UserPage/> </AuthProvider> },
+        {
+          path: 'user',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <UserPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
         { path: 'staff', element: <StaffPage /> },
@@ -83,4 +93,3 @@ export default function Router() {
 // const ProtectedRoute = withAuth(({ component: Component, ...rest }) => {
 //   return <Route {...rest} render={(props) => <Component {...props} />} />;
 // });
-
