@@ -1,179 +1,174 @@
-import { Box, Button, FormControl, FormLabel, Grid, InputLabel, MenuItem, OutlinedInput, Paper, Select, TextField, Typography, useTheme } from "@mui/material";
-import React from "react";
+import React, { useState } from 'react';
+import { TextField, Button, Grid, MenuItem, IconButton } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-
-
-
-const ITEM_HEIGHT = 48;
-const ITEM_PADDING_TOP = 8;
-const MenuProps = {
-    PaperProps: {
-        style: {
-            maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
-            width: 250,
-        },
-    },
-};
-
-function getStyles(category, productCategory, theme) {
-    return {
-        fontWeight:
-            productCategory.indexOf(category) === -1
-                ? theme.typography.fontWeightRegular
-                : theme.typography.fontWeightMedium,
-    };
-}
-const CategoryName = [
-    'Phương Tiện giao thông',
-    'Diện thoại di động',
-    'Quyền Sử Dụng đất'
+const categories = [
+  {
+    id: '1',
+    name: 'Category 1',
+    descriptions: [
+      'Description 1 for Category 1',
+      'Description 2 for Category 1',
+      'Description 3 for Category 1',
+    ],
+  },
+  {
+    id: '2',
+    name: 'Category 2',
+    descriptions: ['Description for Category 2'],
+  },
+  {
+    id: '3',
+    name: 'Category 3',
+    descriptions: [
+      'Description 1 for Category 3',
+      'Description 2 for Category 3',
+    ],
+  },
 ];
 
-export default function AddProductForm() {
-    const paperStyle = {
-        padding: '20px 30px', width: '90%', margin: "20px auto"
-    }
+const AddProductForm = () => {
+  const [itemName, setItemName] = useState('');
+  const [categoryId, setCategoryId] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [image, setImage] = useState('');
+  const [firstPrice, setFirstPrice] = useState('');
+  const [stepPrice, setStepPrice] = useState('');
+  const [descriptions, setDescriptions] = useState([]);
 
-    const theme = useTheme();
-    const [productCategory, setproductCategory] = React.useState([]);
+  const selectedCategory = categories.find((cat) => cat.id === categoryId);
 
-    const handleChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        setproductCategory(
-            // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
-    };
+  const handleCategoryChange = (e) => {
+    setCategoryId(e.target.value);
+    setDescriptions([]);
+  };
 
-    return (
-        <Grid >
-            <Paper margin={'1%'} elevation={20} style={paperStyle} >
-                {/* Hình Ảnh Sản phẩm */}
-                {/* Tên Sản phẩm */}
-                <Grid container margin={"15px"}>
-                    <TextField fullwidth label="Tên Sản Phẩm" variant="outlined" />
-                </Grid>
-                {/* Thể Loại Sản phẩm */}
+  const handleDescriptionChange = (index, e) => {
+    const updatedDescriptions = [...descriptions];
+    updatedDescriptions[index] = e.target.value;
+    setDescriptions(updatedDescriptions);
+  };
 
-                <Box
-                    component="form"
-                    sx={{
-                        '& .MuiTextField-root': { m: 1, width: '60ch' },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
+  const handleDeleteDescription = (index) => {
+    const updatedDescriptions = [...descriptions];
+    updatedDescriptions.splice(index, 1);
+    setDescriptions(updatedDescriptions);
+  };
 
-                    <Grid container marginTop={'15px'} alignItems={"center"} justifyContent={"space-around"}>
-                        <Grid marginTop={"5px"} sx={6}>
-                            <FormControl sx={{ m: 1, width: '60ch' }}>
-                                <InputLabel id="demo-multiple-name-label">Loại Sản Phẩm</InputLabel>
-                                <Select
-                                    labelId="demo-multiple-name-label"
-                                    id="demo-multiple-name"
-                                    value={productCategory}
-                                    onChange={handleChange}
-                                    input={<OutlinedInput label="Loại Sản Phẩm" />}
-                                    MenuProps={MenuProps}
-                                >
-                                    {CategoryName.map((name) => (
-                                        <MenuItem
-                                            key={name}
-                                            value={name}
-                                            style={getStyles(CategoryName, productCategory, theme)}
-                                        >
-                                            {name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        <Grid marginTop={"5px"} sx={6}>
-                            <TextField
-                                id="outlined-number"
-                                label="Nhập Số Lượng"
-                                type="number"
-                            />
-                        </Grid>
-                    </Grid>
-                </Box>
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Add your form submission logic here
+    // You can access the form values with the state variables above
+    console.log({
+      itemName,
+      descriptions,
+      categoryId,
+      quantity,
+      image,
+      firstPrice,
+      stepPrice,
+    });
+    // Reset the form after submission
+    setItemName('');
+    setCategoryId('');
+    setQuantity('');
+    setImage('');
+    setFirstPrice('');
+    setStepPrice('');
+    setDescriptions([]);
+  };
 
-                {/* description */}
-                <Grid container margin={"15px"}>
-                    <TextField
-                        fullwidth
-                        id="outlined-multiline-flexible"
-                        label="Mô tả sản phẩm"
-                        multiline
-                        maxRows={4}
-                    />
-                </Grid>
-                {/* Mô tả chi tiết */}
-                <Box
-                    component="form"
-                    sx={{
-                        '& .MuiTextField-root': { m: 1, width: '40ch' },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
-                    <Grid container justifyContent={"space-around"} marginTop={"1%"}>
-                        <Grid marginTop={"5px"} sx={4}>
-                            <TextField label="Màu Sắc" variant="outlined" />
-                        </Grid>
-                        <Grid marginTop={"5px"} sx={4}>
-                            <TextField label="Hãng" variant="outlined" />
-                        </Grid>
-                        <Grid marginTop={"5px"} sx={4}>
-                            <TextField label="Tình Trạng" variant="outlined" />
-                        </Grid>
-                    </Grid>
-                </Box>
-
-                <Box
-                    component="form"
-                    sx={{
-                        '& .MuiTextField-root': { m: 1, width: '60ch' },
-                    }}
-                    noValidate
-                    autoComplete="off"
-                >
-                    <Grid container justifyContent={"space-around"} marginTop={"1%"}>
-                        <Grid marginTop={"5px"} sx={6}>
-                            <TextField
-                                id="outlined-number"
-                                label="Nhập Số Tiền đấu giá(VND)"
-                                type="number"
-                            />
-                        </Grid>
-                        <Grid marginTop={"5px"} sx={6}>
-                            <TextField
-                                id="outlined-number"
-                                label="Nhập Bước Giá(VND)"
-                                type="number"
-                            />
-                        </Grid>
-
-                    </Grid>
-                </Box>
-
-
-                <Grid container height={2} margin={"15px "}>
-                    <Button fullWidth size="large" variant="contained">Chấp Nhận</Button>
-                </Grid>
-
-                <Box display={"flex"} justifyContent={"center"} sx={{ p: 2 }}>
-                    <Typography variant="h7"> </Typography>
-                </Box>
-
-            </Paper>
+  return (
+    <form onSubmit={handleSubmit}>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            label="Item Name"
+            fullWidth
+            value={itemName}
+            onChange={(e) => setItemName(e.target.value)}
+          />
         </Grid>
-    )
-}
+        <Grid item xs={12}>
+          <TextField
+            select
+            label="Category"
+            fullWidth
+            value={categoryId}
+            onChange={handleCategoryChange}
+          >
+            {categories.map((category) => (
+              <MenuItem key={category.id} value={category.id}>
+                {category.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        {descriptions.map((desc, index) => (
+          <Grid item xs={12} key={index}>
+            <TextField
+              label={`Description ${index + 1}`}
+              fullWidth
+              value={desc}
+              onChange={(e) => handleDescriptionChange(index, e)}
+            />
+            <IconButton
+              aria-label="Delete"
+              onClick={() => handleDeleteDescription(index)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          </Grid>
+        ))}
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => setDescriptions([...descriptions, ''])}
+          >
+            Add Description
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Quantity"
+            fullWidth
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Image"
+            fullWidth
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="First Price"
+            fullWidth
+            value={firstPrice}
+            onChange={(e) => setFirstPrice(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            label="Step Price"
+            fullWidth
+            value={stepPrice}
+            onChange={(e) => setStepPrice(e.target.value)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <Button type="submit" variant="contained" color="primary">
+            Add Product
+          </Button>
+        </Grid>
+      </Grid>
+    </form>
+  );
+};
+
+export default AddProductForm;

@@ -4,7 +4,8 @@ import Footer from "../components/footer";
 import { UIProvider } from '../context/ui';
 import AppDrawer from "../components/drawer";
 import SearchBox from "../components/search";
-import SignUpForm from "../components/signup";
+// import SignUpForm from "../components/signup";
+import SignUpForm from "../components/signup/signupForm";
 
 
 
