@@ -18,6 +18,12 @@ import './LoginForm.less';
 export default function LoginForm() {
 
   // const { setAuth } = useContext(AuthContext);
+
+  const errorStyle = {
+    color: 'red',
+  };
+
+
   const userRef = useRef();
   const errRef = useRef();
 
@@ -88,8 +94,8 @@ const handlePasswordChange = (e) => {
           if (!err?.response) {
               setErrMsg('No Server Response');
           } else if (err.response?.status === 400) {
-              setErrMsg('Missing Username or Password');
-              console.log('Missing Username or Password');
+              setErrMsg('Wrong Username or Password');
+              console.log('Wrong Username or Password');
           } else if (err.response?.status === 401) {
               setErrMsg('Unauthorized');
               console.log('Unauthorized');
@@ -107,7 +113,8 @@ const handlePasswordChange = (e) => {
     <>
       <form>
         <Stack spacing={3}>
-          <TextField name="email" label="Email address" value={email} onChange={handleEmailChange} />
+        <p style={errorStyle} ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
+          <TextField name="email" label="Email" value={email} onChange={handleEmailChange} />
   
           <TextField
             name="password"

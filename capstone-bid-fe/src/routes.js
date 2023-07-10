@@ -39,7 +39,13 @@ export default function Router() {
         },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        { path: 'staff', element: <StaffPage /> },
+        { path: 'staff', element: (
+          <Suspense>
+            <RolesAuthRoute roles={['Admin']}>
+              <StaffPage />
+            </RolesAuthRoute>
+          </Suspense>
+        ), },
         { path: 'category', element: <CategoryPage /> },
         { path: 'item-type-create', element: <ItemTypeCreate /> },
         { path: 'sessions', element: <SessionPage /> },
