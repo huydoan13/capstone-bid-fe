@@ -10,6 +10,12 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
+import HomePage from './pages/HomePage';
+import SignUp from './pages/SignUp';
+import AddProduct from './pages/AddProduct'
+import AuctionPage from './pages/AuctionPage';
+import Profile from './pages/Profile';
+// import StaffPage from './pages/StaffPage';
 import StaffPage from './pages/StaffPage';
 import CategoryPage from './pages/CategoryPage';
 import SessionPage from './pages/SessionPage';
@@ -21,11 +27,17 @@ import { RolesAuthRoute } from './context/RolesAuthRoute';
 
 export default function Router() {
   const routes = useRoutes([
+    { path: 'home', element: <HomePage /> },
+    { path: 'auction', element: <AuctionPage /> },
+    { path: 'signup', element: <SignUp /> },
+    { path: 'addproduct', element: <AddProduct /> },
+    { path: 'profile', element: <Profile /> },
     {
       path: '/dashboard',
       element: <DashboardLayout />,
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
+        
         { path: 'app', element: <DashboardAppPage /> },
         {
           path: 'user',
