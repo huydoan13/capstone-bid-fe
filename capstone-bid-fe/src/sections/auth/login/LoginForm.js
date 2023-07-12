@@ -61,7 +61,7 @@ const handlePasswordChange = (e) => {
               JSON.stringify({ email, password }),
               {
                   headers: { 'Content-Type': 'application/json' },
-                  withCredentials: true
+                  // withCredentials: true
               }
           );
           console.log(JSON.stringify(response?.data));

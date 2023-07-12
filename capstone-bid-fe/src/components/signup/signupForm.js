@@ -1,313 +1,246 @@
 import React, { useState } from 'react';
-import { TextField, Button, Avatar, IconButton, Typography } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { TextField, Button, Box, Typography } from '@mui/material';
+import { Uploader } from "uploader";
+import { UploadDropzone } from "react-uploader";
+import {  format } from 'date-fns'
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const SignUpForm = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    rePassword: '',
-    address: '',
-    phoneNumber: '',
-    dateOfBirth: '',
-    citizenIdCardNumber: '',
-    citizenIdCardFrontImage: null,
-    citizenIdCardBackImage: null,
-    avatar: null
-  });
+  const [userName, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rePassword, setRePassword] = useState('');
+  const [address, setAddress] = useState('');
+  const [phone, setPhoneNumber] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [cccdnumber, setCitizenId] = useState('');
+ 
+  const [error, setError] = useState('');
+  const [avatar,setImage] = useState() ;
+  const [cccdfrontImage, setFrontImage] = useState(null);
+  const [cccdbackImage, setBackImage] = useState(null);
 
-  const [errors, setErrors] = useState({});
+  const navigate = useNavigate()
 
-  const handleChange = (e) => {
-    if (
-      e.target.name === 'citizenIdCardFrontImage' ||
-      e.target.name === 'citizenIdCardBackImage' ||
-      e.target.name === 'avatar'
-    ) {
-      setFormData({ ...formData, [e.target.name]: e.target.files[0] });
-    } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
-    }
-    // Clear error message when input is corrected
-    setErrors({ ...errors, [e.target.name]: '' });
-  };
+  const uploader = Uploader({ apiKey: "public_FW25bUpBZmkPhjgTWxYkac1GPbYr" });
 
-  const handleRemoveImage = (name) => {
-    setFormData({ ...formData, [name]: null });
-  };
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {};
-
-    if (formData.username.trim() === '') {
-      newErrors.username = 'Username is required';
-      isValid = false;
-    }
-
-    if (formData.email.trim() === '') {
-      newErrors.email = 'Email is required';
-      isValid = false;
-    }
-
-    if (formData.password === '') {
-      newErrors.password = 'Password is required';
-      isValid = false;
-    }
-
-    if (formData.password !== formData.rePassword) {
-      newErrors.rePassword = 'Passwords do not match';
-      isValid = false;
-    }
-
-    if (formData.address.trim() === '') {
-      newErrors.address = 'Address is required';
-      isValid = false;
-    }
-
-    if (formData.phoneNumber.trim() === '') {
-      newErrors.phoneNumber = 'Phone number is required';
-      isValid = false;
-    }
-
-    if (formData.dateOfBirth.trim() === '') {
-      newErrors.dateOfBirth = 'Date of Birth is required';
-      isValid = false;
-    }
-
-    if (formData.citizenIdCardNumber.trim() === '') {
-      newErrors.citizenIdCardNumber = 'Citizen ID Card Number is required';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      console.log(formData); // You can handle form submission logic here
+  
+    if (!userName || !email || !password || !rePassword || !address || !phone || !dateOfBirth || !cccdnumber) {
+      setError('Không Được Bỏ Trống');
+      return;
+    }
+  
+    if (password.length < 8) {
+      setError('Mật Khẩu Cần Ít Nhất 8 Ký Tự');
+      return;
+    }
+  
+    if (!email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
+      setError('Sai Kiểu email, Ví Dụ: example@gmail.com');
+      return;
+    }
+  
+    if (password !== rePassword) {
+      setError('Mật Khẩu Không Giống');
+      return;
+    }
+
+    
+    const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
+    console.log(date)
+    try {
+      
+      const response = await axios.post('https://bids-api-testing.azurewebsites.net/api/Users', {
+        userName,
+        email,
+        password,
+        address,
+        phone,
+        dateOfBirth : date ,
+        cccdnumber,
+        avatar,
+        cccdfrontImage,
+        cccdbackImage,
+      });
+      navigate('/login', { replace: true });
+      console.log('Server response:', response.data);
+  
+      // Reset form fields
+      setUsername('');
+      setEmail('');
+      setPassword('');
+      setRePassword('');
+      setAddress('');
+      setPhoneNumber('');
+      setDateOfBirth('');
+      setCitizenId('');
+      setImage(null);
+      setFrontImage(null);
+      setBackImage(null);
+      setError('');
+    } catch (error) {
+      console.error('Error:', error);
+      setError('An error occurred. Please try again.');
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-        <Typography variant="subtitle1">Avatar</Typography>
-        <input
-          type="file"
-          name="avatar"
-          accept="image/*"
-          onChange={handleChange}
-        />
-        {formData.avatar && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              marginLeft: '1rem',
-              border: errors.avatar ? '1px solid red' : '1px solid transparent',
-              borderRadius: '8px',
-              overflow: 'hidden',
-              flexBasis: '50%'
-            }}
-          >
-            <Avatar
-              src={URL.createObjectURL(formData.avatar)}
-              alt="Avatar"
-              sx={{
-                width: '100%',
-                height: 'auto',
-                objectFit: 'cover'
-              }}
-            />
-            <IconButton
-              aria-label="Remove avatar"
-              onClick={() => handleRemoveImage('avatar')}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </div>
-        )}
-      </div>
-      {errors.avatar && <Typography color="error">{errors.avatar}</Typography>}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ flexBasis: '50%', marginRight: '1rem' }}>
-          <Typography variant="subtitle1">Citizen ID Card Front</Typography>
-          <input
-            type="file"
-            name="citizenIdCardFrontImage"
-            accept="image/*"
-            onChange={handleChange}
-          />
-          {formData.citizenIdCardFrontImage && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                border: errors.citizenIdCardFrontImage ? '1px solid red' : '1px solid transparent',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                flexBasis: '50%'
-              }}
-            >
-              <Avatar
-                src={URL.createObjectURL(formData.citizenIdCardFrontImage)}
-                alt="Citizen ID Card Front"
-                sx={{
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'cover'
-                }}
-              />
-              <IconButton
-                aria-label="Remove front image"
-                onClick={() => handleRemoveImage('citizenIdCardFrontImage')}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </div>
-          )}
-        </div>
-        <div style={{ flexBasis: '50%' }}>
-          <Typography variant="subtitle1">Citizen ID Card Back</Typography>
-          <input
-            type="file"
-            name="citizenIdCardBackImage"
-            accept="image/*"
-            onChange={handleChange}
-          />
-          {formData.citizenIdCardBackImage && (
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                border: errors.citizenIdCardBackImage ? '1px solid red' : '1px solid transparent',
-                borderRadius: '8px',
-                overflow: 'hidden',
-                flexBasis: '50%'
-              }}
-            >
-              <Avatar
-                src={URL.createObjectURL(formData.citizenIdCardBackImage)}
-                alt="Citizen ID Card Back"
-                sx={{
-                  width: '100%',
-                  height: 'auto',
-                  objectFit: 'cover'
-                }}
-              />
-              <IconButton
-                aria-label="Remove back image"
-                onClick={() => handleRemoveImage('citizenIdCardBackImage')}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </div>
-          )}
-        </div>
-      </div>
-      {errors.citizenIdCardFrontImage && (
-        <Typography color="error">{errors.citizenIdCardFrontImage}</Typography>
-      )}
-      {errors.citizenIdCardBackImage
-&& (
-        <Typography color="error">{errors.citizenIdCardBackImage}</Typography>
-      )}
+    <Box
+      component="form"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        height: '100%',
+        margin: 'auto',
+        padding: '20px',
+        border: '1px solid #ccc',
+        borderRadius: '4px',
+      }}
+      onSubmit={handleSubmit}
+    >
+      <Typography variant="h4" sx={{ marginBottom: '20px' }}>
+        Sign Up
+      </Typography>
       <TextField
-        label="Username"
-        name="username"
-        value={formData.username}
-        onChange={handleChange}
-        fullWidth
+        label="Tên Tài Khoản"
+        type="text"
+        value={userName}
+        onChange={(e) => setUsername(e.target.value)}
         margin="normal"
-        error={Boolean(errors.username)}
-        helperText={errors.username}
+        required
+        sx={{ width: '100%' }}
+        id="userName"
       />
       <TextField
-        type="email"
         label="Email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        fullWidth
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
         margin="normal"
-        error={Boolean(errors.email)}
-        helperText={errors.email}
+        required
+        sx={{ width: '100%' }}
+        id="email"
       />
       <TextField
+        label="Mật Khẩu"
         type="password"
-        label="Password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        fullWidth
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
         margin="normal"
-        error={Boolean(errors.password)}
-        helperText={errors.password}
+        required
+        sx={{ width: '100%' }}
+        id="password"
       />
       <TextField
+        label="Nhập Lại Mật Khẩu"
         type="password"
-        label="Re-enter Password"
-        name="rePassword"
-        value={formData.rePassword}
-        onChange={handleChange}
-        fullWidth
+        value={rePassword}
+        onChange={(e) => setRePassword(e.target.value)}
         margin="normal"
-        error={Boolean(errors.rePassword)}
-        helperText={errors.rePassword}
+        required
+        sx={{ width: '100%' }}
+        id="rePassword"
       />
       <TextField
-        label="Address"
-        name="address"
-        value={formData.address}
-        onChange={handleChange}
-        fullWidth
+        label="Địa Chỉ"
+        type="text"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
         margin="normal"
-        error={Boolean(errors.address)}
-        helperText={errors.address}
+        required
+        sx={{ width: '100%' }}
+        id="address"
       />
       <TextField
-        label="Phone Number"
-        name="phoneNumber"
-        value={formData.phoneNumber}
-        onChange={handleChange}
-        fullWidth
+        label="Số Điện Thoại"
+        type="tel"
+        value={phone}
+        onChange={(e) => setPhoneNumber(e.target.value)}
         margin="normal"
-        error={Boolean(errors.phoneNumber)}
-        helperText={errors.phoneNumber}
+        required
+        sx={{ width: '100%' }}
+        id="phone"
       />
       <TextField
+        label=" Tháng, Ngày, Năm Sinh"
         type="date"
-        label="Date of Birth"
-        name="dateOfBirth"
-        value={formData.dateOfBirth}
-        onChange={handleChange}
-        fullWidth
+        value={dateOfBirth}
+        onChange={(e) => setDateOfBirth(e.target.value)}
         margin="normal"
+        required
+        sx={{ width: '100%' }}
+        id="dateOfBirth"
         InputLabelProps={{
-          shrink: true,
+          shrink: true
         }}
-        error={Boolean(errors.dateOfBirth)}
-        helperText={errors.dateOfBirth}
       />
       <TextField
-        label="CCCD/CMND"
-        name="citizenIdCardNumber"
-        value={formData.citizenIdCardNumber}
-        onChange={handleChange}
-        fullWidth
+        label="Số CCCD"
+        type="text"
+        value={cccdnumber}
+        onChange={(e) => setCitizenId(e.target.value)}
         margin="normal"
-        error={Boolean(errors.citizenIdCardNumber)}
-        helperText={errors.citizenIdCardNumber}
+        required
+        sx={{ width: '100%' }}
+        id="cccdnumber"
       />
-      <Button type="submit" variant="contained" color="primary">
+      <h2>Ảnh Đại Diện</h2>
+      <UploadDropzone uploader={uploader}       // Required.
+        width="600px"             // Optional.
+        height="375px"            // Optional.
+        onUpdate={files => {      // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.')
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map(f => f.fileUrl).join("\n"));
+            const img =  files.map(f => f.fileUrl).join("\n");
+            setImage(img);
+          }
+        }} />
+        <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
+        <UploadDropzone uploader={uploader}       // Required.
+        width="600px"             // Optional.
+        height="375px"            // Optional.
+        onUpdate={files => {      // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.')
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map(f => f.fileUrl).join("\n"));
+            const frontimg =  files.map(f => f.fileUrl).join("\n");
+            setFrontImage(frontimg);
+          }
+        }} />
+        <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
+        <UploadDropzone uploader={uploader}       // Required.
+        width="600px"             // Optional.
+        height="375px"            // Optional.
+        onUpdate={files => {      // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.')
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map(f => f.fileUrl).join("\n"));
+            const backimg =  files.map(f => f.fileUrl).join("\n");
+            setBackImage(backimg);
+          }
+        }} />
+      {error && (
+        <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
+          {error}
+        </Typography>
+      )}
+      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }}>
         Sign Up
       </Button>
-    </form>
+    </Box>
   );
 };
-// comment
+
 export default SignUpForm;
