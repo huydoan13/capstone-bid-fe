@@ -9,7 +9,7 @@ import {
   Table,
   Stack,
   Paper,
-  // Avatar,
+  Avatar,
   Button,
   Popover,
   Checkbox,
@@ -24,31 +24,39 @@ import {
   TablePagination,
   Modal,
   Chip,
+  TextField,
   Box,
   CardHeader,
-  TextField,
-  Grid,
   CardContent,
-  Select,
-  InputLabel,
+  Grid,
+  CardMedia,
 } from '@mui/material';
+import { Image } from 'mui-image';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { deleteCategory, getAllCategory, updateCategory } from 'src/services/category-actions';
+import { getUserWaiting } from 'src/services/user-actions';
+import { useNavigate } from 'react-router-dom';
+import UserDetail from '../sections/@dashboard/user/UserDetail';
+import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
+// eslint-disable-next-line import/no-unresolved
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
-import { CategoryListHead, CategoryListToolbar } from '../sections/@dashboard/category';
+// sections
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'email', label: 'Email', alignRight: false },
+  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  // { id: 'address', label: 'Address', alignRight: false },
+  { id: 'phone', label: 'Phone', alignRight: false },
+  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -79,23 +87,13 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_itemType) => _itemType.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function CaterogyPage() {
+export default function UserWaitingApprove() {
   // const [open, setOpen] = useState(null);
-
-  const [category, setCategory] = useState([]);
-
-  const [upCategory, setUpCategory] = useState({});
-
-  // const [upCategory, setUpCategory] = useState({
-  //   categoryId: '', // initial value
-  //   categoryName: '', // initial value
-  //   status: '' // initial value
-  // });
 
   const [page, setPage] = useState(0);
 
@@ -103,11 +101,15 @@ export default function CaterogyPage() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('itemTypeName');
+  const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [user, setUser] = useState([]);
+
+  const [upUser, setUpUser] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -117,30 +119,23 @@ export default function CaterogyPage() {
 
   const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
-  // const handleInputChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setUpCategory(prevState => ({
-  //     ...prevState,
-  //     [name]: value
-  //   }));
-  // };
-  
+  const navigate = useNavigate();
 
   const styleModal = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '500px',
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 4,
+    p: 5,
   };
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllCategory().then((response) => {
-      setCategory(response.data);
+    getUserWaiting().then((response) => {
+      setUser(response.data);
       console.log(response.data);
     });
   }, []);
@@ -155,13 +150,13 @@ export default function CaterogyPage() {
     setOpenPopoverId(null);
   };
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -171,42 +166,48 @@ export default function CaterogyPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = category.map((n) => n.name);
+      const newSelecteds = user.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleOpenModalWithCategory = (categoryId) => {
+  const handleAcceptUser = (userId) => {
+    acceptUserWaiting(userId);
     console.log('edit');
-    const updatedCategory1 = category.find((u) => u.categoryId === categoryId);
-    console.log(updatedCategory1);
-    setUpCategory(updatedCategory1);
-    console.log(upCategory);
+    handleCloseMenu();
+  };
+
+  const handleDenyUser = (userId) => {
+    denyUserWaiting(userId);
+    handleCloseModal();
+    handleCloseMenu();
+  };
+
+  const handleOpenModalWithUser = (userId) => {
+    console.log('edit');
+    const updatedUser = user.find((u) => u.userId === userId);
+    console.log(updatedUser);
+    setUpUser(updatedUser);
+    console.log(upUser);
     setModalOpen(true);
     handleCloseMenu();
+    // navigate('/dashboard/user-detail');
   };
 
-  const handleDeleteButton = (categoryId) => {
-    deleteCategory(categoryId)
-      .then(() => {
-        const updatedCategory = category.find((u) => u.categoryId === categoryId);
-        updatedCategory.status = false;
-        setCategory([...category]);
-      })
-      .catch((err) => {
-        console.log('Can not delete because:', err);
-      });
-    handleCloseMenu();
-  };
-
-  const handleUpdateButton = () => {
-    console.log('Update ne');
-    updateCategory(upCategory);
-    console.log(upCategory);
-    handleCloseModal();
-  };
+  // const handleDeleteButton = (userId) => {
+  //   deleteUser(userId)
+  //     .then(() => {
+  //       const updatedUser = user.find((u) => u.userId === userId);
+  //       updatedUser.status = false;
+  //       setUser([...user]);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Can not delete because:', err);
+  //     });
+  //   handleCloseMenu();
+  // };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -237,63 +238,61 @@ export default function CaterogyPage() {
     setFilterName(event.target.value);
   };
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
+  // const handleOpenModal = () => {
+  //   setModalOpen(true);
+  // };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
+  // const handleCloseModal = () => {
+  //   setModalOpen(false);
+  // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - category.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
-  const filteredCategory = applySortFilter(category, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredCategory.length && !!filterName;
+  const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Caterogy | BIDS </title>
+        <title> User | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Caterogy
+            User
           </Typography>
-          <Button href="item-type-create" variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Caterogy
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New User
           </Button>
+          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
-        <Card>
-          <CategoryListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
 
+        <Card>
+          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          {/* <UserDetail userDetail={upUser} /> */}
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <CategoryListHead
+                <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={category.length}
+                  rowCount={user.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredCategory.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { categoryId, categoryName, updateDate, createDate, status } = row;
-                    const selectedItemType = selected.indexOf(categoryName) !== -1;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
+                    const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
-                      <TableRow hover key={categoryId} tabIndex={-1} role="checkbox" selected={selectedItemType}>
+                      <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedItemType} onChange={(event) => handleClick(event, categoryName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -302,26 +301,25 @@ export default function CaterogyPage() {
                             <Typography variant="subtitle2" noWrap>
                               {user.name}
                             </Typography>
-                            </Stack>
-                          </TableCell> */}
+                          </Stack>
+                        </TableCell> */}
 
-                        <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{userName}</TableCell>
+                        <TableCell align="left">{email}</TableCell>
+                        <TableCell align="left">{cccdnumber}</TableCell>
+                        {/* <TableCell align="left">{address}</TableCell> */}
+                        <TableCell align="left">{phone}</TableCell>
+                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
+                          <Chip label={status ? 'Waiting' : 'Deny'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton
-                            size="large"
-                            color="inherit"
-                            onClick={(event) => handleOpenMenu(event, categoryId)}
-                          >
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
-                            open={openPopoverId === categoryId}
+                            open={openPopoverId === userId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -342,21 +340,21 @@ export default function CaterogyPage() {
                           >
                             <MenuItem
                               onClick={() => {
-                                handleOpenModalWithCategory(row.categoryId);
+                                handleOpenModalWithUser(row.userId);
                               }}
                             >
                               <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Xem chi tiết
+                              Edit
                             </MenuItem>
 
                             <MenuItem
-                              onClick={() => {
-                                handleDeleteButton(row.categoryId);
-                              }}
+                              // onClick={() => {
+                              //   handleDeleteButton(row.userId);
+                              // }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Xóa
+                              Delete
                             </MenuItem>
                           </Popover>
                         </TableCell>
@@ -401,12 +399,13 @@ export default function CaterogyPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={category.length}
+            count={user.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+
           <Modal
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
@@ -414,54 +413,61 @@ export default function CaterogyPage() {
             onClose={handleCloseModal}
           >
             <Box sx={styleModal}>
-              <Card>
-                <CardHeader subheader="The information can be edited" title="Category Information" />
-                <CardContent>
-                  <Grid container spacing={3}>
-                    <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Id" defaultValue={upCategory.categoryId} disabled />
+              <form>
+                <Card>
+                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardContent>
+                    <Grid container spacing={3}>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
+                      </Grid> */}
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Tên tài khoản" defaultValue={upUser.userName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Back Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        {/* <Image src={upUser.cccdbackImage} /> */}
+                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Email" defaultValue={upUser.email} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Địa chỉ" defaultValue={upUser.address} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số điện thoại" defaultValue={upUser.phone} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày sinh" defaultValue={fDate(upUser.dateOfBirth)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleAcceptUser(upUser.userId);
+                          }}
+                        >
+                          Chấp nhận
+                        </Button>
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleDenyUser(upUser.userId);
+                          }}
+                        >
+                          Từ Chối
+                        </Button>
+                      </Grid>
                     </Grid>
-                    <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Name" defaultValue={upCategory.categoryName} />
-                    </Grid>
-                    <Grid item md={12} xs={12}>
-                      <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                      <Select defaultValue={upCategory.status} label="status" name="status" size="small">
-                        <MenuItem value="True">True</MenuItem>
-                        <MenuItem value="False">False</MenuItem>
-                      </Select>
-                    </Grid>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'left',
-                        p: 5,
-                      }}
-                    >
-                      <Button
-                        onClick={() => {
-                          handleUpdateButton(upCategory);
-                        }}
-                        color="primary"
-                        variant="contained"
-                      >
-                        Update
-                      </Button>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'right',
-                        p: 2,
-                      }}
-                    >
-                      <Button onClick={handleCloseModal} color="grey" variant="contained">
-                        Cancel
-                      </Button>
-                    </Box>
-                  </Grid>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </form>
             </Box>
           </Modal>
         </Card>

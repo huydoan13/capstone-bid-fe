@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllUser } from 'src/services/user-actions';
+import { getAllUserActive } from 'src/services/user-actions';
 // eslint-disable-next-line import/no-unresolved
 import { deleteUser } from 'src/services/deleteUser';
 import { fDate } from '../utils/formatTime';
@@ -110,7 +110,7 @@ export default function UserPage() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllUser().then((response) => {
+    getAllUserActive().then((response) => {
       setUser(response.data);
       console.log(response.data);
     });

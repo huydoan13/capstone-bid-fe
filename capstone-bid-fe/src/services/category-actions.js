@@ -9,15 +9,15 @@ export async function getAllCategory() {
 }
 
 
-export async function updateCategory(category) {
-    const url = `${BASE_URL}/categorys/${category.id}`;
+export async function updateCategory(upCategory) {
+    const url = `${BASE_URL}/categorys`;
     const data = {
-        id: category.id,
-        name: category.name,
-        status: category.status,
+        categoryId: upCategory.categoryId,
+        categoryName: upCategory.categoryName,
+        status: upCategory.status,
     }
     try {
-        await axiosInstance.put(url, data);
+        axiosInstance.put(url, data);
     } catch (error) {
         console.log(error);
     }

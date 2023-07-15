@@ -12,7 +12,7 @@ import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import HomePage from './pages/HomePage';
 import SignUp from './pages/SignUp';
-import AddProduct from './pages/AddProduct'
+import AddProduct from './pages/AddProduct';
 import AuctionPage from './pages/AuctionPage';
 import Profile from './pages/Profile';
 // import StaffPage from './pages/StaffPage';
@@ -22,6 +22,9 @@ import SessionPage from './pages/SessionPage';
 import ItemPage from './pages/ItemPage';
 import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
 import { RolesAuthRoute } from './context/RolesAuthRoute';
+import UserWaitingApprove from './pages/UserWaitingApprove';
+import UserDetail from './sections/@dashboard/user/UserDetail';
+import BookingItems from './pages/BookingItems';
 
 // ----------------------------------------------------------------------
 
@@ -34,10 +37,16 @@ export default function Router() {
     { path: 'profile', element: <Profile /> },
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: (
+        <Suspense>
+          <RolesAuthRoute roles={['Admin', 'Staff']}>
+            <DashboardLayout />
+          </RolesAuthRoute>
+        </Suspense>
+      ),
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
-        
+
         { path: 'app', element: <DashboardAppPage /> },
         {
           path: 'user',
@@ -49,19 +58,25 @@ export default function Router() {
             </Suspense>
           ),
         },
+        { path: 'user-waiting', element: <UserWaitingApprove /> },
+        { path: 'user-detail', element: <UserDetail /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        { path: 'staff', element: (
-          <Suspense>
-            <RolesAuthRoute roles={['Admin']}>
-              <StaffPage />
-            </RolesAuthRoute>
-          </Suspense>
-        ), },
+        {
+          path: 'staff',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <StaffPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
         { path: 'category', element: <CategoryPage /> },
         { path: 'item-type-create', element: <ItemTypeCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'items', element: <ItemPage /> },
+        { path: 'booking-items', element: <BookingItems /> },
       ],
     },
     {
@@ -71,7 +86,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/home" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

@@ -21,6 +21,11 @@ const navConfig = [
     ]
   },
   {
+    title: 'User Đang chờ duyệt',
+    path: '/dashboard/user-waiting',
+    icon: <AccountCircleTwoToneIcon />,
+  },
+  {
     title: 'staff',
     path: '/dashboard/staff',
     icon: icon('ic_staff'),
@@ -28,6 +33,11 @@ const navConfig = [
   {
     title: 'session',
     path: '/dashboard/sessions',
+    icon: icon('ic_staff'),
+  },
+  {
+    title: 'booking-item',
+    path: '/dashboard/booking-items',
     icon: icon('ic_staff'),
   },
   {

@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -43,8 +44,8 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 
 const TABLE_HEAD = [
   { id: 'itemName', label: 'ItemName', alignRight: false },
-  { id: 'description', label: 'Description', alignRight: false },
-  { id: 'quantity', label: 'Quantity', alignRight: false },
+  { id: 'categoryName', label: 'CategoryName', alignRight: false },
+  // { id: 'quantity', label: 'Quantity', alignRight: false },
   { id: 'image', label: 'Image', alignRight: false },
   { id: 'fristPrice', label: 'FristPrice', alignRight: false },
   { id: 'stepPrice', label: 'StepPrice', alignRight: false },
@@ -110,6 +111,16 @@ export default function ItemPage() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+
+  const StyledProductImg = styled('img')({
+    // top: 0,
+    width: '50px',
+    height: '50px',
+    // // objectFit: 'cover',
+    // position: 'absolute',
+    display: 'flex',
+    alignItems: 'center',
+  });
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -247,7 +258,7 @@ export default function ItemPage() {
                 />
                 <TableBody>
                   {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, descriptionDetail, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const { itemId, itemName, categoryName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -266,9 +277,9 @@ export default function ItemPage() {
                         </TableCell> */}
 
                         <TableCell align="left">{itemName}</TableCell>
-                        <TableCell align="left">{descriptionDetail}</TableCell>
-                        <TableCell align="left">{quantity}</TableCell>
-                        <TableCell align="left">{image}</TableCell>
+                        <TableCell align="left">{categoryName}</TableCell>
+                        {/* <TableCell align="left">{quantity}</TableCell> */}
+                        <TableCell align="left"><StyledProductImg src={image} /></TableCell>
                         <TableCell align="left">{firstPrice}</TableCell>
                         <TableCell align="left">{stepPrice}</TableCell>
                         {/* <TableCell align="left">{deposit}</TableCell> */}

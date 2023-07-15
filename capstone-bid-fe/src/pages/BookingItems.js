@@ -22,33 +22,35 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  Modal,
+  // Modal,
   Chip,
-  Box,
-  CardHeader,
-  TextField,
-  Grid,
-  CardContent,
-  Select,
-  InputLabel,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { deleteCategory, getAllCategory, updateCategory } from 'src/services/category-actions';
+import { getBookingItemWaiting } from 'src/services/booking-item-actions';
+// eslint-disable-next-line import/no-unresolved
+import { deleteUser } from 'src/services/deleteUser';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
-import { CategoryListHead, CategoryListToolbar } from '../sections/@dashboard/category';
+// sections
+import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'itemName', label: 'ItemName', alignRight: false },
+  // { id: 'description', label: 'Description', alignRight: false },
+  // { id: 'quantity', label: 'Quantity', alignRight: false },
+  // { id: 'image', label: 'Image', alignRight: false },
+  // { id: 'fristPrice', label: 'FristPrice', alignRight: false },
+  // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
   { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  // { id: 'deposit', label: 'Deposit', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -79,23 +81,13 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_itemType) => _itemType.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function CaterogyPage() {
+export default function BookingItems() {
   // const [open, setOpen] = useState(null);
-
-  const [category, setCategory] = useState([]);
-
-  const [upCategory, setUpCategory] = useState({});
-
-  // const [upCategory, setUpCategory] = useState({
-  //   categoryId: '', // initial value
-  //   categoryName: '', // initial value
-  //   status: '' // initial value
-  // });
 
   const [page, setPage] = useState(0);
 
@@ -103,13 +95,15 @@ export default function CaterogyPage() {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState('itemTypeName');
+  const [orderBy, setOrderBy] = useState('name');
 
   const [filterName, setFilterName] = useState('');
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [modalOpen, setModalOpen] = useState(false);
+  const [item, setItem] = useState([]);
+
+  // const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
@@ -117,30 +111,12 @@ export default function CaterogyPage() {
 
   const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
-  // const handleInputChange = (event) => {
-  //   const { name, value } = event.target;
-  //   setUpCategory(prevState => ({
-  //     ...prevState,
-  //     [name]: value
-  //   }));
-  // };
-  
-
-  const styleModal = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 400,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 4,
-  };
-
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllCategory().then((response) => {
-      setCategory(response.data);
+    const user = JSON.parse(localStorage.getItem('loginUser'));
+    console.log(user);
+    getBookingItemWaiting(user.Email).then((response) => {
+      setItem(response.data);
       console.log(response.data);
     });
   }, []);
@@ -171,41 +147,29 @@ export default function CaterogyPage() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = category.map((n) => n.name);
+      const newSelecteds = item.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleOpenModalWithCategory = (categoryId) => {
+  const handleEditButton = () => {
     console.log('edit');
-    const updatedCategory1 = category.find((u) => u.categoryId === categoryId);
-    console.log(updatedCategory1);
-    setUpCategory(updatedCategory1);
-    console.log(upCategory);
-    setModalOpen(true);
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (categoryId) => {
-    deleteCategory(categoryId)
+  const handleDeleteButton = (itemId) => {
+    deleteUser(itemId)
       .then(() => {
-        const updatedCategory = category.find((u) => u.categoryId === categoryId);
-        updatedCategory.status = false;
-        setCategory([...category]);
+        const updatedUser = item.find((u) => u.itemId === itemId);
+        updatedUser.status = false;
+        setItem([...item]);
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
       });
     handleCloseMenu();
-  };
-
-  const handleUpdateButton = () => {
-    console.log('Update ne');
-    updateCategory(upCategory);
-    console.log(upCategory);
-    handleCloseModal();
   };
 
   const handleClick = (event, name) => {
@@ -237,63 +201,61 @@ export default function CaterogyPage() {
     setFilterName(event.target.value);
   };
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
+  // const handleOpenModal = () => {
+  //   setModalOpen(true);
+  // };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
+  // const handleCloseModal = () => {
+  //   setModalOpen(false);
+  // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - category.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - item.length) : 0;
 
-  const filteredCategory = applySortFilter(category, getComparator(order, orderBy), filterName);
+  const filteredItems = applySortFilter(item, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredCategory.length && !!filterName;
+  const isNotFound = !filteredItems.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Caterogy | BIDS </title>
+        <title> Items | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Caterogy
+            Items
           </Typography>
-          <Button href="item-type-create" variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Caterogy
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            New Item
           </Button>
+          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
+
         <Card>
-          <CategoryListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
+          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <CategoryListHead
+                <UserListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={category.length}
+                  rowCount={item.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredCategory.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { categoryId, categoryName, updateDate, createDate, status } = row;
-                    const selectedItemType = selected.indexOf(categoryName) !== -1;
+                  {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { itemId, itemName, descriptionDetail, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
-                      <TableRow hover key={categoryId} tabIndex={-1} role="checkbox" selected={selectedItemType}>
+                      <TableRow hover key={itemId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedItemType} onChange={(event) => handleClick(event, categoryName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -302,26 +264,28 @@ export default function CaterogyPage() {
                             <Typography variant="subtitle2" noWrap>
                               {user.name}
                             </Typography>
-                            </Stack>
-                          </TableCell> */}
+                          </Stack>
+                        </TableCell> */}
 
-                        <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">{itemName}</TableCell>
+                        {/* <TableCell align="left">{descriptionDetail}</TableCell>
+                        <TableCell align="left">{quantity}</TableCell>
+                        <TableCell align="left">{image}</TableCell>
+                        <TableCell align="left">{firstPrice}</TableCell>
+                        <TableCell align="left">{stepPrice}</TableCell>
+                        <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{fDate(updateDate)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
+                          <Chip label={status ? 'True' : 'False'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton
-                            size="large"
-                            color="inherit"
-                            onClick={(event) => handleOpenMenu(event, categoryId)}
-                          >
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
-                            open={openPopoverId === categoryId}
+                            open={openPopoverId === itemId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -340,23 +304,19 @@ export default function CaterogyPage() {
                               },
                             }}
                           >
-                            <MenuItem
-                              onClick={() => {
-                                handleOpenModalWithCategory(row.categoryId);
-                              }}
-                            >
+                            <MenuItem onClick={handleEditButton}>
                               <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Xem chi tiết
+                              Edit
                             </MenuItem>
 
                             <MenuItem
                               onClick={() => {
-                                handleDeleteButton(row.categoryId);
+                                handleDeleteButton(row.userId);
                               }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Xóa
+                              Delete
                             </MenuItem>
                           </Popover>
                         </TableCell>
@@ -401,69 +361,12 @@ export default function CaterogyPage() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={category.length}
+            count={item.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-          <Modal
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            open={modalOpen}
-            onClose={handleCloseModal}
-          >
-            <Box sx={styleModal}>
-              <Card>
-                <CardHeader subheader="The information can be edited" title="Category Information" />
-                <CardContent>
-                  <Grid container spacing={3}>
-                    <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Id" defaultValue={upCategory.categoryId} disabled />
-                    </Grid>
-                    <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Name" defaultValue={upCategory.categoryName} />
-                    </Grid>
-                    <Grid item md={12} xs={12}>
-                      <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                      <Select defaultValue={upCategory.status} label="status" name="status" size="small">
-                        <MenuItem value="True">True</MenuItem>
-                        <MenuItem value="False">False</MenuItem>
-                      </Select>
-                    </Grid>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'left',
-                        p: 5,
-                      }}
-                    >
-                      <Button
-                        onClick={() => {
-                          handleUpdateButton(upCategory);
-                        }}
-                        color="primary"
-                        variant="contained"
-                      >
-                        Update
-                      </Button>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'right',
-                        p: 2,
-                      }}
-                    >
-                      <Button onClick={handleCloseModal} color="grey" variant="contained">
-                        Cancel
-                      </Button>
-                    </Box>
-                  </Grid>
-                </CardContent>
-              </Card>
-            </Box>
-          </Modal>
         </Card>
       </Container>
     </>
