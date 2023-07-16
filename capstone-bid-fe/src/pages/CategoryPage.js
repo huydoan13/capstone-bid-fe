@@ -88,6 +88,7 @@ export default function CaterogyPage() {
   // const [open, setOpen] = useState(null);
 
   const [category, setCategory] = useState([]);
+  const [categoryName, setCategoryName] = useState([]);
 
   const [upCategory, setUpCategory] = useState({});
 
@@ -419,14 +420,14 @@ export default function CaterogyPage() {
                 <CardContent>
                   <Grid container spacing={3}>
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Id" defaultValue={upCategory.categoryId} disabled />
+                      <TextField fullWidth label="Category Id" value={upCategory.categoryId} disabled />
                     </Grid>
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Name" defaultValue={upCategory.categoryName} />
+                      <TextField fullWidth label="Category Name" onChange={(e) => setCategoryName(e.target.value)} value={upCategory.categoryName} />
                     </Grid>
                     <Grid item md={12} xs={12}>
                       <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                      <Select defaultValue={upCategory.status} label="status" name="status" size="small">
+                      <Select value={upCategory.status} label="status" name="status" size="small">
                         <MenuItem value="True">True</MenuItem>
                         <MenuItem value="False">False</MenuItem>
                       </Select>

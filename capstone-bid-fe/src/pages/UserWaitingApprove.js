@@ -311,14 +311,14 @@ export default function UserWaitingApprove() {
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Waiting' : 'Deny'} color={status ? 'success' : 'error'} />
+                          <Chip label={status} color='warning' />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                          <Popover
+                          </IconButton> */}
+                          {/* <Popover
                             open={openPopoverId === userId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
@@ -337,17 +337,18 @@ export default function UserWaitingApprove() {
                                 },
                               },
                             }}
-                          >
-                            <MenuItem
+                          > */}
+                            <Button
+                              color="secondary"
                               onClick={() => {
                                 handleOpenModalWithUser(row.userId);
                               }}
                             >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Edit
-                            </MenuItem>
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
 
-                            <MenuItem
+                            {/* <MenuItem
                               // onClick={() => {
                               //   handleDeleteButton(row.userId);
                               // }}
@@ -355,8 +356,8 @@ export default function UserWaitingApprove() {
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
-                            </MenuItem>
-                          </Popover>
+                            </MenuItem> */}
+                          {/* </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -422,7 +423,7 @@ export default function UserWaitingApprove() {
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
                       <Grid item md={6} xs={12}>
-                        <TextField label="Tên tài khoản" defaultValue={upUser.userName} />
+                        <TextField label="Họ và tên" defaultValue={upUser.userName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
