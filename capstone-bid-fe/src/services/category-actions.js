@@ -8,13 +8,27 @@ export async function getAllCategory() {
     return axiosInstance.get(url);
 }
 
+export async function createCategory(newCategory) {
+    const url = `${BASE_URL}/categorys`;
+    const data = {
+        categoryName: newCategory.categoryName,
+    }
+
+    try{
+        axiosInstance.post(url, data);
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
 
 export async function updateCategory(upCategory) {
     const url = `${BASE_URL}/categorys`;
     const data = {
         categoryId: upCategory.categoryId,
         categoryName: upCategory.categoryName,
-        status: upCategory.status,
+        status: Boolean(upCategory.status),
     }
     try {
         axiosInstance.put(url, data);

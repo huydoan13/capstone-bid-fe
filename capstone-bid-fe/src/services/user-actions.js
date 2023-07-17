@@ -18,3 +18,8 @@ export async function getAllUserActive() {
     const url = `${BASE_URL}/users/get-active`;
     return axiosInstance.get(url);
 }
+
+export async function getAllUserBan() {
+    const url = `${BASE_URL}/users/get-ban`;
+    return axiosInstance.get(url);
+}

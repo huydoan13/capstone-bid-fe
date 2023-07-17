@@ -1,3 +1,4 @@
+import { React, useState } from 'react';
 import {
   Container,
   Card,
@@ -8,16 +9,26 @@ import {
   TextField,
   MenuItem,
   Select,
+  Box,
+  Button,
 } from '@mui/material';
-import { React, useState } from 'react';
+import { createCategory } from '../../../services/category-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 function CategoryCreate() {
+  const [categoryName, setCategoryName] = useState('');
 
-    const [status, setStatus] = useState('');
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-    const handleStatusChange = (event) => {
-      setStatus(event.target.value);
-    };
+    try {
+      createCategory({ categoryName });
+      setCategoryName('');
+    } catch (error) {
+      console.error('Error creating category:', error);
+      // Handle the error condition
+    }
+  };
 
   return (
     <Container>
@@ -26,16 +37,18 @@ function CategoryCreate() {
           Tạo mới Category
         </Typography>
       </Stack>
-      <Card>
-        <CardHeader title="Form tạo mới Category" />
-        <CardContent>
-          <TextField fullWidth label="CategoryName" />
-          <Select label="Status" value={status}>
-            <MenuItem value="True">True</MenuItem>
-            <MenuItem value="False">False</MenuItem>
-          </Select>
-        </CardContent>
-      </Card>
+      <Box component="form" onSubmit={handleSubmit}>
+        <TextField
+          label="Category Name"
+          value={categoryName}
+          onChange={(event) => setCategoryName(event.target.value)}
+          fullWidth
+          required
+        />
+        <Button type="submit" variant="contained" color="primary">
+          Create Category
+        </Button>
+      </Box>
     </Container>
   );
 }

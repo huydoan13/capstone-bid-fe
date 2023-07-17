@@ -88,15 +88,16 @@ export default function CaterogyPage() {
   // const [open, setOpen] = useState(null);
 
   const [category, setCategory] = useState([]);
-  const [categoryName, setCategoryName] = useState([]);
+  
+  const [categoryName, setCategoryName] = useState();
 
-  const [upCategory, setUpCategory] = useState({});
+  // const [upCategory, setUpCategory] = useState({});
 
-  // const [upCategory, setUpCategory] = useState({
-  //   categoryId: '', // initial value
-  //   categoryName: '', // initial value
-  //   status: '' // initial value
-  // });
+  const [upCategory, setUpCategory] = useState({
+    categoryId: category.categoryId, // initial value
+    categoryName: category.categoryName, // initial value
+    status: category.status // initial value
+  });
 
   const [page, setPage] = useState(0);
 
@@ -420,16 +421,16 @@ export default function CaterogyPage() {
                 <CardContent>
                   <Grid container spacing={3}>
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Id" value={upCategory.categoryId} disabled />
+                      <TextField fullWidth label="Category Id" defaultValue={upCategory.categoryId} disabled />
                     </Grid>
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Name" onChange={(e) => setCategoryName(e.target.value)} value={upCategory.categoryName} />
+                      <TextField fullWidth label="Category Name" onChange={(e) => setUpCategory({...upCategory, categoryName: e.target.value})} defaultValue={upCategory.categoryName} />
                     </Grid>
                     <Grid item md={12} xs={12}>
                       <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                      <Select value={upCategory.status} label="status" name="status" size="small">
-                        <MenuItem value="True">True</MenuItem>
-                        <MenuItem value="False">False</MenuItem>
+                      <Select onChange={(e) => setUpCategory({...upCategory, status: e.target.value === 'true' })} value={upCategory.status} label="status" name="status" size="small">
+                        <MenuItem value="true">True</MenuItem>
+                        <MenuItem value="false">False</MenuItem>
                       </Select>
                     </Grid>
                     <Box

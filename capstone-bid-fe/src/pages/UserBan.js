@@ -9,7 +9,7 @@ import {
   Table,
   Stack,
   Paper,
-  // Avatar,
+  Avatar,
   Button,
   Popover,
   Checkbox,
@@ -22,14 +22,23 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  // Modal,
+  Modal,
   Chip,
+  TextField,
+  Box,
+  CardHeader,
+  CardContent,
+  Grid,
+  CardMedia,
 } from '@mui/material';
+import { Image } from 'mui-image';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getBookingItemWaiting } from 'src/services/booking-item-actions';
+import { getAllUserBan, getUserWaiting } from 'src/services/user-actions';
+import { useNavigate } from 'react-router-dom';
+import UserDetail from '../sections/@dashboard/user/UserDetail';
+import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
-import { deleteUser } from 'src/services/deleteUser';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -42,15 +51,12 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemName', label: 'ItemName', alignRight: false },
-  // { id: 'description', label: 'Description', alignRight: false },
-  // { id: 'quantity', label: 'Quantity', alignRight: false },
-  // { id: 'image', label: 'Image', alignRight: false },
-  // { id: 'fristPrice', label: 'FristPrice', alignRight: false },
-  // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  // { id: 'deposit', label: 'Deposit', alignRight: false },
+  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'email', label: 'Email', alignRight: false },
+  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  // { id: 'address', label: 'Address', alignRight: false },
+  { id: 'phone', label: 'Phone', alignRight: false },
+  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -86,7 +92,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function BookingItems() {
+export default function UserBan() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -101,9 +107,11 @@ export default function BookingItems() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [item, setItem] = useState([]);
+  const [user, setUser] = useState([]);
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const [upUser, setUpUser] = useState({});
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
@@ -111,12 +119,23 @@ export default function BookingItems() {
 
   const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
+  const navigate = useNavigate();
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '500px',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+  };
+
   // lay du lieu tat ca user
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('loginUser'));
-    console.log(user);
-    getBookingItemWaiting(user.Email).then((response) => {
-      setItem(response.data);
+    getAllUserBan().then((response) => {
+      setUser(response.data);
       console.log(response.data);
     });
   }, []);
@@ -131,13 +150,13 @@ export default function BookingItems() {
     setOpenPopoverId(null);
   };
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -147,30 +166,48 @@ export default function BookingItems() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = item.map((n) => n.name);
+      const newSelecteds = user.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleEditButton = () => {
+  const handleAcceptUser = (userId) => {
+    acceptUserWaiting(userId);
     console.log('edit');
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (itemId) => {
-    deleteUser(itemId)
-      .then(() => {
-        const updatedUser = item.find((u) => u.itemId === itemId);
-        updatedUser.status = false;
-        setItem([...item]);
-      })
-      .catch((err) => {
-        console.log('Can not delete because:', err);
-      });
+  const handleDenyUser = (userId) => {
+    denyUserWaiting(userId);
+    handleCloseModal();
     handleCloseMenu();
   };
+
+  const handleOpenModalWithUser = (userId) => {
+    console.log('edit');
+    const updatedUser = user.find((u) => u.userId === userId);
+    console.log(updatedUser);
+    setUpUser(updatedUser);
+    console.log(upUser);
+    setModalOpen(true);
+    handleCloseMenu();
+    // navigate('/dashboard/user-detail');
+  };
+
+  // const handleDeleteButton = (userId) => {
+  //   deleteUser(userId)
+  //     .then(() => {
+  //       const updatedUser = user.find((u) => u.userId === userId);
+  //       updatedUser.status = false;
+  //       setUser([...user]);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Can not delete because:', err);
+  //     });
+  //   handleCloseMenu();
+  // };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -209,32 +246,32 @@ export default function BookingItems() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - item.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
-  const filteredItems = applySortFilter(item, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredItems.length && !!filterName;
+  const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Items | BIDS </title>
+        <title> User | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            BookingItems
+            User
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New BookingItem
+            New User
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
           <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-
+          {/* <UserDetail userDetail={upUser} /> */}
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
@@ -242,20 +279,20 @@ export default function BookingItems() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={item.length}
+                  rowCount={user.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, descriptionDetail, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
-                    const selectedUser = selected.indexOf(itemName) !== -1;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
+                    const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
-                      <TableRow hover key={itemId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -267,25 +304,22 @@ export default function BookingItems() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{itemName}</TableCell>
-                        {/* <TableCell align="left">{descriptionDetail}</TableCell>
-                        <TableCell align="left">{quantity}</TableCell>
-                        <TableCell align="left">{image}</TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
-                        <TableCell align="left">{stepPrice}</TableCell>
-                        <TableCell align="left">{deposit}</TableCell> */}
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">{userName}</TableCell>
+                        <TableCell align="left">{email}</TableCell>
+                        <TableCell align="left">{cccdnumber}</TableCell>
+                        {/* <TableCell align="left">{address}</TableCell> */}
+                        <TableCell align="left">{phone}</TableCell>
+                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <Chip label={status} color='error' />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                          <Popover
-                            open={openPopoverId === itemId}
+                          </IconButton> */}
+                          {/* <Popover
+                            open={openPopoverId === userId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -303,22 +337,27 @@ export default function BookingItems() {
                                 },
                               },
                             }}
-                          >
-                            <MenuItem onClick={handleEditButton}>
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Edit
-                            </MenuItem>
-
-                            <MenuItem
+                          > */}
+                            <Button
+                              color="secondary"
                               onClick={() => {
-                                handleDeleteButton(row.userId);
+                                handleOpenModalWithUser(row.userId);
                               }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+
+                            {/* <MenuItem
+                              // onClick={() => {
+                              //   handleDeleteButton(row.userId);
+                              // }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
-                            </MenuItem>
-                          </Popover>
+                            </MenuItem> */}
+                          {/* </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -361,12 +400,77 @@ export default function BookingItems() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={item.length}
+            count={user.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+
+          <Modal
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            open={modalOpen}
+            onClose={handleCloseModal}
+          >
+            <Box sx={styleModal}>
+              <form>
+                <Card>
+                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardContent>
+                    <Grid container spacing={3}>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
+                      </Grid> */}
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Họ và tên" defaultValue={upUser.userName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Back Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        {/* <Image src={upUser.cccdbackImage} /> */}
+                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Email" defaultValue={upUser.email} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Địa chỉ" defaultValue={upUser.address} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số điện thoại" defaultValue={upUser.phone} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày sinh" defaultValue={fDate(upUser.dateOfBirth)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleAcceptUser(upUser.userId);
+                          }}
+                        >
+                          Chấp nhận
+                        </Button>
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleDenyUser(upUser.userId);
+                          }}
+                        >
+                          Từ Chối
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </form>
+            </Box>
+          </Modal>
         </Card>
       </Container>
     </>

@@ -23,6 +23,7 @@ import ItemPage from './pages/ItemPage';
 import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
 import { RolesAuthRoute } from './context/RolesAuthRoute';
 import UserWaitingApprove from './pages/UserWaitingApprove';
+import UserBan from './pages/UserBan';
 import UserDetail from './sections/@dashboard/user/UserDetail';
 import BookingItems from './pages/BookingItems';
 
@@ -52,13 +53,14 @@ export default function Router() {
           path: 'user',
           element: (
             <Suspense>
-              <RolesAuthRoute roles={['Admin']}>
+              <RolesAuthRoute roles={['Admin', 'Staff']}>
                 <UserPage />
               </RolesAuthRoute>
             </Suspense>
           ),
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
+        { path: 'user-ban', element: <UserBan /> },
         { path: 'user-detail', element: <UserDetail /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
