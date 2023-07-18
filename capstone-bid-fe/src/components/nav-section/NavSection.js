@@ -42,8 +42,6 @@ function NavItem({ item }) {
     setOpen(!open);
   };
 
-  console.log(role)
-
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
   if (items && items.length > 0) {
