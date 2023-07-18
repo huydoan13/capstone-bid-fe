@@ -1,4 +1,5 @@
-import { Navigate, useRoutes } from 'react-router-dom';
+import { Navigate, useRoutes, Route } from 'react-router-dom';
+import { Suspense } from 'react';
 // layouts
 import DashboardLayout from './layouts/dashboard';
 import SimpleLayout from './layouts/simple';
@@ -9,22 +10,82 @@ import LoginPage from './pages/LoginPage';
 import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
+import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
+import SignUp from './pages/SignUp';
+import AddProduct from './pages/AddProduct';
+import AuctionPage from './pages/AuctionPage';
+import Profile from './pages/Profile';
 // import StaffPage from './pages/StaffPage';
+import StaffPage from './pages/StaffPage';
+import CategoryPage from './pages/CategoryPage';
+import SessionPage from './pages/SessionPage';
+import ItemPage from './pages/ItemPage';
+import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
+import { RolesAuthRoute } from './context/RolesAuthRoute';
+import UserWaitingApprove from './pages/UserWaitingApprove';
+import UserBan from './pages/UserBan';
+import UserDetail from './sections/@dashboard/user/UserDetail';
+import BookingItemsPage from './pages/BookingItems';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
+    { path: 'home', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
+          <HomePage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'auction', element: <AuctionPage /> },
+    { path: 'signup', element: <SignUp /> },
+    { path: 'addproduct', element: <AddProduct /> },
+    { path: 'profile', element: <Profile /> },
+    { path: 'landing', element: <LandingPage />},
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: (
+        <Suspense>
+          <RolesAuthRoute roles={['Admin', 'Staff']}>
+            <DashboardLayout />
+          </RolesAuthRoute>
+        </Suspense>
+      ),
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
+
         { path: 'app', element: <DashboardAppPage /> },
-        { path: 'user', element: <UserPage /> },
+        {
+          path: 'user', element: <UserPage />,
+        },
+        { path: 'user-waiting', element: <UserWaitingApprove /> },
+        { path: 'user-ban', element: <UserBan /> },
+        { path: 'user-detail', element: <UserDetail /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'blog', element: <BlogPage /> },
-        // { path: 'staff', element: <StaffPage /> },
+        {
+          path: 'staff',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <StaffPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        { path: 'category', element: <CategoryPage /> },
+        { path: 'item-type-create', element: <ItemTypeCreate /> },
+        { path: 'sessions', element: <SessionPage /> },
+        { path: 'items', element: <ItemPage /> },
+        { path: 'booking-items', element: (
+          <Suspense>
+            <RolesAuthRoute roles={['Staff']}>
+              <BookingItemsPage />
+            </RolesAuthRoute>
+          </Suspense>
+        ), },
       ],
     },
     {
@@ -34,7 +95,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/dashboard/app" />, index: true },
+        { element: <Navigate to="/landing" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],
@@ -47,3 +108,30 @@ export default function Router() {
 
   return routes;
 }
+
+// const withAuth = (Component) => {
+//   const AuthenticatedComponent = (props) => {
+//     const token = localStorage.getItem('token');
+
+//     if (!token) {
+//       // Redirect to login page if token is not present
+//       return <Navigate to="/login" />;
+//     }
+
+//     try {
+//       // Verify the token's validity
+//       jwt.verify(token, 'secret_key');
+//       // Render the protected component if the token is valid
+//       return <Component {...props} />;
+//     } catch (error) {
+//       // Redirect to login page if token is invalid or expired
+//       return <Navigate to="/login" />;
+//     }
+//   };
+
+//   return AuthenticatedComponent;
+// };
+
+// const ProtectedRoute = withAuth(({ component: Component, ...rest }) => {
+//   return <Route {...rest} render={(props) => <Component {...props} />} />;
+// });

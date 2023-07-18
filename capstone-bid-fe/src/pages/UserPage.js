@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
-import { sentenceCase } from 'change-case';
+import moment from 'moment';
+// import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
 import {
@@ -8,7 +9,7 @@ import {
   Table,
   Stack,
   Paper,
-  Avatar,
+  // Avatar,
   Button,
   Popover,
   Checkbox,
@@ -21,11 +22,16 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  // Modal,
+  Chip,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllUser } from 'src/services/getAllUser';
-import Label from '../components/label';
+import { getAllUserActive } from 'src/services/user-actions';
+// eslint-disable-next-line import/no-unresolved
+import { deleteUser } from 'src/services/deleteUser';
+import { fDate } from '../utils/formatTime';
+// import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
@@ -36,11 +42,13 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Name', alignRight: false },
+  { id: 'userName', label: 'UserName', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'website', label: 'Website', alignRight: false },
+  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  { id: 'address', label: 'Address', alignRight: false },
   { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -70,13 +78,13 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
 export default function UserPage() {
-  const [open, setOpen] = useState(null);
+  // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
 
@@ -92,26 +100,39 @@ export default function UserPage() {
 
   const [user, setUser] = useState([]);
 
-  // const [param, setParam] = useState({
-  //   PageIndex: 1,
-  //   PageSize: 10,
-  // });
+  // const [modalOpen, setModalOpen] = useState(false);
+
+  const [openPopoverId, setOpenPopoverId] = useState(null);
+
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getAllUser().then((response) => { 
+    getAllUserActive().then((response) => {
       setUser(response.data);
       console.log(response.data);
     });
-  }, [])
+  }, []);
 
-  const handleOpenMenu = (event) => {
-    setOpen(event.currentTarget);
+  const handleOpenMenu = (event, userId) => {
+    setAnchorEl(event.currentTarget);
+    setOpenPopoverId(userId);
   };
 
   const handleCloseMenu = () => {
-    setOpen(null);
+    setAnchorEl(null);
+    setOpenPopoverId(null);
   };
+
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
+
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -126,6 +147,24 @@ export default function UserPage() {
       return;
     }
     setSelected([]);
+  };
+
+  const handleEditButton = () => {
+    console.log('edit');
+    handleCloseMenu();
+  };
+
+  const handleDeleteButton = (userId) => {
+    deleteUser(userId)
+      .then(() => {
+        const updatedUser = user.find((u) => u.userId === userId);
+        updatedUser.status = false;
+        setUser([...user]);
+      })
+      .catch((err) => {
+        console.log('Can not delete because:', err);
+      });
+    handleCloseMenu();
   };
 
   const handleClick = (event, name) => {
@@ -157,6 +196,14 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
+  // const handleOpenModal = () => {
+  //   setModalOpen(true);
+  // };
+
+  // const handleCloseModal = () => {
+  //   setModalOpen(false);
+  // };
+
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
   const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
@@ -166,17 +213,18 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> Người dùng đang hoạt động | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Người dùng đang hoạt động
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button>
+          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
@@ -196,7 +244,7 @@ export default function UserPage() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { userId, userName, email, address, phone, createDate, avatarUrl} = row;
+                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
                     const selectedUser = selected.indexOf(userName) !== -1;
 
                     return (
@@ -213,24 +261,58 @@ export default function UserPage() {
                             </Typography>
                           </Stack>
                         </TableCell> */}
+
                         <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">{email}</TableCell>
+                        <TableCell align="left">{cccdnumber}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{createDate}</TableCell>
-
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
-
+                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         {/* <TableCell align="left">
-                          <Label color={status === 'false' || 'true'}>{sentenceCase(status)}</Label>
+                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell> */}
 
-
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={handleOpenMenu}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
+                          <Popover
+                            open={openPopoverId === userId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 140,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem onClick={handleEditButton}>
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Edit
+                            </MenuItem>
+
+                            <MenuItem
+                              onClick={() => {
+                                handleDeleteButton(row.userId);
+                              }}
+                              sx={{ color: 'error.main' }}
+                            >
+                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                              Delete
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
+                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
                     );
                   })}
@@ -279,35 +361,6 @@ export default function UserPage() {
           />
         </Card>
       </Container>
-
-      <Popover
-        open={Boolean(open)}
-        anchorEl={open}
-        onClose={handleCloseMenu}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{
-          sx: {
-            p: 1,
-            width: 140,
-            '& .MuiMenuItem-root': {
-              px: 1,
-              typography: 'body2',
-              borderRadius: 0.75,
-            },
-          },
-        }}
-      >
-        <MenuItem>
-          <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
-
-        <MenuItem sx={{ color: 'error.main' }}>
-          <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-          Delete
-        </MenuItem>
-      </Popover>
     </>
   );
 }

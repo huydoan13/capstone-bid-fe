@@ -1,4 +1,5 @@
 // component
+import AccountCircleTwoToneIcon from '@mui/icons-material/AccountCircleTwoTone';
 import SvgColor from '../../../components/svg-color';
 
 // ----------------------------------------------------------------------
@@ -7,27 +8,64 @@ const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ 
 
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Tổng quan',
     path: '/dashboard/app',
     icon: icon('ic_analytics'),
+    role: ['Admin', 'Staff'],
   },
   {
-    title: 'user',
+    title: 'Người dùng',
     path: '/dashboard/user',
-    icon: icon('ic_user'),
+    icon: <AccountCircleTwoToneIcon />,
+    role: ['Admin', 'Staff'],
+    items: [
+      { title: 'Đang chờ duyệt', path: '/dashboard/user-waiting', icon: <AccountCircleTwoToneIcon />, },
+      { title: 'Đang hoạt động', path: '/dashboard/user', icon: <AccountCircleTwoToneIcon />, },
+      { title: 'Bị Cấm', path: '/dashboard/user-ban', icon: <AccountCircleTwoToneIcon />, },
+    ]
   },
   {
-    title: 'product',
-    path: '/dashboard/products',
-    icon: icon('ic_cart'),
+    title: 'Nhân viên',
+    path: '/dashboard/staff',
+    icon: icon('ic_staff'),
+    role: ['Admin'],
   },
   {
-    title: 'blog',
-    path: '/dashboard/blog',
-    icon: icon('ic_blog'),
+    title: 'Phiên đấu giá',
+    path: '/dashboard/sessions',
+    icon: icon('ic_staff'),
+    role: ['Admin', 'Staff'],
   },
   {
-    title: 'login',
+    title: 'Đơn đăng kí đấu giá',
+    path: '/dashboard/booking-items',
+    icon: icon('ic_staff'),
+    role: ['Staff'],
+  },
+  {
+    title: 'Sản phẩm đấu giá',
+    path: '/dashboard/items',
+    icon: icon('ic_staff'),
+    role: ['Admin', 'Staff'],
+  },
+  {
+    title: 'Các loại đấu giá',
+    path: '/dashboard/category',
+    icon: icon('ic_staff'),
+    role: ['Admin', 'Staff'],
+  },
+  // {
+  //   title: 'product',
+  //   path: '/dashboard/products',
+  //   icon: icon('ic_cart'),
+  // },
+  // {
+  //   title: 'blog',
+  //   path: '/dashboard/blog',
+  //   icon: icon('ic_blog'),
+  // },
+  {
+    title: 'Đăng nhập',
     path: '/login',
     icon: icon('ic_lock'),
   },
