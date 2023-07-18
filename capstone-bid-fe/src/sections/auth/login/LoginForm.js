@@ -89,10 +89,10 @@ export default function LoginForm() {
       if (!err?.response) {
         setErrMsg('No Server Response');
       } else if (err.response?.status === 400) {
-        setErrMsg('Wrong Username or Password');
+        setErrMsg('Bạn nhập sai email hoặc mật khẩu');
         console.log('Wrong Username or Password');
       } else if (err.response?.status === 401) {
-        setErrMsg('Unauthorized');
+        setErrMsg('Không có quyền đăng nhập');
         console.log('Unauthorized');
       } else {
         setErrMsg('Login Failed');
@@ -115,7 +115,7 @@ export default function LoginForm() {
 
           <TextField
             name="password"
-            label="Password"
+            label="Mật khẩu"
             value={password}
             onChange={handlePasswordChange}
             autoComplete="on"
@@ -136,12 +136,12 @@ export default function LoginForm() {
         <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 2 }}>
           <Checkbox name="remember" label="Remember me" />
           <Link variant="subtitle2" underline="hover">
-            Forgot password?
+            Quên mật khẩu?
           </Link>
         </Stack>
 
         <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleSubmit}>
-          Login
+          Đăng nhập
         </LoadingButton>
       </form>
     </>

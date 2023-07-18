@@ -36,7 +36,7 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { ItemListHead, ItemListToolbar } from '../sections/@dashboard/itemss';
 // mock
 // import USERLIST from '../_mock/user';
 
@@ -82,7 +82,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.itemName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -227,27 +227,27 @@ export default function ItemPage() {
   return (
     <>
       <Helmet>
-        <title> Items | BIDS </title>
+        <title> Sản phẩm đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Items
+            Sản phẩm đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Item
+            Tạo sản phẩm đấu giá
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <ItemListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
+                <ItemListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}

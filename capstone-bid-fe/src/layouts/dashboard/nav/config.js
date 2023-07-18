@@ -8,13 +8,13 @@ const icon = (name) => <SvgColor src={`/assets/icons/navbar/${name}.svg`} sx={{ 
 
 const navConfig = [
   {
-    title: 'dashboard',
+    title: 'Tổng quan',
     path: '/dashboard/app',
     icon: icon('ic_analytics'),
     role: ['Admin', 'Staff'],
   },
   {
-    title: 'user',
+    title: 'Người dùng',
     path: '/dashboard/user',
     icon: <AccountCircleTwoToneIcon />,
     role: ['Admin', 'Staff'],
@@ -25,31 +25,31 @@ const navConfig = [
     ]
   },
   {
-    title: 'staff',
+    title: 'Nhân viên',
     path: '/dashboard/staff',
     icon: icon('ic_staff'),
     role: ['Admin'],
   },
   {
-    title: 'session',
+    title: 'Phiên đấu giá',
     path: '/dashboard/sessions',
     icon: icon('ic_staff'),
     role: ['Admin', 'Staff'],
   },
   {
-    title: 'booking-item',
+    title: 'Đơn đăng kí đấu giá',
     path: '/dashboard/booking-items',
     icon: icon('ic_staff'),
     role: ['Staff'],
   },
   {
-    title: 'item',
+    title: 'Sản phẩm đấu giá',
     path: '/dashboard/items',
     icon: icon('ic_staff'),
     role: ['Admin', 'Staff'],
   },
   {
-    title: 'category',
+    title: 'Các loại đấu giá',
     path: '/dashboard/category',
     icon: icon('ic_staff'),
     role: ['Admin', 'Staff'],
@@ -65,7 +65,7 @@ const navConfig = [
   //   icon: icon('ic_blog'),
   // },
   {
-    title: 'login',
+    title: 'Đăng nhập',
     path: '/login',
     icon: icon('ic_lock'),
   },

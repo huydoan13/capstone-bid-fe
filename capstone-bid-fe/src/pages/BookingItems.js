@@ -30,14 +30,11 @@ import {
 import { getBookingItemWaiting } from 'src/services/booking-item-actions';
 // eslint-disable-next-line import/no-unresolved
 import { deleteUser } from 'src/services/deleteUser';
+import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
-// sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
-// mock
-// import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +78,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.itemName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -224,21 +221,21 @@ export default function BookingItems() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            BookingItems
+            Đơn đăng kí đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New BookingItem
+            Tạo mới đơn đăng kí đấu giá
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <BookingItemListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
+                <BookingItemListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}

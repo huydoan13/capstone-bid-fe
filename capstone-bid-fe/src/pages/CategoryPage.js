@@ -79,7 +79,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_itemType) => _itemType.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_itemType) => _itemType.categoryName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -263,10 +263,10 @@ export default function CaterogyPage() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Caterogy
+            Loại đấu giá
           </Typography>
           <Button href="item-type-create" variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Caterogy
+            Tạo mới Loại đấu giá
           </Button>
         </Stack>
         <Card>
