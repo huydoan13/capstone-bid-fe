@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 
 import { Stack, Tooltip, Typography } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import FitScreenIcon from "@mui/icons-material/FitScreen";
 import useDialogModal from "../../hooks/useDialogModal";
@@ -12,9 +11,8 @@ import {
     ProductActionButton,
     ProductActionsWrapper,
     ProductAddToCart,
-    ProductFavButton,
     ProductImage,
-    ProductMetaWrapper,
+
 } from "../../style/Products";
 
 export default function SingleProductDesktop({ product, matches }) {
@@ -32,10 +30,12 @@ export default function SingleProductDesktop({ product, matches }) {
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+                
                 <ProductImage src={product.image} />
-                <ProductFavButton isfav={0}>
+                
+                {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />
-                </ProductFavButton>
+                </ProductFavButton> */}
                 {(showOptions || matches) && (
                     <ProductAddToCart show={showOptions} variant="contained">
                         Đấu Giá Ngay

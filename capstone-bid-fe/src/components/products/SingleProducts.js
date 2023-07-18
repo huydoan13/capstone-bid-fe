@@ -1,4 +1,4 @@
-import { Stack, Tooltip } from "@mui/material";
+import { Box, Stack, Tooltip } from "@mui/material";
 import { useState } from "react";
 import FavoriteIcon from "@mui/icons-material/Favorite"
 import ShareIcon from "@mui/icons-material/Share"
@@ -23,7 +23,8 @@ export default function SingleProducts({ product, matches }) {
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                <ProductImage src={product.image} />
+                
+                <ProductImage src={product.image ?? ""} />
                 <ProductMeta product={product} matches={matches} />
                 <ProductActionsWrapper>
                     <Stack direction={matches ? "row" : "column"}>

@@ -1,138 +1,310 @@
-import { Button, Grid, Paper, TextField } from "@mui/material"
-import Avatar from '@mui/material/Avatar';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import React from "react";
-import dayjs from "dayjs";
-import styled from "@emotion/styled";
-import { Colors } from "../../style/theme";
+import React, { useEffect, useRef, useState } from 'react';
+import { Avatar, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
+import SyncLockOutlinedIcon from '@mui/icons-material/SyncLockOutlined';
+import axios from 'axios';
+import styled from '@emotion/styled';
+
+const ProfilePage = () => {
+    const [profileData, setProfileData] = useState({});
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('loginUser');
+    const jsonUser = JSON.parse(user)
+    const [open, setOpen] = useState(false);
+
+    const [passwordError, setPasswordError] = useState(false);
 
 
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [dialogMessage, setDialogMessage] = useState('');
+    const oldPasswordRef = useRef('');
+    const newPasswordRef = useRef('');
 
-export default function ProfilePage() {
+    const ChangePasswordApi = `https://bids-api-testing.azurewebsites.net/api/Users/update_password/${jsonUser.Id}`
+    const api = `https://bids-api-testing.azurewebsites.net/api/Users/${jsonUser.Id}`
+    const UpdateRoleApi = `https://bids-api-testing.azurewebsites.net/api/Users/update_role_account/${jsonUser.Id}`
 
-    const CccdImage = styled('img')(({ src, theme }) => ({
 
-        src: `url(${src})`,
-        width: '100%',
-        height: '50%',
-        background: Colors.light_gray,
-        padding: '10px',
+    const Product = styled(Card)(({ theme }) => ({
+
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '65%',
+        height: '100%',
+        margin: 'auto',
+        padding: '20px',
+        border: '1px solid #ccc',
+        borderRadius: '4px',
         [theme.breakpoints.down('md')]: {
-            width: '80%',
-            padding: '25px',
-        }
-
+            width: '100%',
+        },
     }));
 
-    const paperStyle = {
-        padding: '20px 30px', width: '100%', margin: "20px auto"
-    }
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
 
-    const [value, setValue] = React.useState(dayjs('2022-04-17T15:30'));
+    const handleOpenDialog = () => {
+        setOpen(true);
+        setPasswordError(false);
+    };
+
+    const handleCloseDialog = () => {
+        setOpen(false);
+        // setPasswordError(false);
+    };
+
+    const handleDialogClose = () => {
+        setDialogOpen(false);
+    };
+
+    const isAuctioneer = profileData.role === 'Auctioneer';
+
+
+
+    const formatProfileData = (data) => {
+        const formattedDateOfBirth = formatDate(data.dateOfBirth);
+        const formattedCreateDate = formatDate(data.createDate);
+
+        return {
+            ...data,
+            dateOfBirth: formattedDateOfBirth,
+            createDate: formattedCreateDate,
+        };
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const year = date.getFullYear();
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+
+        month = month < 10 ? `0${month}` : month;
+        day = day < 10 ? `0${day}` : day;
+
+        return `${year}-${month}-${day}`;
+    };
+
+    const fetchProfileData = async () => {
+        // try {
+        //     const response = await axios.get(api, {headers: { Authorization: `Bearer ${token}` },});
+        //     setProfileData(response.data);
+        // } catch (error) {
+        //     console.log('Error fetching profile data:', error);
+        // }
+
+        try {
+            const response = await axios.get(api, { headers: { Authorization: `Bearer ${token}` }, });
+            const formattedData = formatProfileData(response.data);
+            setProfileData(formattedData);
+        } catch (error) {
+            console.log('Error fetching profile data:', error);
+        }
+    };
+
+    const handleUpgradeToAuctioneer = async () => {
+        try {
+            // Make the PUT request to upgrade the user's role to "Auctioneer"
+            await axios.put(UpdateRoleApi, null, { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // After the successful API call, update the profileData to reflect the new role
+            // setProfileData((prevData) => ({ ...prevData, role: 'Auctioneer' }));
+            setDialogMessage('Đã cập nhật vai trò thành công, vui lòng làm mới trang.!');
+            setDialogOpen(true);
+        } catch (error) {
+            setDialogMessage('Đã sảy ra lỗi, xin vui lòng thử lại!');
+            setDialogOpen(true);
+        }
+    };
+
+
+
+
+    const handleChangePassword = async () => {
+
+        try {
+
+
+            const oldPasswordValue = oldPasswordRef.current.value;
+            const newPasswordValue = newPasswordRef.current.value;
+            // Validate the old password before making the API call
+            if (oldPasswordValue !== profileData.password) {
+                setPasswordError(true);
+                return;
+            }
+
+            // Make the PUT request to update the password
+            await axios.put(
+                ChangePasswordApi,
+                { id: jsonUser.Id, newPassword: newPasswordValue, oldPassword: oldPasswordValue },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Close the dialog and clear the form fields after successful password change
+            setOpen(false);
+            oldPasswordRef.current.value = '';
+            newPasswordRef.current.value = '';
+            setDialogMessage('Mật khẩu đã thay đổi thành công!');
+            setDialogOpen(true);
+        } catch (error) {
+            setDialogMessage('Không đổi được mật khẩu. Vui lòng thử lại.');
+            console.log('Lỗi đổi mật khẩu:', error);
+            setDialogOpen(true);
+        }
+    };
 
 
     return (
-        <Paper elevation={20} style={paperStyle} >
-            <Grid container >
-                <Grid width={'100%'} height={'100%'} xs={4}>
-                    <Avatar
-                        alt="Remy Sharp"
-                        src="\assets\images\avatars\avatar_1.jpg"
-                        sx={{ width: '90%', height: '90%' }}
-                    />
-                </Grid>
-
-                <Grid sx={{
-                    '& .MuiTextField-root': { m: 1, width: '25ch',margin: "20px auto" },
-                    '& .MuiFormControl-root': { m: 1, width: '30ch' },
-                   
-                }}  justifyContent={"space-around"} marginTop={'15px'} xs={8}>
-                    <TextField
-                        
-                        id="userName"
-                        label="Tên đăng nhập"
-                        defaultValue="Cừu non bé bỏng"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-                    <TextField
-                        
-                        id="gmail"
-                        label="Gmail"
-                        defaultValue="cuunonbebong@gmail.com"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-                    <TextField
-                        
-                        id="password"
-                        label="Pasword"
-                        defaultValue="Hello World"
-                        type="password"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-                    <TextField
-                        
-                        id="address"
-                        label="Địa chỉ"
-                        defaultValue="Hello World"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-                    <TextField
-                        
-                        id="phoneNumber"
-                        label="Số Điện Thoại"
-                        type="number"
-                        defaultValue="0123456789"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-
-                    <TextField
-                        fullwidth
-                        id="cccdId"
-                        label="Số Căn Cước Công Dân"
-                        defaultValue="Hello World"
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                    />
-
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                        <DemoContainer components={['DatePicker']}>
-                            <DatePicker value={value} onChange={(newValue) => setValue(newValue)} />
-                        </DemoContainer>
-                    </LocalizationProvider>
-
-                </Grid>
-                <Grid container direction="row" >
-                    <Grid xs={6} justifyContent={"space-around"}>
-                        <CccdImage src="\assets\images\avatars\avatar_1.jpg" />
+        <Product >
+            <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="center" mb={3}>
+                    <Avatar src={profileData.avatar} alt="Avatar" sx={{ width: 150, height: 150, borderRadius: '50%' }} />
+                </Box>
+                <Grid container spacing={3}>
+                    <Grid item xs={12}>
+                        <TextField label="Tên Tài Khoản" fullWidth value={profileData.userName || ''} />
                     </Grid>
-                    <Grid xs={6}>
-                        <CccdImage src="\assets\images\avatars\avatar_2.jpg" />
+                    <Grid item xs={12}>
+                        <TextField label="Email" fullWidth value={profileData.email || ''} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField label="Role" fullWidth value={profileData.role || ''} />
                     </Grid>
 
-                    
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Password"
+                            type="password"
+                            fullWidth
+                            value={profileData.password || ''}
+                            InputProps={{
+                                readOnly: true,
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        {/* "Đổi mật khẩu" Icon Button */}
+                                        <IconButton onClick={handleOpenDialog} size="small">
+                                            <SyncLockOutlinedIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+                    </Grid>
+                    <Dialog open={open} onClose={handleCloseDialog}>
+                        <DialogContent>
+                            <DialogTitle>Thay Đổi Mật Khẩu</DialogTitle>
+                            <TextField
+                                label="Mật Khẩu cũ"
+                                type="password"
+                                fullWidth
+                                inputRef={oldPasswordRef}
+                                error={passwordError}
+                                helperText={passwordError ? 'Mật khẩu cũ không đúng' : ''}
+                                sx={{ marginBottom: '16px' }}
+                            />
+                            <TextField
+                                label="Mật Khẩu mới"
+                                type="password"
+                                fullWidth
+                                inputRef={newPasswordRef}
+                                sx={{ marginBottom: '16px' }}
+                            />
+                        </DialogContent>
+
+                        <DialogActions>
+                            <Button onClick={handleCloseDialog} color="secondary">
+                                Cancel
+                            </Button>
+                            <Button onClick={handleChangePassword} color="primary">
+                                Save
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                        <DialogContent>
+                            <p>{dialogMessage}</p>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleDialogClose} color="primary">
+                                Đóng
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+
+
+                    <Grid item xs={12}>
+                        <TextField label="Địa Chỉ" multiline rows={4} fullWidth value={profileData.address || ''} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField label="Số Điện Thoại" fullWidth value={profileData.phone || ''} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField label="Ngày Sinh" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.dateOfBirth || ''} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField label="Ngày Tạo" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.createDate || ''} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <TextField label="Số CCCD" fullWidth value={profileData.cccdNumber || ''} />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <img
+                            src={profileData.cccdFrontImage}
+                            alt="CCCD Front"
+                            style={{ width: '100%', height: '250px', border: '1px dashed #ccc', borderRadius: '4px', padding: '4px' }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                        <img
+                            src={profileData.cccdBackImage}
+                            alt="CCCD Back"
+                            style={{ width: '100%', height: '250px', border: '1px dashed #ccc', borderRadius: '4px', padding: '4px' }}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <Box display="flex" alignItems="center" justifyContent="flex-end">
+                            <DialogActions>
+                                <Grid container spacing={2} justifyContent="center">
+                                    <Grid item>
+                                        <Button
+                                            variant="contained"
+                                            color="info"
+                                            disabled={isAuctioneer}
+                                            style={{ width: '100%', borderRadius: '20px' }}
+                                            onClick={handleUpgradeToAuctioneer}
+                                        >
+                                            Thăng Cấp Thành Người Bán
+                                        </Button>
+                                    </Grid>
+                                    <Grid item>
+                                        {/* Styled Disabled Button */}
+                                        <Button href='/addproduct' color="info" variant="contained" disabled={!isAuctioneer} style={{ width: '100%', borderRadius: '20px' }}>
+                                            Thêm Sản Phẩm Đấu giá
+                                        </Button>
+                                    </Grid>
+                                </Grid>
+                            </DialogActions>
+
+                            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                                <DialogContent>
+                                    <p>{dialogMessage}</p>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleDialogClose} color="primary">
+                                        Đóng
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+                        </Box>
+                    </Grid>
                 </Grid>
+            </CardContent>
+        </Product>
+    );
+};
 
-                <Button size="large" fullWidth variant="contained">Đăng kí thành người bán</Button>
-
-
-            </Grid>
-
-
-        </Paper>
-    )
-
-}   
+export default ProfilePage;

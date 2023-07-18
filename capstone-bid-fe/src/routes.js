@@ -11,6 +11,7 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import HomePage from './pages/HomePage';
+import LandingPage from './pages/LandingPage';
 import SignUp from './pages/SignUp';
 import AddProduct from './pages/AddProduct';
 import AuctionPage from './pages/AuctionPage';
@@ -36,6 +37,7 @@ export default function Router() {
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
+    { path: 'landing', element: <LandingPage />},
     {
       path: '/dashboard',
       element: (
