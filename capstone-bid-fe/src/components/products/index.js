@@ -1,11 +1,12 @@
 import { Container, Grid, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+// import axios from 'axios';
 import SingleProducts from "./SingleProducts";
 import SingleProductDesktops from "./SingleProductDesktop";
 import AppPagination from "../pagination";
 
-import { products } from "../data";
+
 
 
 
@@ -13,11 +14,33 @@ export default function Products() {
 
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
+    const [products, setProducts] = useState([]);
 
-    const [products,setProducts] = useState([]);
 
-    const renderProducts = products.map((product) => (
-        <Grid item key={product.id} xs={2} sm={4} md={4} display="flex" flexDirection={'column'} alignItems="center">
+    // useEffect(() => {
+        
+    //     axios.get('https://bids-api-testing.azurewebsites.net/api/Sessions/by_not_start')
+    //         .then(response => {
+    //             const data = response.data;
+    //             // Map the fetched data to the products array
+    //             console.log(data)
+    //             setProducts(data)
+    //         })
+    //         .catch(error => {
+    //             console.error('Error fetching data:', error);
+    //         });
+    // }, [])
+
+    // console.log(productss)
+
+
+
+
+
+
+
+    const renderProducts =products && products.map((product) => (
+        <Grid item key={product.sessionId} xs={2} sm={4} md={4} display="flex" flexDirection={'column'} alignItems="center">
             {matches ? (
                 <SingleProducts product={product} matches={matches} />
             ) : (
@@ -36,7 +59,7 @@ export default function Products() {
             >
                 {renderProducts}
             </Grid>
-            <AppPagination setProducts={(p) => setProducts(p)}/>
+            <AppPagination setProducts={(p) => setProducts(p)} />
         </Container>
     );
 }

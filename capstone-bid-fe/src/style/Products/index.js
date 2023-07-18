@@ -17,11 +17,28 @@ export const Product = styled(Box)(({ theme }) => ({
 export const ProductImage = styled('img')(({ src, theme }) => ({
 
     src: `url(${src})`,
-    width: '100%',
+    width: '350px',
+    height: '350px',
+    background: Colors.light_gray,
+    padding: '1%',
+    [theme.breakpoints.down('md')]: {
+
+        width: '150px',
+        height: '150px',
+        padding: '2%',
+    }
+
+}));
+export const ProductDetailImage = styled('img')(({ src, theme }) => ({
+
+    src: `url(${src})`,
+    width: '650px',
+    height: '550px',
     background: Colors.light_gray,
     padding: '10px',
     [theme.breakpoints.down('md')]: {
         width: '80%',
+        height: '80%',
         padding: '25px',
     }
 
@@ -32,7 +49,7 @@ export const ProductActionButton = styled(IconButton)(() => ({
     margin: 4,
 }));
 
-export const ProductFavButton = styled(ProductActionButton,{
+export const ProductFavButton = styled(ProductActionButton, {
     shouldForwardProp: (prop) => prop !== "isFav",
 })(({ isFav, theme }) => ({
     color: isFav ? Colors.primary : Colors.light,
@@ -44,7 +61,7 @@ export const ProductFavButton = styled(ProductActionButton,{
 }));
 
 
-export const ProductAddToCart = styled(Button,{
+export const ProductAddToCart = styled(Button, {
     shouldForwardProp: (prop) => prop !== "show",
 })(({ show, theme }) => ({
 
@@ -61,22 +78,22 @@ export const ProductAddToCart = styled(Button,{
     opacity: 0.9,
 }));
 
-export const ProductMetaWrapper = styled(Box)(({theme}) => ({
+export const ProductMetaWrapper = styled(Box)(({ theme }) => ({
     padding: 4,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-  }));
-  
-  export const ProductActionsWrapper = styled(Box,{
+}));
+
+export const ProductActionsWrapper = styled(Box, {
     shouldForwardProp: (prop) => prop !== "show"
-  })(({ show, theme }) => ({ 
+})(({ show, theme }) => ({
     [theme.breakpoints.up("md")]: {
-      display: show ? 'visible' : 'none',
-      position: "absolute",
-      right: 0,
-      top: '20%',
-      animation: show && `${slideInRight} 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both`,
+        display: show ? 'visible' : 'none',
+        position: "absolute",
+        right: 0,
+        top: '20%',
+        animation: show && `${slideInRight} 0.5s cubic-bezier(0.250, 0.460, 0.450, 0.940) both`,
     }
-  }));
+}));
 

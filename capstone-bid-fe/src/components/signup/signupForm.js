@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { TextField, Button, Box, Typography } from '@mui/material';
+import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
-import {  format } from 'date-fns'
+import { format } from 'date-fns'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,11 +15,14 @@ const SignUpForm = () => {
   const [phone, setPhoneNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [cccdnumber, setCitizenId] = useState('');
- 
   const [error, setError] = useState('');
-  const [avatar,setImage] = useState() ;
+
+  const [avatar, setAvatar] = useState(null);
   const [cccdfrontImage, setFrontImage] = useState(null);
   const [cccdbackImage, setBackImage] = useState(null);
+
+  const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
   const navigate = useNavigate()
 
@@ -27,47 +30,48 @@ const SignUpForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!userName || !email || !password || !rePassword || !address || !phone || !dateOfBirth || !cccdnumber) {
       setError('Không Được Bỏ Trống');
       return;
     }
-  
+
     if (password.length < 8) {
       setError('Mật Khẩu Cần Ít Nhất 8 Ký Tự');
       return;
     }
-  
+
     if (!email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
       setError('Sai Kiểu email, Ví Dụ: example@gmail.com');
       return;
     }
-  
+
     if (password !== rePassword) {
       setError('Mật Khẩu Không Giống');
       return;
     }
 
-    
+
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
     try {
-      
+
       const response = await axios.post('https://bids-api-testing.azurewebsites.net/api/Users', {
         userName,
         email,
         password,
         address,
         phone,
-        dateOfBirth : date ,
+        dateOfBirth: date,
         cccdnumber,
         avatar,
         cccdfrontImage,
         cccdbackImage,
       });
-      navigate('/login', { replace: true });
+      navigate('/home', { replace: true });
       console.log('Server response:', response.data);
-  
+      setSuccessDialogOpen(true);
+
       // Reset form fields
       setUsername('');
       setEmail('');
@@ -77,15 +81,24 @@ const SignUpForm = () => {
       setPhoneNumber('');
       setDateOfBirth('');
       setCitizenId('');
-      setImage(null);
+      setAvatar(null);
       setFrontImage(null);
       setBackImage(null);
       setError('');
     } catch (error) {
       console.error('Error:', error);
-      setError('An error occurred. Please try again.');
+      setErrorDialogOpen(true);
     }
   };
+
+  const handleSuccessDialogClose = () => {
+    setSuccessDialogOpen(false);
+  };
+
+  const handleErrorDialogClose = () => {
+    setErrorDialogOpen(false);
+  };
+
 
   return (
     <Box
@@ -94,7 +107,7 @@ const SignUpForm = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        width: '100%',
+        width: '65%',
         height: '100%',
         margin: 'auto',
         padding: '20px',
@@ -199,12 +212,12 @@ const SignUpForm = () => {
           } else {
             console.log('Files uploaded:');
             console.log(files.map(f => f.fileUrl).join("\n"));
-            const img =  files.map(f => f.fileUrl).join("\n");
-            setImage(img);
+            const avatarimg = files.map(f => f.fileUrl).join("\n");
+            setAvatar(avatarimg);
           }
         }} />
-        <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
-        <UploadDropzone uploader={uploader}       // Required.
+      <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
+      <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
         height="375px"            // Optional.
         onUpdate={files => {      // Optional.
@@ -213,12 +226,12 @@ const SignUpForm = () => {
           } else {
             console.log('Files uploaded:');
             console.log(files.map(f => f.fileUrl).join("\n"));
-            const frontimg =  files.map(f => f.fileUrl).join("\n");
+            const frontimg = files.map(f => f.fileUrl).join("\n");
             setFrontImage(frontimg);
           }
         }} />
-        <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
-        <UploadDropzone uploader={uploader}       // Required.
+      <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
+      <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
         height="375px"            // Optional.
         onUpdate={files => {      // Optional.
@@ -227,7 +240,7 @@ const SignUpForm = () => {
           } else {
             console.log('Files uploaded:');
             console.log(files.map(f => f.fileUrl).join("\n"));
-            const backimg =  files.map(f => f.fileUrl).join("\n");
+            const backimg = files.map(f => f.fileUrl).join("\n");
             setBackImage(backimg);
           }
         }} />
@@ -236,6 +249,28 @@ const SignUpForm = () => {
           {error}
         </Typography>
       )}
+
+
+      <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
+        <DialogTitle>Thành Công</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">Tạo Tài Khoản thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleSuccessDialogClose}>OK</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Error Dialog */}
+      <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
+        <DialogTitle>Error</DialogTitle>
+        <DialogContent>
+          <Typography variant="body1">Đã xảy ra lỗi khi tạo tài khoản, vui lòng kiểm tra lại thông tin cá nhân.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleErrorDialogClose}>OK</Button>
+        </DialogActions>
+      </Dialog>
       <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }}>
         Sign Up
       </Button>

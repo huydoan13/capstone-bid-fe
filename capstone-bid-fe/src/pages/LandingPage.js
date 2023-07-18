@@ -10,6 +10,7 @@ import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
 import AppPagination from '../components/pagination';
+import LandingAppbar from '../components/appbar/indexlanding';
 
 
 
@@ -23,7 +24,7 @@ function HomePage() {
             }}
         >
             <UIProvider>
-                <Appbar />
+                <LandingAppbar />
                 <Banner />
                 <Promotions />
                 <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>

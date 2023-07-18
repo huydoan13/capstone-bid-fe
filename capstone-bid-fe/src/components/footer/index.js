@@ -30,11 +30,10 @@ export default function Footer() {
     >
       <Grid container spacing={2} justifyContent="center">
         <Grid item md={6} lg={4}>
-          <FooterTitle variant="body1">About us</FooterTitle>
+          <FooterTitle variant="body1">Về chúng tôi.</FooterTitle>
           <Typography variant="caption2">
-            Lorem ipsum dolor sit amet cons adipisicing elit sed do eiusm tempor
-            incididunt ut labor et dolore magna aliqua. Ut enim ad minim veniam,
-            quis nostrud.
+          Bid Online là hệ thống phần mềm phân tích thông tin mời thầu thế hệ mới dành cho doanh nghiệp, cá nhân,
+           giúp cá nhân tìm kiếm,  và mua sắm tư nhân trên cả nước.
           </Typography>
           <Box
             sx={{
@@ -48,61 +47,61 @@ export default function Footer() {
           </Box>
         </Grid>
         <Grid item md={6} lg={2}>
-          <FooterTitle variant="body1">information</FooterTitle>
+          <FooterTitle variant="body1">Thông Tin</FooterTitle>
           <List>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                About Us
+              Về chúng tôi
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Order Tracking
+              Theo dõi đơn hàng
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Privacy &amp; Policy
+              Quyền riêng tư  &amp; Chính sách
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Terms &amp; Conditions
+              Điều Khoản  &amp; Dịch Vụ
               </Typography>
             </ListItemText>
           </List>
         </Grid>
         <Grid item md={6} lg={2}>
-          <FooterTitle variant="body1">my account</FooterTitle>
+          <FooterTitle variant="body1">Tài khoản của tôi</FooterTitle>
           <List>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Login
+                Đăng Nhập
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                My Cart
+                Giỏ Hàng
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                My Account
+                tài Khoản Của Tôi
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Wishlist
+                Ưa Thích
               </Typography>
             </ListItemText>
           </List>
         </Grid>
         <Grid item md={6} lg={4}>
-          <FooterTitle variant="body1">newsletter</FooterTitle>
+          <FooterTitle variant="body1">Bản Tin</FooterTitle>
           <Stack>
             <SubscribeTf
               color="primary"
-              label="Email address"
+              label="Tài Khoản Email"
               variant="standard"
             />
             <Button
@@ -110,7 +109,7 @@ export default function Footer() {
               sx={{ mt: 4, mb: 4 }}
               variant="contained"
             >
-              Subscribe
+              Đăng Kí
             </Button>
           </Stack>
         </Grid>
