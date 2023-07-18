@@ -42,6 +42,8 @@ function NavItem({ item }) {
     setOpen(!open);
   };
 
+  console.log(role)
+
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
   if (items && items.length > 0) {
@@ -99,26 +101,26 @@ function NavItem({ item }) {
     );
   }
 
-  if (user.role === role) {
-    return (
-      <StyledNavItem
-        component={RouterLink}
-        to={path}
-        sx={{
-          '&.active': {
-            color: 'text.primary',
-            bgcolor: 'action.selected',
-            fontWeight: 'fontWeightBold',
-          },
-        }}
-      >
-        <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+    if (role?.includes(user.role)) {
+      return (
+        <StyledNavItem
+          component={RouterLink}
+          to={path}
+          sx={{
+            '&.active': {
+              color: 'text.primary',
+              bgcolor: 'action.selected',
+              fontWeight: 'fontWeightBold',
+            },
+          }}
+        >
+          <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
 
-        <ListItemText disableTypography primary={title} />
+          <ListItemText disableTypography primary={title} />
 
-        {info && info}
-      </StyledNavItem>
-    );
-  }
-  return null;
+          {info && info}
+        </StyledNavItem>
+      );
+    }
+    return null;
 }

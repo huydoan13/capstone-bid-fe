@@ -119,6 +119,7 @@ export default function CaterogyPage() {
 
   const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
+
   // const handleInputChange = (event) => {
   //   const { name, value } = event.target;
   //   setUpCategory(prevState => ({

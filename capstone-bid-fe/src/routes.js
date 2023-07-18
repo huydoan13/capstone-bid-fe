@@ -50,14 +50,7 @@ export default function Router() {
 
         { path: 'app', element: <DashboardAppPage /> },
         {
-          path: 'user',
-          element: (
-            <Suspense>
-              <RolesAuthRoute roles={['Admin', 'Staff']}>
-                <UserPage />
-              </RolesAuthRoute>
-            </Suspense>
-          ),
+          path: 'user', element: <UserPage />,
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },

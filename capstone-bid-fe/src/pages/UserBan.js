@@ -255,13 +255,13 @@ export default function UserBan() {
   return (
     <>
       <Helmet>
-        <title> User | BIDS </title>
+        <title> Người dùng đang bị cấm | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Người dùng đang bị cấm
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -311,7 +311,7 @@ export default function UserBan() {
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status} color='error' />
+                          <Chip label={status} color="error" />
                         </TableCell>
 
                         <TableCell align="right">
@@ -338,17 +338,17 @@ export default function UserBan() {
                               },
                             }}
                           > */}
-                            <Button
-                              color="secondary"
-                              onClick={() => {
-                                handleOpenModalWithUser(row.userId);
-                              }}
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithUser(row.userId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
 
-                            {/* <MenuItem
+                          {/* <MenuItem
                               // onClick={() => {
                               //   handleDeleteButton(row.userId);
                               // }}

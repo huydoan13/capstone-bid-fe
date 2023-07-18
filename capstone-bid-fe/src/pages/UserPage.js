@@ -213,13 +213,13 @@ export default function UserPage() {
   return (
     <>
       <Helmet>
-        <title> User | BIDS </title>
+        <title> Người dùng đang hoạt động | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Người dùng đang hoạt động
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User

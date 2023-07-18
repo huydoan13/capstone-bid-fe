@@ -255,13 +255,13 @@ export default function UserWaitingApprove() {
   return (
     <>
       <Helmet>
-        <title> User | BIDS </title>
+        <title> Người dùng đang chờ duyệt | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            User
+            Người dùng đang chờ duyệt
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -311,7 +311,7 @@ export default function UserWaitingApprove() {
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status} color='warning' />
+                          <Chip label={status} color="warning" />
                         </TableCell>
 
                         <TableCell align="right">
@@ -338,17 +338,17 @@ export default function UserWaitingApprove() {
                               },
                             }}
                           > */}
-                            <Button
-                              color="secondary"
-                              onClick={() => {
-                                handleOpenModalWithUser(row.userId);
-                              }}
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithUser(row.userId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
 
-                            {/* <MenuItem
+                          {/* <MenuItem
                               // onClick={() => {
                               //   handleDeleteButton(row.userId);
                               // }}
