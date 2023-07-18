@@ -6,11 +6,13 @@ import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import React from "react";
+import LogoutFuncion from "../../services/LogoutFunction";
 import { MyList, ActionIconsContainerMobile, ActionIconsContainerDesktop } from "../../style/appbar";
 import { Colors } from "../../style/theme";
 
 export default function Actions({ matches }) {
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const logout = LogoutFuncion();
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -117,7 +119,7 @@ export default function Actions({ matches }) {
                                     </ListItemIcon>
                                     Settings
                                 </MenuItem>
-                                <MenuItem onClick={handleClose}>
+                                <MenuItem onClick={logout}>
                                     <ListItemIcon>
                                         <Logout fontSize="small" />
                                     </ListItemIcon>

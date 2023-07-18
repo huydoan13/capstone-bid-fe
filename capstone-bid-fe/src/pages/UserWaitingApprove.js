@@ -175,7 +175,7 @@ export default function UserWaitingApprove() {
 
   const handleAcceptUser = (userId) => {
     acceptUserWaiting(userId);
-    console.log('edit');
+    handleCloseModal();
     handleCloseMenu();
   };
 

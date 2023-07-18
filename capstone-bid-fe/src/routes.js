@@ -26,13 +26,19 @@ import { RolesAuthRoute } from './context/RolesAuthRoute';
 import UserWaitingApprove from './pages/UserWaitingApprove';
 import UserBan from './pages/UserBan';
 import UserDetail from './sections/@dashboard/user/UserDetail';
-import BookingItems from './pages/BookingItems';
+import BookingItemsPage from './pages/BookingItems';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
-    { path: 'home', element: <HomePage /> },
+    { path: 'home', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
+          <HomePage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'auction', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
@@ -73,7 +79,13 @@ export default function Router() {
         { path: 'item-type-create', element: <ItemTypeCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'items', element: <ItemPage /> },
-        { path: 'booking-items', element: <BookingItems /> },
+        { path: 'booking-items', element: (
+          <Suspense>
+            <RolesAuthRoute roles={['Staff']}>
+              <BookingItemsPage />
+            </RolesAuthRoute>
+          </Suspense>
+        ), },
       ],
     },
     {
@@ -83,7 +95,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/home" />, index: true },
+        { element: <Navigate to="/landing" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],
