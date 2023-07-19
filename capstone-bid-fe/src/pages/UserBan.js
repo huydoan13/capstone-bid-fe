@@ -37,7 +37,7 @@ import { Image } from 'mui-image';
 import { getAllUserBan, getUserWaiting } from 'src/services/user-actions';
 import { useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
-import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
+import { acceptUserWaiting, denyUserWaiting, unBanUser } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
@@ -56,7 +56,7 @@ const TABLE_HEAD = [
   { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
   // { id: 'address', label: 'Address', alignRight: false },
   { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -117,7 +117,7 @@ export default function UserBan() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
 
@@ -173,17 +173,12 @@ export default function UserBan() {
     setSelected([]);
   };
 
-  const handleAcceptUser = (userId) => {
-    acceptUserWaiting(userId);
-    console.log('edit');
-    handleCloseMenu();
-  };
-
-  const handleDenyUser = (userId) => {
-    denyUserWaiting(userId);
+  const handleUnBanUser = (userId) => {
+    unBanUser(userId);
     handleCloseModal();
     handleCloseMenu();
   };
+
 
   const handleOpenModalWithUser = (userId) => {
     console.log('edit');
@@ -309,7 +304,7 @@ export default function UserBan() {
                         <TableCell align="left">{cccdnumber}</TableCell>
                         {/* <TableCell align="left">{address}</TableCell> */}
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip label={status} color="error" />
                         </TableCell>
@@ -445,24 +440,23 @@ export default function UserBan() {
                         <TextField label="Số điện thoại" defaultValue={upUser.phone} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={fDate(upUser.dateOfBirth)} />
+                        <TextField label="Ngày sinh" defaultValue={formatDate(upUser.dateOfBirth)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptUser(upUser.userId);
+                            handleUnBanUser(upUser.userId);
                           }}
+                          sx={{ color: 'green'}}
                         >
-                          Chấp nhận
+                          Gỡ cấm người dùng
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
-                          onClick={() => {
-                            handleDenyUser(upUser.userId);
-                          }}
+                          onClick={handleCloseModal}
                         >
-                          Từ Chối
+                          Hủy
                         </Button>
                       </Grid>
                     </Grid>

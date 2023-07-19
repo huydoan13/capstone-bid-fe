@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
-import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -23,22 +22,13 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  Modal,
+  // Modal,
   Chip,
-  TextField,
-  Box,
-  CardHeader,
-  CardContent,
-  Grid,
-  CardMedia,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import {
-  getBookingItemWaiting,
-  acceptBookingItemWaiting,
-  denyBookingItemWaiting,
-} from '../services/booking-item-actions';
+import { getAllBookingItem } from 'src/services/booking-item-actions';
+// eslint-disable-next-line import/no-unresolved
 import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
@@ -48,16 +38,16 @@ import Scrollbar from '../components/scrollbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
-  { id: 'categoryName', label: 'Loại', alignRight: false },
-  { id: 'userName', label: 'Tên người dùng', alignRight: false },
-  { id: 'image', label: 'Hình ảnh', alignRight: false },
-  { id: 'fristPrice', label: 'Giá ban đầu', alignRight: false },
+  { id: 'itemName', label: 'ItemName', alignRight: false },
+  { id: 'categoryName', label: 'CategoryName', alignRight: false },
+  // { id: 'quantity', label: 'Quantity', alignRight: false },
+  // { id: 'image', label: 'Image', alignRight: false },
+  // { id: 'fristPrice', label: 'FristPrice', alignRight: false },
   // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
-  // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'createDate', label: 'CreateDate', alignRight: false },
+  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
   // { id: 'deposit', label: 'Deposit', alignRight: false },
-  { id: 'status', label: 'Trạng thái', alignRight: false },
+  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -92,7 +82,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function BookingItems() {
+export default function AllBookingItem() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -107,45 +97,22 @@ export default function BookingItems() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [bookingItem, setBookingItem] = useState([]);
+  const [item, setItem] = useState([]);
 
-  const [bookingItemDetail, setBookingItemDetail] = useState({});
-
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
 
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
-  const styleModal = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: '500px',
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 5,
-  };
-
-  const StyledProductImg = styled('img')({
-    // top: 0,
-    width: '50px',
-    height: '50px',
-    // // objectFit: 'cover',
-    // position: 'absolute',
-    display: 'flex',
-    alignItems: 'center',
-  });
-
   // lay du lieu tat ca user
   useEffect(() => {
-    getBookingItemWaiting(user.Email).then((response) => {
-      setBookingItem(response.data);
+    getAllBookingItem().then((response) => {
+      setItem(response.data);
       console.log(response.data);
     });
   }, []);
@@ -168,14 +135,6 @@ export default function BookingItems() {
   //   setOpen(null);
   // };
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
-
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -184,33 +143,30 @@ export default function BookingItems() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = bookingItem.map((n) => n.name);
+      const newSelecteds = item.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleOpenModalWithBookingItem = (bookingItemId) => {
+  const handleEditButton = () => {
     console.log('edit');
-    const bookingItemde = bookingItem.find((u) => u.bookingItemId === bookingItemId);
-    setBookingItemDetail(bookingItemde);
-    setModalOpen(true);
-    handleCloseMenu();
-    // navigate('/dashboard/user-detail');
-  };
-
-  const handleAcceptBookingItem = (bookingItemId) => {
-    acceptBookingItemWaiting(bookingItemId);
-    handleCloseModal();
     handleCloseMenu();
   };
 
-  const handleDenyBookingItem = (bookingItemId) => {
-    denyBookingItemWaiting(bookingItemId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
+//   const handleDeleteButton = (itemId) => {
+//     deleteUser(itemId)
+//       .then(() => {
+//         const updatedUser = item.find((u) => u.itemId === itemId);
+//         updatedUser.status = false;
+//         setItem([...item]);
+//       })
+//       .catch((err) => {
+//         console.log('Can not delete because:', err);
+//       });
+//     handleCloseMenu();
+//   };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -249,22 +205,22 @@ export default function BookingItems() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bookingItem.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - item.length) : 0;
 
-  const filteredItems = applySortFilter(bookingItem, getComparator(order, orderBy), filterName);
+  const filteredItems = applySortFilter(item, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredItems.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Đơn đăng kí đấu giá | BIDS </title>
+        <title> Tổng đơn đăng kí | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Đơn đăng kí đấu giá
+            Tổng đơn đăng kí đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá
@@ -273,11 +229,7 @@ export default function BookingItems() {
         </Stack>
 
         <Card>
-          <BookingItemListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
+          <BookingItemListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -286,28 +238,14 @@ export default function BookingItems() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={bookingItem.length}
+                  rowCount={item.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const {
-                      itemId,
-                      bookingItemId,
-                      itemName,
-                      categoryName,
-                      userName,
-                      quantity,
-                      image,
-                      firstPrice,
-                      stepPrice,
-                      deposit,
-                      createDate,
-                      updateDate,
-                      status,
-                    } = row;
+                    const { itemId, itemName, categoryName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -327,31 +265,20 @@ export default function BookingItems() {
 
                         <TableCell align="left">{itemName}</TableCell>
                         <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{userName}</TableCell>
-                        {/* <TableCell align="left">{quantity}</TableCell> */}
-                        <TableCell align="left">
-                          <StyledProductImg src={image} />
-                        </TableCell>
+                        {/* <TableCell align="left">{descriptionDetail}</TableCell>
+                        <TableCell align="left">{quantity}</TableCell>
+                        <TableCell align="left">{image}</TableCell>
                         <TableCell align="left">{firstPrice}</TableCell>
-                        {/* <TableCell align="left">{stepPrice}</TableCell>
+                        <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
-                        <TableCell align="left">{formatDate(createDate)}</TableCell>
-                        {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
+                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{fDate(updateDate)}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithBookingItem(row.bookingItemId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
@@ -380,15 +307,15 @@ export default function BookingItems() {
                             </MenuItem>
 
                             <MenuItem
-                              onClick={() => {
-                                handleDeleteButton(row.userId);
-                              }}
+                            //   onClick={() => {
+                            //     handleDeleteButton(row.userId);
+                            //   }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
-                          </Popover> */}
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -431,85 +358,12 @@ export default function BookingItems() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={bookingItem.length}
+            count={item.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-
-          <Modal
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            open={modalOpen}
-            onClose={handleCloseModal}
-          >
-            <Box sx={styleModal}>
-              <form>
-                <Card>
-                  <CardHeader title="Thông tin chi tiết tài khoản" />
-                  <CardContent>
-                    <Grid container spacing={3}>
-                      {/* <Grid item md={6} xs={12}>
-                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
-                      </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Deposit" defaultValue={bookingItemDetail.deposit} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Trạng thái" defaultValue={bookingItemDetail.status} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={() => {
-                            handleAcceptBookingItem(bookingItemDetail.bookingItemId);
-                          }}
-                        >
-                          Chấp nhận
-                        </Button>
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={() => {
-                            handleDenyBookingItem(bookingItemDetail.bookingItemId);
-                          }}
-                        >
-                          Từ Chối
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </form>
-            </Box>
-          </Modal>
         </Card>
       </Container>
     </>

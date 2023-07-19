@@ -13,21 +13,21 @@ export async function getBookingItemWaiting(email) {
     return axiosInstance.get(url);
 }
 
-export async function deleteStaff(id) {
-    const url = `${BASE_URL}/staffs/${id}`;
+export async function acceptBookingItemWaiting(id) {
+    const url = `${BASE_URL}/bookingitems/accept/${id}`;
     try {
-        axiosInstance.delete(url, { data: { id } });
-        console.log(`Deleted Staff: ${id}`);
+        axiosInstance.put(url, { data: { id } });
+        console.log(`Accept BookingItem: ${id}`);
     } catch (error) {
         console.log(error);
     }
 }
 
-export async function acceptUserWaiting(id) {
-    const url = `${BASE_URL}/staffs/accept_user/${id}`;
+export async function denyBookingItemWaiting(id) {
+    const url = `${BASE_URL}/bookingitems/deny/${id}`;
     try {
         axiosInstance.put(url, { data: { id } });
-        console.log(`Accept User: ${id}`);
+        console.log(`Deny BookingItem: ${id}`);
     } catch (error) {
         console.log(error);
     }

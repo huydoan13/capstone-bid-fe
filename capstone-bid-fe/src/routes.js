@@ -21,29 +21,34 @@ import StaffPage from './pages/StaffPage';
 import CategoryPage from './pages/CategoryPage';
 import SessionPage from './pages/SessionPage';
 import ItemPage from './pages/ItemPage';
-import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
+import CategoryCreate from './sections/@dashboard/category/CategoryCreate';
 import { RolesAuthRoute } from './context/RolesAuthRoute';
 import UserWaitingApprove from './pages/UserWaitingApprove';
 import UserBan from './pages/UserBan';
 import UserDetail from './sections/@dashboard/user/UserDetail';
 import BookingItemsPage from './pages/BookingItems';
+import AllBookingItemPage from './pages/AllBookingItem';
+import SessionNotPayPage from './pages/SessionNotPay';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
-    { path: 'home', element: (
-      <Suspense>
-        <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
-          <HomePage />
-        </RolesAuthRoute>
-      </Suspense>
-    ), },
+    {
+      path: 'home',
+      element: (
+        <Suspense>
+          <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
+            <HomePage />
+          </RolesAuthRoute>
+        </Suspense>
+      ),
+    },
     { path: 'auction', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
-    { path: 'landing', element: <LandingPage />},
+    { path: 'landing', element: <LandingPage /> },
     {
       path: '/dashboard',
       element: (
@@ -58,13 +63,14 @@ export default function Router() {
 
         { path: 'app', element: <DashboardAppPage /> },
         {
-          path: 'user', element: <UserPage />,
+          path: 'user',
+          element: <UserPage />,
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },
         { path: 'user-detail', element: <UserDetail /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        // { path: 'products', element: <ProductsPage /> },
+        // { path: 'blog', element: <BlogPage /> },
         {
           path: 'staff',
           element: (
@@ -75,17 +81,40 @@ export default function Router() {
             </Suspense>
           ),
         },
-        { path: 'category', element: <CategoryPage /> },
-        { path: 'item-type-create', element: <ItemTypeCreate /> },
+        {
+          path: 'category',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <CategoryPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
+        { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'items', element: <ItemPage /> },
-        { path: 'booking-items', element: (
-          <Suspense>
-            <RolesAuthRoute roles={['Staff']}>
-              <BookingItemsPage />
-            </RolesAuthRoute>
-          </Suspense>
-        ), },
+        {
+          path: 'booking-items',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Staff']}>
+                <BookingItemsPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'all-booking-items',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <AllBookingItemPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
       ],
     },
     {
@@ -95,7 +124,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/landing" />, index: true },
+        { element: <Navigate to="/home" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

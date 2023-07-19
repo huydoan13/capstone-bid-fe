@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
-import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -10,7 +9,7 @@ import {
   Table,
   Stack,
   Paper,
-  // Avatar,
+  Avatar,
   Button,
   Popover,
   Checkbox,
@@ -32,33 +31,33 @@ import {
   Grid,
   CardMedia,
 } from '@mui/material';
+import { Image } from 'mui-image';
 // components
+import { useNavigate } from 'react-router-dom';
+import UserDetail from '../sections/@dashboard/user/UserDetail';
+import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
-import {
-  getBookingItemWaiting,
-  acceptBookingItemWaiting,
-  denyBookingItemWaiting,
-} from '../services/booking-item-actions';
-import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+// sections
+import { getSessionsNotPay } from '../services/session-actions';
+import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
+// mock
+// import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
-  { id: 'categoryName', label: 'Loại', alignRight: false },
-  { id: 'userName', label: 'Tên người dùng', alignRight: false },
-  { id: 'image', label: 'Hình ảnh', alignRight: false },
-  { id: 'fristPrice', label: 'Giá ban đầu', alignRight: false },
-  // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
-  // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  // { id: 'deposit', label: 'Deposit', alignRight: false },
-  { id: 'status', label: 'Trạng thái', alignRight: false },
-  { id: '' },
+    { id: 'sessionName', label: 'SessionName', alignRight: false },
+    { id: 'feeName', label: 'FeeName', alignRight: false },
+    { id: 'beginTime', label: 'BeginTime', alignRight: false },
+    { id: 'auctionTime', label: 'AuctionTime', alignRight: false },
+    { id: 'endTime', label: 'EndTime', alignRight: false },
+    { id: 'finailPrice', label: 'FinailPrice', alignRight: false },
+    { id: 'status', label: 'Status', alignRight: false },
+    { id: '' },
 ];
 
 // ----------------------------------------------------------------------
@@ -87,12 +86,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.itemName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function BookingItems() {
+export default function SessionNotPay() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -107,9 +106,9 @@ export default function BookingItems() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [bookingItem, setBookingItem] = useState([]);
+  const [session, setSession] = useState([]);
 
-  const [bookingItemDetail, setBookingItemDetail] = useState({});
+  const [upSession, setUpSession] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -119,7 +118,7 @@ export default function BookingItems() {
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
-  const user = JSON.parse(localStorage.getItem('loginUser'));
+  const navigate = useNavigate();
 
   const styleModal = {
     position: 'absolute',
@@ -132,20 +131,10 @@ export default function BookingItems() {
     p: 5,
   };
 
-  const StyledProductImg = styled('img')({
-    // top: 0,
-    width: '50px',
-    height: '50px',
-    // // objectFit: 'cover',
-    // position: 'absolute',
-    display: 'flex',
-    alignItems: 'center',
-  });
-
   // lay du lieu tat ca user
   useEffect(() => {
-    getBookingItemWaiting(user.Email).then((response) => {
-      setBookingItem(response.data);
+    getSessionsNotPay().then((response) => {
+      setSession(response.data);
       console.log(response.data);
     });
   }, []);
@@ -159,14 +148,6 @@ export default function BookingItems() {
     setAnchorEl(null);
     setOpenPopoverId(null);
   };
-
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
-
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -184,33 +165,46 @@ export default function BookingItems() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = bookingItem.map((n) => n.name);
+      const newSelecteds = session.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleOpenModalWithBookingItem = (bookingItemId) => {
+  const handleAcceptUser = (userId) => {
+    acceptUserWaiting(userId);
+    handleCloseModal();
+    handleCloseMenu();
+  };
+
+  const handleDenyUser = (userId) => {
+    denyUserWaiting(userId);
+    handleCloseModal();
+    handleCloseMenu();
+  };
+
+  const handleOpenModalWithUser = (sessionId) => {
     console.log('edit');
-    const bookingItemde = bookingItem.find((u) => u.bookingItemId === bookingItemId);
-    setBookingItemDetail(bookingItemde);
+    const updatedSession = session.find((u) => u.sessionId === sessionId);
+    setUpSession(updatedSession);
     setModalOpen(true);
     handleCloseMenu();
     // navigate('/dashboard/user-detail');
   };
 
-  const handleAcceptBookingItem = (bookingItemId) => {
-    acceptBookingItemWaiting(bookingItemId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
-
-  const handleDenyBookingItem = (bookingItemId) => {
-    denyBookingItemWaiting(bookingItemId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
+  // const handleDeleteButton = (userId) => {
+  //   deleteUser(userId)
+  //     .then(() => {
+  //       const updatedUser = user.find((u) => u.userId === userId);
+  //       updatedUser.status = false;
+  //       setUser([...user]);
+  //     })
+  //     .catch((err) => {
+  //       console.log('Can not delete because:', err);
+  //     });
+  //   handleCloseMenu();
+  // };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -249,71 +243,53 @@ export default function BookingItems() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bookingItem.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
 
-  const filteredItems = applySortFilter(bookingItem, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(session, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredItems.length && !!filterName;
+  const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Đơn đăng kí đấu giá | BIDS </title>
+        <title> Phiên đấu giá chưa thanh toán | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Đơn đăng kí đấu giá
+          Phiên đấu giá chưa thanh toán
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            Tạo mới đơn đăng kí đấu giá
+            New User
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <BookingItemListToolbar
-            numSelected={selected.length}
-            filterName={filterName}
-            onFilterName={handleFilterByName}
-          />
-
+          <SessionListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          {/* <UserDetail userDetail={upUser} /> */}
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <BookingItemListHead
+                <SessionListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={bookingItem.length}
+                  rowCount={session.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const {
-                      itemId,
-                      bookingItemId,
-                      itemName,
-                      categoryName,
-                      userName,
-                      quantity,
-                      image,
-                      firstPrice,
-                      stepPrice,
-                      deposit,
-                      createDate,
-                      updateDate,
-                      status,
-                    } = row;
-                    const selectedUser = selected.indexOf(itemName) !== -1;
+                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finailPrice, status } = row;
+                    const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
-                      <TableRow hover key={itemId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -325,37 +301,22 @@ export default function BookingItems() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{itemName}</TableCell>
-                        <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{userName}</TableCell>
-                        {/* <TableCell align="left">{quantity}</TableCell> */}
+                        <TableCell align="left">{sessionName}</TableCell>
+                        <TableCell align="left">{feeName}</TableCell>
+                        <TableCell align="left">{finailPrice}</TableCell>
+                        {/* <TableCell align="left">{address}</TableCell> */}
+                        {/* <TableCell align="left">{phone}</TableCell> */}
+                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <StyledProductImg src={image} />
-                        </TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
-                        {/* <TableCell align="left">{stepPrice}</TableCell>
-                        <TableCell align="left">{deposit}</TableCell> */}
-                        <TableCell align="left">{formatDate(createDate)}</TableCell>
-                        {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
-                        <TableCell align="left">
-                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <Chip label={status} color="warning" />
                         </TableCell>
 
                         <TableCell align="right">
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithBookingItem(row.bookingItemId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton>
-                          <Popover
-                            open={openPopoverId === itemId}
+                          </IconButton> */}
+                          {/* <Popover
+                            open={openPopoverId === userId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -373,22 +334,27 @@ export default function BookingItems() {
                                 },
                               },
                             }}
+                          > */}
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithUser(row.userId);
+                            }}
                           >
-                            <MenuItem onClick={handleEditButton}>
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Edit
-                            </MenuItem>
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
 
-                            <MenuItem
-                              onClick={() => {
-                                handleDeleteButton(row.userId);
-                              }}
+                          {/* <MenuItem
+                              // onClick={() => {
+                              //   handleDeleteButton(row.userId);
+                              // }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
-                            </MenuItem>
-                          </Popover> */}
+                            </MenuItem> */}
+                          {/* </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -431,7 +397,7 @@ export default function BookingItems() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={bookingItem.length}
+            count={session.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -454,42 +420,39 @@ export default function BookingItems() {
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
                       <Grid item md={6} xs={12}>
-                        <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
+                        <TextField label="Họ và tên" defaultValue={upSession.userName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
+                        <TextField label="Số CCCD" defaultValue={upSession.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt trước CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upSession.cccdfrontImage} alt="CCCD Front Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt sau CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Email" defaultValue={upSession.email} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Địa chỉ" defaultValue={upSession.address} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice} />
+                        <TextField label="Số điện thoại" defaultValue={upSession.phone} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Deposit" defaultValue={bookingItemDetail.deposit} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Trạng thái" defaultValue={bookingItemDetail.status} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
+                        <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptBookingItem(bookingItemDetail.bookingItemId);
+                            handleAcceptUser(upSession.sessionId);
                           }}
                         >
                           Chấp nhận
@@ -498,7 +461,7 @@ export default function BookingItems() {
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleDenyBookingItem(bookingItemDetail.bookingItemId);
+                            handleDenyUser(upSession.sessionId);
                           }}
                         >
                           Từ Chối

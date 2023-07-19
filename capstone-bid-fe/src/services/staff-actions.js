@@ -36,3 +36,22 @@ export async function denyUserWaiting(id) {
         console.log(error);
     }
 }
+
+export async function banUser(id) {
+    const url = `${BASE_URL}/staffs/ban/${id}`;
+    try {
+        axiosInstance.put(url, { data: { id } });
+        console.log(`Ban User: ${id}`);
+    } catch (error) {
+        console.log(error);
+    }
+}
+export async function unBanUser(id) {
+    const url = `${BASE_URL}/staffs/unban/${id}`;
+    try {
+        axiosInstance.put(url, { data: { id } });
+        console.log(`UnBan User: ${id}`);
+    } catch (error) {
+        console.log(error);
+    }
+}

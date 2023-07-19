@@ -9,6 +9,11 @@ export async function getAllSessions() {
     return axiosInstance.get(url);
 }
 
+export async function getSessionsNotPay() {
+    const url = `${BASE_URL}/sessions/by_havent_pay`;
+    return axiosInstance.get(url);
+}
+
 export async function deleteSession(id) {
     const url = `${BASE_URL}/sessions/${id}`;
     try {

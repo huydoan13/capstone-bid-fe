@@ -56,7 +56,7 @@ const TABLE_HEAD = [
   { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
   // { id: 'address', label: 'Address', alignRight: false },
   { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
   { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -117,7 +117,7 @@ export default function UserWaitingApprove() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
 
@@ -309,7 +309,7 @@ export default function UserWaitingApprove() {
                         <TableCell align="left">{cccdnumber}</TableCell>
                         {/* <TableCell align="left">{address}</TableCell> */}
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip label={status} color="warning" />
                         </TableCell>
@@ -429,10 +429,15 @@ export default function UserWaitingApprove() {
                         <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Back Image" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt trước CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Front Image" />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        {/* <Image src={upUser.cccdbackImage} /> */}
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt sau CCCD
+                        </Typography>
                         <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" />
                       </Grid>
                       <Grid item md={12} xs={12}>
@@ -445,7 +450,7 @@ export default function UserWaitingApprove() {
                         <TextField label="Số điện thoại" defaultValue={upUser.phone} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={fDate(upUser.dateOfBirth)} />
+                        <TextField label="Ngày sinh" defaultValue={formatDate(upUser.dateOfBirth)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button

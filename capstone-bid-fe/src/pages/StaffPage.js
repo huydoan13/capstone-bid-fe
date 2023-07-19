@@ -104,7 +104,7 @@ export default function StaffPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -264,7 +264,7 @@ export default function StaffPage() {
                         <TableCell align="left">{email}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        <TableCell align="left">{formatDate(dateOfBirth)}</TableCell>
                         {/* <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell> */}
