@@ -31,6 +31,7 @@ import AllBookingItemPage from './pages/AllBookingItem';
 import SessionNotPayPage from './pages/SessionNotPay';
 import SessionOutOfDatePage from './pages/SessionOutOfDate';
 import SessionCreate from './sections/@dashboard/session/SessionCreate';
+import SessionSuccessPage from './pages/SessionSuccess';
 
 // ----------------------------------------------------------------------
 
@@ -95,9 +96,10 @@ export default function Router() {
         },
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
+        { path: 'session-success', element: <SessionSuccessPage /> },
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
-        { path: 'session-create', element: <SessionCreate /> },
+        { path: 'session-create/:itemId', element: <SessionCreate /> },
         { path: 'items', element: <ItemPage /> },
         {
           path: 'booking-items',

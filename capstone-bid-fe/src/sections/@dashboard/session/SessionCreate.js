@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { getAllSessionRule } from '../../../services/session-rule-actions';
 import { createSession } from '../../../services/session-actions';
 import axiosInstance from '../../../services/axios-instance';
@@ -39,16 +39,13 @@ function SessionCreate() {
 
   const [selectedSessionRuleName, setSelectedSessionRuleName] = useState('');
 
-  const [sessionName, setSessionName] = useState('');
-  const [itemId, setItemId] = useState('');
   const [sessionRuleId, setSessionRuleId] = useState('');
-
-  const [beginTime, setBeginTime] = useState('');
-  const [endTime, setEndTime] = useState('');
 
   const [errMsg, setErrMsg] = useState('');
 
   const navigate = useNavigate();
+
+  const { itemId } = useParams();
 
   useEffect(() => {
     getAllSessionRule().then((response) => {
@@ -74,13 +71,16 @@ function SessionCreate() {
     event.preventDefault();
 
     try {
-      const response = await createSession({ sessionData });
-      setSessionName('');
-      setItemId('');
-      setSessionRuleId('');
-      setBeginTime('');
-      setEndTime('');
-      navigate('/dashboard/session');
+      const response = await createSession( sessionData, itemId );
+      // setSessionName('');
+      // setSessionRuleId('');
+      // setBeginTime('');
+      // setEndTime('');
+      // if (response.status === 200) {
+      navigate('/dashboard/booking-items');
+      // } else {
+      //   setErrMsg('Phien dau gia da ton tai');
+      // }
     } catch (error) {
       console.error('Error creating session:', error);
       setErrMsg(error.message);
@@ -90,7 +90,7 @@ function SessionCreate() {
 
   return (
     <Container>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
         <Typography variant="h4" gutterBottom>
           Tạo mới Phiên đấu giá
         </Typography>
@@ -105,23 +105,22 @@ function SessionCreate() {
         </p>
         <TextField
           label="Session Name"
-          value={sessionName}
-          onChange={(event) => setSessionName(event.target.value)}
+          value={sessionData.sessionName}
+          onChange={(event) => setSessionData({ ...sessionData, sessionName: event.target.value })}
           fullWidth
           required
         />
 
         <TextField
           label="Item Id"
-          value={sessionData.itemId}
-          onChange={(event) => setSessionName(event.target.value)}
+          value={itemId}
           fullWidth
           disabled
         />
 
         <FormControl fullWidth required margin="normal">
           <InputLabel>Quy tắc đấu giá</InputLabel>
-          <Select value={sessionRuleId} onChange={(event) => setSessionRuleId(event.target.value)} label="Session Rule">
+          <Select value={sessionData.sessionRuleId} onChange={(event) => setSessionData({ ...sessionData, sessionRuleId: event.target.value })} label="Session Rule">
             {sessionRules.map((sessionRule) => (
               <MenuItem key={sessionRule.sessionRuleId} value={sessionRule.sessionRuleId}>
                 {sessionRule.name}
@@ -131,11 +130,13 @@ function SessionCreate() {
         </FormControl>
 
         <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DateTimePicker label="Begin Time" fullWidth />
+          <DateTimePicker label="Begin Time" value={sessionData.beginTime} fullWidth onChange={(date) => setSessionData({ ...sessionData, beginTime: date })}
+        renderInput={(params) => <TextField {...params} />} />
         </LocalizationProvider>
 
         <LocalizationProvider dateAdapter={AdapterMoment}>
-          <DateTimePicker label="End Time" fullWidth />
+          <DateTimePicker label="End Time" value={sessionData.endTime} fullWidth onChange={(date) => setSessionData({ ...sessionData, endTime: date })}
+        renderInput={(params) => <TextField {...params} />} />
         </LocalizationProvider>
         <br/>
         <Button type="submit" variant="contained" color="primary">

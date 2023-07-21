@@ -37,7 +37,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getAllUserActive } from '../services/user-actions';
+import { getAllUserActive, getStatusInfo } from '../services/user-actions';
 import { deleteUser } from '../services/deleteUser';
 import { banUser } from '../services/staff-actions';
 import { fDate } from '../utils/formatTime';
@@ -317,7 +317,10 @@ export default function UserPage() {
                         <TableCell align="left">{phone}</TableCell>
                         {/* <TableCell align="left">{fDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="success" />
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">

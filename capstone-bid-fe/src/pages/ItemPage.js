@@ -57,7 +57,7 @@ const TABLE_HEAD = [
   // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
   { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
   // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'deposit', label: 'Deposit', alignRight: false },
+  { id: 'deposit', label: 'Phí đặt cọc', alignRight: false },
   // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -310,7 +310,7 @@ export default function ItemPage() {
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
                         {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={deposit ? 'True' : 'False'} color={status ? 'success' : 'error'} />
+                          <Chip label={deposit ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">

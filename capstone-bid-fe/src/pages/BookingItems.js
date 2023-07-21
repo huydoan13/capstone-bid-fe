@@ -39,12 +39,14 @@ import {
   getBookingItemWaiting,
   acceptBookingItemWaiting,
   denyBookingItemWaiting,
+  getStatusInfo,
 } from '../services/booking-item-actions';
 import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import SessionCreate from '../sections/@dashboard/session/SessionCreate';
 
 // ----------------------------------------------------------------------
 
@@ -205,7 +207,7 @@ export default function BookingItems() {
 
   const handleAcceptBookingItem = (bookingItemId) => {
     acceptBookingItemWaiting(bookingItemId);
-    navigate('/dashboard/session-create');
+    navigate(`/dashboard/session-create/${bookingItemDetail.itemId}`);
     handleCloseModal();
     handleCloseMenu();
   };
@@ -342,7 +344,10 @@ export default function BookingItems() {
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
                         {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">

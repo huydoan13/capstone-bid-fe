@@ -34,7 +34,7 @@ import {
 import { Image } from 'mui-image';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllUserBan, getUserWaiting } from 'src/services/user-actions';
+import { getAllUserBan, getStatusInfo } from 'src/services/user-actions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
@@ -311,7 +311,10 @@ export default function UserBan() {
                         <TableCell align="left">{phone}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="error" />
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
