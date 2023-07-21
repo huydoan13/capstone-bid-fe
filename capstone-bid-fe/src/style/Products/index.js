@@ -32,8 +32,8 @@ export const ProductImage = styled('img')(({ src, theme }) => ({
 export const ProductDetailImage = styled('img')(({ src, theme }) => ({
 
     src: `url(${src})`,
-    width: '650px',
-    height: '550px',
+    width: '500px',
+    height: '500px',
     background: Colors.light_gray,
     padding: '10px',
     [theme.breakpoints.down('md')]: {

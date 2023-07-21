@@ -33,6 +33,7 @@ import {
   CardMedia,
 } from '@mui/material';
 import { Image } from 'mui-image';
+
 // components
 // eslint-disable-next-line import/no-unresolved
 import { getUserWaiting, getStatusInfo } from 'src/services/user-actions';

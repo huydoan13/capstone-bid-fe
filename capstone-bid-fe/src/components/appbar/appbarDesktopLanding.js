@@ -1,4 +1,4 @@
-import { ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import { Link, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search"
 import { AppbarContainer, AppbarHeader, MyList } from "../../style/appbar";
 import Actions from "./actions";
@@ -12,7 +12,7 @@ export default function AppbarDesktopLanding({ matches }) {
     return (
 
         <AppbarContainer>
-            <AppbarHeader>Online Bids</AppbarHeader>
+            <AppbarHeader><Link underline="none" href="/landing">Online Bids</Link></AppbarHeader>
             <MyList type="row">
                 <ListItemText primary="Tài Sản Đấu Giá" />
                 <ListItemText primary="Cuộc Đấu Giá" />

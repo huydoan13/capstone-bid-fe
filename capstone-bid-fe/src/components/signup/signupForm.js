@@ -26,7 +26,7 @@ const SignUpForm = () => {
 
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_FW25bUpBZmkPhjgTWxYkac1GPbYr" });
+  const uploader = Uploader({ apiKey: "free" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -16,6 +16,9 @@ import SignUp from './pages/SignUp';
 import AddProduct from './pages/AddProduct';
 import AuctionPage from './pages/AuctionPage';
 import Profile from './pages/Profile';
+import PrepareSession from './pages/PrepareSession';
+import InstageSession from './pages/InstageSession';
+import FinishSession from './pages/FinishSession';
 // import StaffPage from './pages/StaffPage';
 import StaffPage from './pages/StaffPage';
 import CategoryPage from './pages/CategoryPage';
@@ -37,21 +40,21 @@ import SessionSuccessPage from './pages/SessionSuccess';
 
 export default function Router() {
   const routes = useRoutes([
-    {
-      path: 'home',
-      element: (
-        <Suspense>
-          <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
-            <HomePage />
-          </RolesAuthRoute>
-        </Suspense>
-      ),
-    },
+    // { path: 'home', element: (
+    //   <Suspense>
+    //     <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
+    //       <HomePage />
+    //     </RolesAuthRoute>
+    //   </Suspense>
+    // ), },
     { path: 'auction', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
-    { path: 'landing', element: <LandingPage /> },
+    { path: 'home', element: <HomePage />},
+    { path: 'prepare', element: <PrepareSession />},
+    { path: 'instage', element: <InstageSession />},
+    { path: 'finish', element: <FinishSession />},
     {
       path: '/dashboard',
       element: (
