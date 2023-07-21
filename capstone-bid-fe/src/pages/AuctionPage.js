@@ -1,4 +1,4 @@
-import { Container } from "@mui/material";
+import { Container, Typography } from "@mui/material";
 import Appbar from '../components/appbar';
 import Footer from "../components/footer";
 import { UIProvider } from '../context/ui';
@@ -19,6 +19,9 @@ export default function AuctionPage(){
             <UIProvider>
                 <Appbar />
                 <AuctionForm />
+                <Typography>
+                    <h1> </h1>
+                </Typography>
                 <Footer />
                 <AppDrawer />
                 <SearchBox />

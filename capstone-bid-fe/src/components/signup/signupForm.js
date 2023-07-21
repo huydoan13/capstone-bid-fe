@@ -26,7 +26,7 @@ const SignUpForm = () => {
 
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_FW25bUpBZmkPhjgTWxYkac1GPbYr" });
+  const uploader = Uploader({ apiKey: "free" });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,7 +68,7 @@ const SignUpForm = () => {
         cccdfrontImage,
         cccdbackImage,
       });
-      navigate('/home', { replace: true });
+      navigate('/landing', { replace: true });
       console.log('Server response:', response.data);
       setSuccessDialogOpen(true);
 
