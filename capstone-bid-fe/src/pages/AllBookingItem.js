@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -27,7 +28,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllBookingItem } from 'src/services/booking-item-actions';
+import { getAllBookingItem, getStatusInfo } from 'src/services/booking-item-actions';
 // eslint-disable-next-line import/no-unresolved
 import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
@@ -38,16 +39,16 @@ import Scrollbar from '../components/scrollbar';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemName', label: 'ItemName', alignRight: false },
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  // { id: 'quantity', label: 'Quantity', alignRight: false },
-  // { id: 'image', label: 'Image', alignRight: false },
-  // { id: 'fristPrice', label: 'FristPrice', alignRight: false },
+  { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
+  { id: 'categoryName', label: 'Loại', alignRight: false },
+  { id: 'userName', label: 'Tên người dùng', alignRight: false },
+  { id: 'image', label: 'Hình ảnh', alignRight: false },
+  { id: 'fristPrice', label: 'Giá ban đầu', alignRight: false },
   // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
+  // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
   // { id: 'deposit', label: 'Deposit', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -105,9 +106,19 @@ export default function AllBookingItem() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const user = JSON.parse(localStorage.getItem('loginUser'));
+
+    const StyledProductImg = styled('img')({
+    // top: 0,
+    width: '50px',
+    height: '50px',
+    // // objectFit: 'cover',
+    // position: 'absolute',
+    display: 'flex',
+    alignItems: 'center',
+  });
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -245,7 +256,7 @@ export default function AllBookingItem() {
                 />
                 <TableBody>
                   {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, categoryName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const { itemId, itemName, categoryName, userName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -265,16 +276,21 @@ export default function AllBookingItem() {
 
                         <TableCell align="left">{itemName}</TableCell>
                         <TableCell align="left">{categoryName}</TableCell>
-                        {/* <TableCell align="left">{descriptionDetail}</TableCell>
-                        <TableCell align="left">{quantity}</TableCell>
-                        <TableCell align="left">{image}</TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
-                        <TableCell align="left">{stepPrice}</TableCell>
-                        <TableCell align="left">{deposit}</TableCell> */}
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">{userName}</TableCell>
+                        {/* <TableCell align="left">{quantity}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <StyledProductImg src={image} />
+                        </TableCell>
+                        <TableCell align="left">{firstPrice}</TableCell>
+                        {/* <TableCell align="left">{stepPrice}</TableCell>
+                        <TableCell align="left">{deposit}</TableCell> */}
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
+                        {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
+                        <TableCell align="left">
+                        <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">

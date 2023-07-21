@@ -29,6 +29,8 @@ import UserDetail from './sections/@dashboard/user/UserDetail';
 import BookingItemsPage from './pages/BookingItems';
 import AllBookingItemPage from './pages/AllBookingItem';
 import SessionNotPayPage from './pages/SessionNotPay';
+import SessionOutOfDatePage from './pages/SessionOutOfDate';
+import SessionCreate from './sections/@dashboard/session/SessionCreate';
 
 // ----------------------------------------------------------------------
 
@@ -94,6 +96,8 @@ export default function Router() {
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
+        { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
+        { path: 'session-create', element: <SessionCreate /> },
         { path: 'items', element: <ItemPage /> },
         {
           path: 'booking-items',

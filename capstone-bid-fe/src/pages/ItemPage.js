@@ -118,7 +118,7 @@ export default function ItemPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
   const styleModal = {
     position: 'absolute',
@@ -446,6 +446,7 @@ export default function ItemPage() {
                       <Grid item md={12} xs={12}>
                         <TextField
                           fullWidth
+                          multiline
                           label="Mô tả chi tiết sản phẩm"
                           defaultValue={itemDetail.descriptionDetail}
                         />

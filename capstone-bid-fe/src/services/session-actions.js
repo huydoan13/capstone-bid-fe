@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosInstance from './axios-instance';
 
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api/';
+const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
 
 export async function getAllSessions() {
     const url = `${BASE_URL}/sessions`;
@@ -11,6 +11,11 @@ export async function getAllSessions() {
 
 export async function getSessionsNotPay() {
     const url = `${BASE_URL}/sessions/by_havent_pay`;
+    return axiosInstance.get(url);
+}
+
+export async function getSessionsOutOfDate() {
+    const url = `${BASE_URL}/sessions/by_out_of_date`;
     return axiosInstance.get(url);
 }
 
@@ -27,11 +32,11 @@ export async function deleteSession(id) {
 export async function createSession(session) {
     const url = `${BASE_URL}/sessions`;
     const data = {
-        itemId: session.itemId,
         sessionName: session.sessionName,
-        beginTime: session.beginTime,
-        auctionTime: session.auctionTime,
-        endTime: session.endTime,
+        itemId: session.itemId,
+        sessionRuleId: session.sessionRuleId,
+        beginTime: session.beginTime.toISOString(),
+        endTime: session.endTime.toISOString(),
     }
     try {
         axiosInstance.post(url, data);
@@ -39,3 +44,16 @@ export async function createSession(session) {
         console.log(error);
     }
 }
+
+export function getStatusInfo(status) {
+    switch (status) {
+      case 1:
+        return { text: 'NotStart', color: 'F0F758' }; // Red color
+      case 2:
+        return { text: 'InStage', color: '#00FF00' }; // Green color
+      case 3:
+        return { text: 'Chưa thanh toán', color: '#FF0000' }; // Blue color
+      default:
+        return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
+    }
+  }

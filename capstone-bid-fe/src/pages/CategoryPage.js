@@ -46,10 +46,10 @@ import { CategoryListHead, CategoryListToolbar } from '../sections/@dashboard/ca
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'categoryName', label: 'Tên Loại', alignRight: false },
+  { id: 'updateDate', label: 'Ngày cập nhật', alignRight: false },
+  { id: 'createDate', label: 'Ngày tạo', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -117,7 +117,7 @@ export default function CaterogyPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
 
   // const handleInputChange = (event) => {
@@ -309,8 +309,8 @@ export default function CaterogyPage() {
                           </TableCell> */}
 
                         <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{formatDate(updateDate)}</TableCell>
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell>

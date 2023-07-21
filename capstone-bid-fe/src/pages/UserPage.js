@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -34,6 +35,8 @@ import {
 // components
 // eslint-disable-next-line import/no-unresolved
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { getAllUserActive } from '../services/user-actions';
 import { deleteUser } from '../services/deleteUser';
 import { banUser } from '../services/staff-actions';
@@ -49,13 +52,13 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'userName', label: 'Họ và tên', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  { id: 'cccdnumber', label: 'Số CCCD', alignRight: false },
   // { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
+  { id: 'phone', label: 'Số điện thoại', alignRight: false },
   // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -118,6 +121,23 @@ export default function UserPage() {
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
+
+  const handleImageClick = () => {
+    // Perform the action you want when the image is clicked
+    // For example, open the image in a larger view or trigger a modal to display the image
+    // You can implement this logic based on your specific requirements
+    console.log('Image clicked!');
+  };
 
   const styleModal = {
     position: 'absolute',
@@ -187,6 +207,10 @@ export default function UserPage() {
 
   const handleBanUser = (userId) => {
     banUser(userId);
+    toast.success('Cấm người dùng thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
@@ -245,10 +269,10 @@ export default function UserPage() {
           <Typography variant="h4" gutterBottom>
             Người dùng đang hoạt động
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
+          </Button> */}
+
         </Stack>
 
         <Card>
@@ -418,11 +442,11 @@ export default function UserPage() {
                         <TextField label="Số CCCD" defaultValue={userDetail.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={userDetail.cccdfrontImage} alt="CCCD Back Image" />
+                        <CardMedia component="img" image={userDetail.cccdfrontImage} alt="CCCD Back Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         {/* <Image src={userDetail.cccdbackImage} /> */}
-                        <CardMedia component="img" image={userDetail.cccdbackImage} alt="CCCD Back Image" />
+                        <CardMedia component="img" image={userDetail.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField fullWidth label="Email" defaultValue={userDetail.email} />

@@ -35,6 +35,8 @@ import { Image } from 'mui-image';
 // components
 // eslint-disable-next-line import/no-unresolved
 import { getAllUserBan, getUserWaiting } from 'src/services/user-actions';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting, unBanUser } from '../services/staff-actions';
@@ -51,13 +53,13 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'userName', label: 'Họ và tên', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  { id: 'cccdnumber', label: 'Số CCCD', alignRight: false },
   // { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
+  { id: 'phone', label: 'Số điện thoại', alignRight: false },
   // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -175,6 +177,10 @@ export default function UserBan() {
 
   const handleUnBanUser = (userId) => {
     unBanUser(userId);
+    toast.success('Gỡ cấm người dùng thành công!', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
@@ -258,10 +264,9 @@ export default function UserBan() {
           <Typography variant="h4" gutterBottom>
             Người dùng đang bị cấm
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
+          </Button> */}
         </Stack>
 
         <Card>

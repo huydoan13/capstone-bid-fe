@@ -34,6 +34,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
+import { useNavigate } from 'react-router-dom';
 import {
   getBookingItemWaiting,
   acceptBookingItemWaiting,
@@ -121,6 +122,8 @@ export default function BookingItems() {
 
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
+  const navigate = useNavigate();
+
   const styleModal = {
     position: 'absolute',
     top: '50%',
@@ -202,6 +205,7 @@ export default function BookingItems() {
 
   const handleAcceptBookingItem = (bookingItemId) => {
     acceptBookingItemWaiting(bookingItemId);
+    navigate('/dashboard/session-create');
     handleCloseModal();
     handleCloseMenu();
   };
