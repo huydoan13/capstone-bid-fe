@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -22,14 +23,23 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  // Modal,
+  Modal,
   Chip,
+  Grid,
+  CardMedia,
+  TextField,
+  Box,
+  CardHeader,
+  CardContent,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllUserActive } from 'src/services/user-actions';
-// eslint-disable-next-line import/no-unresolved
-import { deleteUser } from 'src/services/deleteUser';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { getAllUserActive, getStatusInfo } from '../services/user-actions';
+import { deleteUser } from '../services/deleteUser';
+import { banUser } from '../services/staff-actions';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -42,13 +52,13 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'userName', label: 'Họ và tên', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
+  { id: 'cccdnumber', label: 'Số CCCD', alignRight: false },
+  // { id: 'address', label: 'Address', alignRight: false },
+  { id: 'phone', label: 'Số điện thoại', alignRight: false },
+  // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -100,13 +110,45 @@ export default function UserPage() {
 
   const [user, setUser] = useState([]);
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const [userDetail, setUserDetail] = useState({});
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+
+  const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
+
+  const handleImageClick = () => {
+    // Perform the action you want when the image is clicked
+    // For example, open the image in a larger view or trigger a modal to display the image
+    // You can implement this logic based on your specific requirements
+    console.log('Image clicked!');
+  };
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '500px',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+  };
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -149,21 +191,27 @@ export default function UserPage() {
     setSelected([]);
   };
 
+  const handleOpenModalWithUser = (userId) => {
+    const updatedUser = user.find((u) => u.userId === userId);
+    setUserDetail(updatedUser);
+    setModalOpen(true);
+    handleCloseMenu();
+    // navigate('/dashboard/user-detail');
+  };
+
   const handleEditButton = () => {
     console.log('edit');
     handleCloseMenu();
   };
 
-  const handleDeleteButton = (userId) => {
-    deleteUser(userId)
-      .then(() => {
-        const updatedUser = user.find((u) => u.userId === userId);
-        updatedUser.status = false;
-        setUser([...user]);
-      })
-      .catch((err) => {
-        console.log('Can not delete because:', err);
-      });
+
+  const handleBanUser = (userId) => {
+    banUser(userId);
+    toast.success('Cấm người dùng thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
+    handleCloseModal();
     handleCloseMenu();
   };
 
@@ -196,13 +244,13 @@ export default function UserPage() {
     setFilterName(event.target.value);
   };
 
-  // const handleOpenModal = () => {
-  //   setModalOpen(true);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseModal = () => {
-  //   setModalOpen(false);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
 
@@ -221,10 +269,10 @@ export default function UserPage() {
           <Typography variant="h4" gutterBottom>
             Người dùng đang hoạt động
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
+          </Button> */}
+
         </Stack>
 
         <Card>
@@ -265,15 +313,27 @@ export default function UserPage() {
                         <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">{email}</TableCell>
                         <TableCell align="left">{cccdnumber}</TableCell>
-                        <TableCell align="left">{address}</TableCell>
+                        {/* <TableCell align="left">{address}</TableCell> */}
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
-                        {/* <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
-                        </TableCell> */}
+                        {/* <TableCell align="left">{fDate(dateOfBirth)}</TableCell> */}
+                        <TableCell align="left">
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
+                        </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                        <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithUser(row.userId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
@@ -296,9 +356,13 @@ export default function UserPage() {
                               },
                             }}
                           >
-                            <MenuItem onClick={handleEditButton}>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenModalWithUser(row.userId);
+                              }}
+                            >
                               <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Edit
+                              Xem chi tiết
                             </MenuItem>
 
                             <MenuItem
@@ -310,7 +374,7 @@ export default function UserPage() {
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
-                          </Popover>
+                          </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -359,6 +423,69 @@ export default function UserPage() {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+          <Modal
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            open={modalOpen}
+            onClose={handleCloseModal}
+          >
+            <Box sx={styleModal}>
+              <form>
+                <Card>
+                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardContent>
+                    <Grid container spacing={3}>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
+                      </Grid> */}
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Họ và tên" defaultValue={userDetail.userName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số CCCD" defaultValue={userDetail.cccdnumber} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={userDetail.cccdfrontImage} alt="CCCD Back Image" className={classes.cardMedia} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        {/* <Image src={userDetail.cccdbackImage} /> */}
+                        <CardMedia component="img" image={userDetail.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Email" defaultValue={userDetail.email} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Địa chỉ" defaultValue={userDetail.address} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số điện thoại" defaultValue={userDetail.phone} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày sinh" defaultValue={formatDate(userDetail.dateOfBirth)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleBanUser(userDetail.userId);
+                          }}
+                          sx = {{color: 'red'}}
+                        >
+                          Cấm người dùng
+                        </Button>
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={handleCloseModal}
+                        >
+                          Hủy
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </form>
+            </Box>
+          </Modal>
         </Card>
       </Container>
     </>

@@ -35,12 +35,23 @@ const navConfig = [
     path: '/dashboard/sessions',
     icon: icon('ic_staff'),
     role: ['Admin', 'Staff'],
+    items: [
+      { title: 'Thành Công', path: '/dashboard/session-success', icon: <AccountCircleTwoToneIcon />, },
+      { title: 'Chưa Thanh Toán', path: '/dashboard/session-not-pay', icon: <AccountCircleTwoToneIcon />, },
+      { title: 'Quá Hạn', path: '/dashboard/session-out-of-date', icon: <AccountCircleTwoToneIcon />, },
+    ]
   },
   {
     title: 'Đơn đăng kí đấu giá',
     path: '/dashboard/booking-items',
     icon: icon('ic_staff'),
     role: ['Staff'],
+  },
+  {
+    title: 'Tổng đơn đăng kí đấu giá',
+    path: '/dashboard/all-booking-items',
+    icon: icon('ic_staff'),
+    role: ['Admin'],
   },
   {
     title: 'Sản phẩm đấu giá',
@@ -52,7 +63,7 @@ const navConfig = [
     title: 'Các loại đấu giá',
     path: '/dashboard/category',
     icon: icon('ic_staff'),
-    role: ['Admin', 'Staff'],
+    role: ['Admin'],
   },
   // {
   //   title: 'product',

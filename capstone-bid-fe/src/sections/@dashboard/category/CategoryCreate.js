@@ -34,7 +34,6 @@ function CategoryCreate() {
 
     try {
       const response = await createCategory({ categoryName });
-      const message = response.data;
       setCategoryName('');
       navigate('/dashboard/category');
     } catch (error) {

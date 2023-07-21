@@ -3,6 +3,9 @@ import { Outlet } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 //
+
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Header from './header';
 import Nav from './nav';
 
@@ -44,6 +47,7 @@ export default function DashboardLayout() {
       <Main>
         <Outlet />
       </Main>
+      <ToastContainer />
     </StyledRoot>
   );
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import axiosInstance from "./axios-instance";
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api/';
+const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
 
 export async function getAllBookingItem() {
     const url = `${BASE_URL}/bookingitems`;
@@ -13,22 +13,37 @@ export async function getBookingItemWaiting(email) {
     return axiosInstance.get(url);
 }
 
-export async function deleteStaff(id) {
-    const url = `${BASE_URL}/staffs/${id}`;
+export async function acceptBookingItemWaiting(id) {
+    const url = `${BASE_URL}/bookingitems/accept/${id}`;
     try {
-        axiosInstance.delete(url, { data: { id } });
-        console.log(`Deleted Staff: ${id}`);
+        axiosInstance.put(url, { data: { id } });
+        console.log(`Accept BookingItem: ${id}`);
     } catch (error) {
         console.log(error);
     }
 }
 
-export async function acceptUserWaiting(id) {
-    const url = `${BASE_URL}/staffs/accept_user/${id}`;
+export async function denyBookingItemWaiting(id) {
+    const url = `${BASE_URL}/bookingitems/deny/${id}`;
     try {
         axiosInstance.put(url, { data: { id } });
-        console.log(`Accept User: ${id}`);
+        console.log(`Deny BookingItem: ${id}`);
     } catch (error) {
         console.log(error);
     }
 }
+
+export function getStatusInfo(status) {
+    switch (status) {
+      case 'Waitting':
+        return { text: 'Đang chờ duyệt', color: '#FA8D24' }; // Red color
+      case 'Accepted':
+        return { text: 'Đã chấp nhận', color: '#00FF00' }; // Green color
+      case 'Denied':
+        return { text: 'Từ chối', color: '#FF0000' }; // Blue color
+      case 'Unactive':
+        return { text: 'Không hoạt động', color: '#FF0000' }; // Blue color
+      default:
+        return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
+    }
+  }

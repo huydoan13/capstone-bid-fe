@@ -34,10 +34,6 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-// eslint-disable-next-line import/no-unresolved
-import { getUserWaiting, getStatusInfo } from 'src/services/user-actions';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
@@ -47,19 +43,20 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
+import { getSessionsNotPay, getSessionsSuccess, getStatusInfo } from '../services/session-actions';
+import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'Họ và tên', alignRight: false },
-  { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'Số CCCD', alignRight: false },
-  // { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Số điện thoại', alignRight: false },
-  // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  { id: 'sessionName', label: 'Phiên đấu giá', alignRight: false },
+  { id: 'feeName', label: 'Phân khúc', alignRight: false },
+  { id: 'beginTime', label: 'Thời gian bắt đầu', alignRight: false },
+  // { id: 'auctionTime', label: 'Thời gian đấu giá', alignRight: false },
+  { id: 'endTime', label: 'Thời gian kết thúc', alignRight: false },
+  { id: 'finailPrice', label: 'Giá chốt', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -90,12 +87,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.sessionName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function UserWaitingApprove() {
+export default function SessionSuccess() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -110,9 +107,9 @@ export default function UserWaitingApprove() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [user, setUser] = useState([]);
+  const [session, setSession] = useState([]);
 
-  const [upUser, setUpUser] = useState({});
+  const [upSession, setUpSession] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -120,15 +117,16 @@ export default function UserWaitingApprove() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
+  const formatAuctionTime = (date) => moment(date, "HH:mm:ss.SSSSSSS").format('hh:mm:ss');
 
   const navigate = useNavigate();
 
   const useStyles = makeStyles((theme) => ({
     cardMedia: {
-      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      width: '800px', // Điều chỉnh chiều rộng tùy ý
       height: '300px', // Điều chỉnh chiều cao tùy ý
-      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+      objectFit: 'contain', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
     },
   }));
 
@@ -147,8 +145,8 @@ export default function UserWaitingApprove() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getUserWaiting().then((response) => {
-      setUser(response.data);
+    getSessionsSuccess().then((response) => {
+      setSession(response.data);
       console.log(response.data);
     });
   }, []);
@@ -179,7 +177,7 @@ export default function UserWaitingApprove() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = user.map((n) => n.name);
+      const newSelecteds = session.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -188,30 +186,20 @@ export default function UserWaitingApprove() {
 
   const handleAcceptUser = (userId) => {
     acceptUserWaiting(userId);
-    toast.success('Chấp nhận người dùng thành công!', {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
-    });
     handleCloseModal();
     handleCloseMenu();
   };
 
   const handleDenyUser = (userId) => {
     denyUserWaiting(userId);
-    toast.success('Từ chối người dùng thành công!', {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
-    });
     handleCloseModal();
     handleCloseMenu();
   };
 
-  const handleOpenModalWithUser = (userId) => {
+  const handleOpenModalWithUser = (sessionId) => {
     console.log('edit');
-    const updatedUser = user.find((u) => u.userId === userId);
-    console.log(updatedUser);
-    setUpUser(updatedUser);
-    console.log(upUser);
+    const updatedSession = session.find((u) => u.sessionId === sessionId);
+    setUpSession(updatedSession);
     setModalOpen(true);
     handleCloseMenu();
     // navigate('/dashboard/user-detail');
@@ -267,52 +255,54 @@ export default function UserWaitingApprove() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - user.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
 
-  const filteredUsers = applySortFilter(user, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(session, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Người dùng đang chờ duyệt | BIDS </title>
+        <title> Phiên đấu giá thành công | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Người dùng đang chờ duyệt
+            Phiên đấu giá chưa thanh toán
           </Typography>
-          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button> */}
+          </Button>
+          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <UserListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <SessionListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           {/* <UserDetail userDetail={upUser} /> */}
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
+                <SessionListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={user.length}
+                  rowCount={session.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { userId, userName, email, cccdnumber, address, phone, dateOfBirth, status } = row;
-                    const selectedUser = selected.indexOf(userName) !== -1;
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
+                      row;
+                    const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
-                      <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -324,11 +314,12 @@ export default function UserWaitingApprove() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{userName}</TableCell>
-                        <TableCell align="left">{email}</TableCell>
-                        <TableCell align="left">{cccdnumber}</TableCell>
-                        {/* <TableCell align="left">{address}</TableCell> */}
-                        <TableCell align="left">{phone}</TableCell>
+                        <TableCell align="left">{sessionName}</TableCell>
+                        <TableCell align="left">{feeName}</TableCell>
+                        <TableCell align="left">{formatDate(beginTime)}</TableCell>
+                        {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
+                        <TableCell align="left">{formatDate(endTime)}</TableCell>
+                        <TableCell align="left">{finalPrice}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip
@@ -364,7 +355,7 @@ export default function UserWaitingApprove() {
                           <Button
                             color="secondary"
                             onClick={() => {
-                              handleOpenModalWithUser(row.userId);
+                              handleOpenModalWithUser(row.sessionId);
                             }}
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
@@ -423,7 +414,7 @@ export default function UserWaitingApprove() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={user.length}
+            count={session.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -439,46 +430,61 @@ export default function UserWaitingApprove() {
             <Box sx={styleModal}>
               <form>
                 <Card>
-                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardHeader title="Thông tin chi tiết phiên đấu giá" />
                   <CardContent>
                     <Grid container spacing={3}>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Họ và tên" defaultValue={upUser.userName} />
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth multiline label="Phiên đấu giá" defaultValue={upSession.sessionName} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth multiline label="Phân khúc" defaultValue={upSession.feeName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
+                        <TextField multiline label="Tên sản phẩm" defaultValue={upSession.itemName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField multiline label="Loại sản phẩm" defaultValue={upSession.categoryName} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
+                          Hình ảnh sản phẩm
+                        </Typography>
+                        <CardMedia component="img" image={upSession.image} alt="Item Image" className={classes.cardMedia} />
+                      </Grid>
+                      {/* <Grid item md={12} xs={12}>
+                        <Typography variant="subtitle1" gutterBottom>
                           Mặt trước CCCD
                         </Typography>
-                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Front Image" className={classes.cardMedia} />
+                        <CardMedia component="img" image={upSession.cccdfrontImage} alt="CCCD Front Image" />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
                           Mặt sau CCCD
                         </Typography>
-                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Email" defaultValue={upUser.email} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Địa chỉ" defaultValue={upUser.address} />
+                        <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
+                      </Grid> */}
+                      <Grid item md={6} xs={12}>
+                        <TextField multiline label="Thời gian bắt đầu" defaultValue={formatDate(upSession.beginTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Số điện thoại" defaultValue={upUser.phone} />
+                        <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={formatDate(upUser.dateOfBirth)} />
+                        <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
                       </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />
+                      </Grid>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
+                      </Grid> */}
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptUser(upUser.userId);
+                            handleAcceptUser(upSession.sessionId);
                           }}
                         >
                           Chấp nhận
@@ -487,7 +493,7 @@ export default function UserWaitingApprove() {
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleDenyUser(upUser.userId);
+                            handleDenyUser(upSession.sessionId);
                           }}
                         >
                           Từ Chối
