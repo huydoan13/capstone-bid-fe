@@ -35,6 +35,7 @@ import SessionNotPayPage from './pages/SessionNotPay';
 import SessionOutOfDatePage from './pages/SessionOutOfDate';
 import SessionCreate from './sections/@dashboard/session/SessionCreate';
 import SessionSuccessPage from './pages/SessionSuccess';
+import SessionRulePage from './pages/SessionRule';
 
 // ----------------------------------------------------------------------
 
@@ -93,6 +94,16 @@ export default function Router() {
             <Suspense>
               <RolesAuthRoute roles={['Admin']}>
                 <CategoryPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'session-rule',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <SessionRulePage />
               </RolesAuthRoute>
             </Suspense>
           ),

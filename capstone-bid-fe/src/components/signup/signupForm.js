@@ -68,7 +68,7 @@ const SignUpForm = () => {
         cccdfrontImage,
         cccdbackImage,
       });
-      navigate('/landing', { replace: true });
+      navigate('/home', { replace: true });
       console.log('Server response:', response.data);
       setSuccessDialogOpen(true);
 

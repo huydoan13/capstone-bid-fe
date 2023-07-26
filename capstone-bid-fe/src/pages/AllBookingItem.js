@@ -281,7 +281,7 @@ export default function AllBookingItem() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
+                        <TableCell align="left">{firstPrice.toLocalString()}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>

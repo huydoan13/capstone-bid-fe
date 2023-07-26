@@ -304,7 +304,7 @@ export default function ItemPage() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString()}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell> */}
                         {/* <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -452,10 +452,10 @@ export default function ItemPage() {
                         />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày tạo" defaultValue={formatDate(itemDetail.createDate)} />
+                        <TextField multiline label="Ngày tạo" defaultValue={formatDate(itemDetail.createDate)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày cập nhật" defaultValue={formatDate(itemDetail.updateDate)} />
+                        <TextField multiline label="Ngày cập nhật" defaultValue={formatDate(itemDetail.updateDate)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Giá khởi điểm" defaultValue={itemDetail.firstPrice} />

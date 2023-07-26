@@ -270,7 +270,7 @@ export default function SessionSuccess() {
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá chưa thanh toán
+            Phiên đấu giá thành công
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User

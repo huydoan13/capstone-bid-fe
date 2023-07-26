@@ -54,6 +54,12 @@ const navConfig = [
     role: ['Admin'],
   },
   {
+    title: 'Luật đấu giá',
+    path: '/dashboard/session-rule',
+    icon: icon('ic_staff'),
+    role: ['Admin'],
+  },
+  {
     title: 'Sản phẩm đấu giá',
     path: '/dashboard/items',
     icon: icon('ic_staff'),

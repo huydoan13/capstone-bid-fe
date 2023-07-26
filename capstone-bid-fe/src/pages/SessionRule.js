@@ -44,6 +44,7 @@ import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
 import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
+import { getAllSessionRule } from '../services/session-rule-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
 // mock
 // import USERLIST from '../_mock/user';
@@ -51,12 +52,13 @@ import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/sess
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'sessionName', label: 'Phiên đấu giá', alignRight: false },
-  { id: 'feeName', label: 'Phân khúc', alignRight: false },
-  { id: 'beginTime', label: 'Thời gian bắt đầu', alignRight: false },
-  // { id: 'auctionTime', label: 'Thời gian đấu giá', alignRight: false },
-  { id: 'endTime', label: 'Thời gian kết thúc', alignRight: false },
-  { id: 'finailPrice', label: 'Giá chốt', alignRight: false },
+  { id: 'name', label: 'Luật đấu giá', alignRight: false },
+  { id: 'increaseTime', label: 'increaseTime', alignRight: false },
+  { id: 'freeTime', label: 'freeTime', alignRight: false },
+  { id: 'delayTime', label: 'delayTime', alignRight: false },
+  { id: 'delayFreeTime', label: 'delayFreeTime', alignRight: false },
+  { id: 'createDate', label: 'createDate', alignRight: false },
+  { id: 'updateDate', label: 'updateDate', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -92,7 +94,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function SessionNotPay() {
+export default function SessionRule() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -107,7 +109,7 @@ export default function SessionNotPay() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [session, setSession] = useState([]);
+  const [sessionRule, setSessionRule] = useState([]);
 
   const [upSession, setUpSession] = useState({});
 
@@ -118,7 +120,7 @@ export default function SessionNotPay() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
-  const formatAuctionTime = (date) => moment(date, "HH:mm:ss.SSSSSSS").format('hh:mm:ss');
+  const formatAuctionTime = (date) => moment(date, 'HH:mm:ss.SSSSSSS').format('hh:mm:ss');
 
   const navigate = useNavigate();
 
@@ -145,8 +147,8 @@ export default function SessionNotPay() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getSessionsNotPay().then((response) => {
-      setSession(response.data);
+    getAllSessionRule().then((response) => {
+      setSessionRule(response.data);
       console.log(response.data);
     });
   }, []);
@@ -177,7 +179,7 @@ export default function SessionNotPay() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = session.map((n) => n.name);
+      const newSelecteds = sessionRule.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
@@ -196,9 +198,9 @@ export default function SessionNotPay() {
     handleCloseMenu();
   };
 
-  const handleOpenModalWithUser = (sessionId) => {
+  const handleOpenModalWithUser = (sessionRuleId) => {
     console.log('edit');
-    const updatedSession = session.find((u) => u.sessionId === sessionId);
+    const updatedSession = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
     setUpSession(updatedSession);
     setModalOpen(true);
     handleCloseMenu();
@@ -255,22 +257,22 @@ export default function SessionNotPay() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - sessionRule.length) : 0;
 
-  const filteredUsers = applySortFilter(session, getComparator(order, orderBy), filterName);
+  const filteredUsers = applySortFilter(sessionRule, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá chưa thanh toán | BIDS </title>
+        <title> Luật Đấu Giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá chưa thanh toán
+            Luật đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -288,21 +290,30 @@ export default function SessionNotPay() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={session.length}
+                  rowCount={sessionRule.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
-                      row;
-                    const selectedUser = selected.indexOf(sessionName) !== -1;
+                    const {
+                      sessionRuleId,
+                      name,
+                      increaseTime,
+                      freeTime,
+                      delayTime,
+                      delayFreeTime,
+                      createDate,
+                      updateDate,
+                      status,
+                    } = row;
+                    const selectedUser = selected.indexOf(name) !== -1;
 
                     return (
-                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={sessionRuleId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, name)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -314,18 +325,20 @@ export default function SessionNotPay() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{sessionName}</TableCell>
-                        <TableCell align="left">{feeName}</TableCell>
-                        <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
+                        <TableCell align="left">{name}</TableCell>
+                        <TableCell align="left">{increaseTime}</TableCell>
+                        <TableCell align="left">{freeTime}</TableCell>
+                        <TableCell align="left">{delayTime}</TableCell>
+                        <TableCell align="left">{delayFreeTime}</TableCell>
+                        <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
+                        <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
+                        {/* <TableCell align="left">{formatDate(beginTime)}</TableCell>
+                        <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell>
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice.toLocaleString()}</TableCell>
+                        <TableCell align="left">{finalPrice.toLocaleString()}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip
-                            label={getStatusInfo(status).text}
-                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
-                          />
+                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
@@ -414,7 +427,7 @@ export default function SessionNotPay() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={session.length}
+            count={sessionRule.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -452,7 +465,12 @@ export default function SessionNotPay() {
                         <Typography variant="subtitle1" gutterBottom>
                           Hình ảnh sản phẩm
                         </Typography>
-                        <CardMedia component="img" image={upSession.image} alt="Item Image" className={classes.cardMedia} />
+                        <CardMedia
+                          component="img"
+                          image={upSession.image}
+                          alt="Item Image"
+                          className={classes.cardMedia}
+                        />
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
@@ -473,7 +491,11 @@ export default function SessionNotPay() {
                         <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
+                        <TextField
+                          multiline
+                          label="Thời gian đấu giá"
+                          defaultValue={formatAuctionTime(upSession.auctionTime)}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />

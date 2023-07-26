@@ -338,7 +338,7 @@ export default function BookingItems() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString()}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -484,7 +484,7 @@ export default function BookingItems() {
                         <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Deposit" defaultValue={bookingItemDetail.deposit} />
+                        <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Trạng thái" defaultValue={bookingItemDetail.status} />
