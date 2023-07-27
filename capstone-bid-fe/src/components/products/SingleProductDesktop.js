@@ -36,11 +36,11 @@ export default function SingleProductDesktop({ product, matches }) {
                 {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />
                 </ProductFavButton> */}
-                {(showOptions || matches) && (
+                {/* {(showOptions || matches) && (
                     <ProductAddToCart show={showOptions} variant="contained">
                         Đấu Giá Ngay
                     </ProductAddToCart>
-                )}
+                )} */}
                 <ProductActionsWrapper show={showOptions || matches}>
                     <Stack direction={matches ? "row" : "column"}>
                         <ProductActionButton>

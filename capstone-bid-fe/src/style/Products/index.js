@@ -32,7 +32,7 @@ export const ProductImage = styled('img')(({ src, theme }) => ({
 export const ProductDetailImage = styled('img')(({ src, theme }) => ({
 
     src: `url(${src})`,
-    width: '500px',
+    width: '550px',
     height: '500px',
     background: Colors.light_gray,
     padding: '10px',

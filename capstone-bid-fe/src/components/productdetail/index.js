@@ -97,19 +97,19 @@ export default function ProductDetail({ open, onClose, product }) {
     const joinAuction = () => {
         const requestData = {
             sessionId: product.sessionId,
-            userId : jsonUser.Id
+            userId: jsonUser.Id
         };
-    
-        axios.post(apiUrl, requestData, { headers: { Authorization: `Bearer ${token}` }},)
-        .then(response => {
-            // Handle the response from the API if needed.
-            // For example, you can show a success message or refresh the page.
-            // window.location.reload();
-        })
-        .catch(error => {
-            // Handle errors, such as displaying an error message to the user.
-            console.error('Error joining the auction:', error);
-        });
+
+        axios.post(apiUrl, requestData, { headers: { Authorization: `Bearer ${token}` } },)
+            .then(response => {
+                // Handle the response from the API if needed.
+                // For example, you can show a success message or refresh the page.
+                // window.location.reload();
+            })
+            .catch(error => {
+                // Handle errors, such as displaying an error message to the user.
+                console.error('Error joining the auction:', error);
+            });
     };
 
 
@@ -120,16 +120,16 @@ export default function ProductDetail({ open, onClose, product }) {
             // Check if the countdown has reached 0
             if (countdown.total <= 0) {
                 // Make the API call when the countdown reaches 0
-                axios.put( autoApi, {sessionID: product.sessionId} ,{ headers: { Authorization: `Bearer ${token}` }},)
-                .then(response => {
-                    // Handle the API response if needed.
-                    // For example, you can update the state based on the response.
-                    // You can also show a success message to the user.
-                })
-                .catch(error => {
-                    // Handle errors, such as displaying an error message to the user.
-                    console.error('Error making the API call:', error);
-                });
+                axios.put(autoApi, { sessionID: product.sessionId }, { headers: { Authorization: `Bearer ${token}` } },)
+                    .then(response => {
+                        // Handle the API response if needed.
+                        // For example, you can update the state based on the response.
+                        // You can also show a success message to the user.
+                    })
+                    .catch(error => {
+                        // Handle errors, such as displaying an error message to the user.
+                        console.error('Error making the API call:', error);
+                    });
 
                 // Stop the interval after making the API call to prevent further calls
                 clearInterval(interval);
@@ -142,11 +142,14 @@ export default function ProductDetail({ open, onClose, product }) {
         };
     }, [countdown.total, product.beginTime, product.sessionId]);
 
+    function formatToVND(price) {
+        return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+    }
 
 
     // Function to handle the auction button click
     const handleAuctionButtonClick = () => {
-        localStorage.setItem("sessionId", product.sessionId );
+        localStorage.setItem("sessionId", product.sessionId);
         if (isLoggedIn) {
             // If the user is logged in, show the auction details dialog.
             // window.location.href = "/auction";
@@ -204,9 +207,9 @@ export default function ProductDetail({ open, onClose, product }) {
                                 {countdown.days}&nbsp; Ngày &nbsp;:&nbsp;  {countdown.hours}&nbsp; Giờ  &nbsp;: &nbsp; {countdown.minutes}&nbsp; Phút  &nbsp;:&nbsp;  {countdown.seconds}&nbsp; Giây
                             </Typography>
                             <Typography margin={'1%'} variant="subtitle">Mô tả sản phẩm : {product.description} </Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {product.firstPrice} VND</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {product.stepPrice} VND</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {product.finalPrice} VND</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>
@@ -248,7 +251,7 @@ export default function ProductDetail({ open, onClose, product }) {
                 <DialogTitle>Không Thể Tham Gia Đấu Giá</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                    Bạn cần đăng nhập trước để đăng kí tham gia đấu giá.
+                        Bạn cần đăng nhập trước để đăng kí tham gia đấu giá.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
