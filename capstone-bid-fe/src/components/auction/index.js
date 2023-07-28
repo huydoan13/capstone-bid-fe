@@ -21,6 +21,7 @@ import {
   Dialog,
   DialogTitle,
   DialogActions,
+  TextField,
 } from '@mui/material';
 import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
@@ -49,22 +50,44 @@ const AuctionForm = () => {
   const sessionId = localStorage.getItem('sessionId');
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
+  const [sessionDetails, setSessionDetails] = useState([]);
 
   const api = `https://bids-api-testing.azurewebsites.net/api/Sessions/${sessionId}`
   const IncreaseApi = `https://bids-api-testing.azurewebsites.net/api/SessionDetails/increase_price`
   const NotPayApi = `https://bids-api-testing.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
+  const sessionDetailAPI = `https://bids-api-testing.azurewebsites.net/api/SessionDetails/by_session/${sessionId}`
 
   useEffect(() => {
     fetchAuctionData();
-
+    fetchSessionDetails();
+    
+    const interval = setInterval(fetchAuctionData && fetchSessionDetails, 5000);
     return () => {
-      // Clean up
+      clearInterval(interval);
     };
+  }, []);
+
+  useEffect(() => {
+    fetchSessionDetails();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('currentDelayTime', currentDelayTime);
   }, [currentDelayTime]);
+
+  function formatToVND(price) {
+    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+}
+
+const fetchSessionDetails = async () => {
+  try {
+    const response = await axios.get(sessionDetailAPI, { headers: { Authorization: `Bearer ${token}` } });
+    setSessionDetails(response.data);
+  } catch (error) {
+    console.error('Error fetching session details:', error);
+  }
+};
+
 
   const fetchAuctionData = async () => {
     try {
@@ -95,11 +118,14 @@ const AuctionForm = () => {
 
   const handleGoBack = async () => {
     try {
-      await axios.put(NotPayApi, {sessionID : sessionId}, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
     } catch (error) {
       console.error('Error updating session status:', error);
       // Handle error if needed
     }
+  };
+  const formatCreateDate = (createDate) => {
+    return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
   };
 
   const convertTimeToSeconds = (timeString) => {
@@ -154,6 +180,9 @@ const AuctionForm = () => {
       const remainingSeconds = seconds % 60;
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
+    
+
+    
 
     return (
       <Box sx={{ mt: 4, display: "flex", alignItems: "center" }}>
@@ -163,11 +192,12 @@ const AuctionForm = () => {
           </Typography>
         </Box>
         <Button
-          sx={{ position: "absolute", marginLeft: "15%", width: "200px" }}
+          sx={{ position: "absolute", marginLeft: "12%", width: "200px" }}
           color="primary"
           variant="contained"
           onClick={() => {
-            fetchAuctionData();
+            // fetchAuctionData();
+            // fetchSessionDetails();
             setIsDialogOpen(true);
             setCurrentPrice(auctionData[0]?.finalPrice);
           }}
@@ -181,6 +211,8 @@ const AuctionForm = () => {
 
   const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
+    width: '100%',
+    height: '100%',
     padding: theme.spacing(1),
     border: '1px dashed #000000',
     marginTop: '1%',
@@ -192,7 +224,7 @@ const AuctionForm = () => {
     display: "flex",
     flexDirection: "column",
     marginLeft: '5%',
-    maxWidth: 500,
+    maxWidth: '100%',
     lineHeight: 1.5,
 
   }));
@@ -205,6 +237,7 @@ const AuctionForm = () => {
   const handleDialogClose = async () => {
     await makeApiCall();
     fetchAuctionData();
+    fetchSessionDetails();
     setIsDialogOpen(false);
     setIsCountdownRunning(true);
 
@@ -217,6 +250,22 @@ const AuctionForm = () => {
     return <div>Trang này hiện giờ không khả dụng</div>;
   }
 
+
+ const ProductDetailImage1 = styled('img')(({ src, theme }) => ({
+
+    src: `url(${src})`,
+    width: '750px',
+    height: '500px',
+    background: Colors.light_gray,
+    padding: '10px',
+    [theme.breakpoints.down('md')]: {
+        width: '80%',
+        height: '80%',
+        padding: '25px',
+    }
+
+}));
+
   const BidDialog = () => {
     const { isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice } = useBidDialog();
 
@@ -224,7 +273,7 @@ const AuctionForm = () => {
       <Dialog Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
         <DialogTitle>Bạn Có Muốn Tăng Giá</DialogTitle>
         <DialogContent>
-          <Typography>Giá của sản phẩm hiện giờ là : {currentPrice} VND</Typography>
+          <Typography>Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsDialogOpen(false)} color="primary">
@@ -242,7 +291,7 @@ const AuctionForm = () => {
     <>
       <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
         <Product sx={{ mr: 2 }}>
-          <ProductDetailImage src={auctionData[0]?.image ?? "loi"} />
+          <ProductDetailImage1 src={auctionData[0]?.image ?? "loi"} />
         </Product>
 
         <ProductDetailInfoWrapper>
@@ -251,49 +300,66 @@ const AuctionForm = () => {
               <AuctionCountdown endTime={auctionData[0]?.endTime} beginTime={auctionData[0]?.beginTime} />
             )}
           </Box>
-          <TableContainer component={Paper} >
-            <Table>
-              <TableBody>
-                <TableRow>
-                  <TableCell>Tên Sản Phẩm:</TableCell>
-                  <TableCell>{auctionData[0]?.itemName}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Mô tả sản phẩm:</TableCell>
-                  <TableCell>{auctionData[0]?.description}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Giá khởi Điểm:</TableCell>
-                  <TableCell>{auctionData[0]?.firstPrice} VND</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Bước Giá:</TableCell>
-                  <TableCell>{auctionData[0]?.stepPrice} VND</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Giá hiện tại:</TableCell>
-                  <TableCell>{auctionData[0]?.finalPrice} VND</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell>Thời gian bắt đầu:</TableCell>
-                  <TableCell>{auctionData[0]?.beginTime}</TableCell>
-                </TableRow>
-                {/* <TableRow>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TableContainer sx={{ mr: 2 }} component={Paper} >
+                <Table>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Tên Sản Phẩm:</TableCell>
+                      <TableCell>{auctionData[0]?.itemName}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Mô tả sản phẩm:</TableCell>
+                      <TableCell>{auctionData[0]?.description}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Giá khởi Điểm:</TableCell>
+                      <TableCell>{formatToVND(auctionData[0]?.firstPrice)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Bước Giá:</TableCell>
+                      <TableCell>{formatToVND(auctionData[0]?.stepPrice)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Giá hiện tại:</TableCell>
+                      <TableCell>{formatToVND(auctionData[0]?.finalPrice)}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Thời gian bắt đầu:</TableCell>
+                      <TableCell>{auctionData[0]?.beginTime}</TableCell>
+                    </TableRow>
+                    {/* <TableRow>
                   <TableCell>Thời gian đấu giá:</TableCell>
                   <TableCell>{auctionData[0]?.auctionTime}</TableCell>
                 </TableRow> */}
-                <TableRow>
-                  <TableCell>Thời gian Kết thúc:</TableCell>
-                  <TableCell>{auctionData[0]?.endTime}</TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              {auctionData[0]?.delayTime && (
-                <RemainingTime endTime={auctionData[0]?.endTime} />
-              )}
-            </Box>
-          </TableContainer>
+                    <TableRow>
+                      <TableCell>Thời gian Kết thúc:</TableCell>
+                      <TableCell>{auctionData[0]?.endTime}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  {auctionData[0]?.delayTime && (
+                    <RemainingTime endTime={auctionData[0]?.endTime} />
+                  )}
+                </Box>
+              </TableContainer>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                id="multiline-textfield"
+                label="Lịch Sử Tăng Giá"
+                multiline
+                rows={18}
+                variant="outlined"
+                fullWidth
+                value={sessionDetails.map((detail) => `${detail.userName} || ${detail.price} || ${formatCreateDate(detail.createDate)}`).join('\n')}
+                
+              // You can add any additional props or event handlers as needed
+              />
+            </Grid>
+          </Grid>
         </ProductDetailInfoWrapper>
       </ProductDetailWrapper>
       <BidDialogContext.Provider value={{ isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice }}>

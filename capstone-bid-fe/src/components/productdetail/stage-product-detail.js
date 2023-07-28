@@ -26,6 +26,7 @@ import useDialogModal from "../../hooks/useDialogModal";
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import AuctionForm from "../auction";
+import AuctionCountdown from "../auction/auctionCountdown";
 
 
 
@@ -46,6 +47,11 @@ function getTimeRemaining(endTime) {
         seconds,
     };
 }
+
+function formatToVND(price) {
+    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  }
+
 function SlideTransition(props) {
     return <Slide direction="down" {...props} />;
 }
@@ -91,7 +97,7 @@ export default function StageProductDetail({ open, onClose, product }) {
 
     // Function to handle the auction button click
     const handleAuctionButtonClick = () => {
-        localStorage.setItem("sessionId", product.sessionId );
+        localStorage.setItem("sessionId", product.sessionId);
         if (isLoggedIn) {
             // If the user is logged in, show the auction details dialog.
             window.location.href = "/auction";
@@ -139,18 +145,25 @@ export default function StageProductDetail({ open, onClose, product }) {
                         </Product>
                         <ProductDetailInfoWrapper>
 
-                            <Typography sx={{ lineHeight: 4 }} variant="h4">
-                                Tên Sản Phẩm : {product.itemName}
-                            </Typography>
+                            
 
-                            <Typography>Thời gian đếm ngược bắt đầu trả giá:</Typography>
+                            {/* <Typography>Thời gian đếm ngược bắt đầu trả giá:</Typography>
                             <Typography margin={"1%"} variant="subtitle">
                                 {countdown.days}&nbsp; Ngày &nbsp;:&nbsp;  {countdown.hours}&nbsp; Giờ  &nbsp;: &nbsp; {countdown.minutes}&nbsp; Phút  &nbsp;:&nbsp;  {countdown.seconds}&nbsp; Giây
                             </Typography>
+                            <Typography>Thời gian đấu giá con lại:</Typography> */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                                {product?.endTime && product?.beginTime && (
+                                    <AuctionCountdown endTime={product?.endTime} beginTime={product?.beginTime} />
+                                )}
+                            </Box>
+                            <Typography margin={'1%'} variant="subtitle">
+                                Tên Sản Phẩm : {product.itemName}
+                            </Typography>
                             <Typography margin={'1%'} variant="subtitle">Mô tả sản phẩm : {product.description} </Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {product.firstPrice} VND</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {product.stepPrice} VND</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {product.finalPrice} VND</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)} </Typography>
+                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)} </Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>
@@ -192,7 +205,7 @@ export default function StageProductDetail({ open, onClose, product }) {
                 <DialogTitle>Không Thể Tham Gia Đấu Giá</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                    Bạn cần đăng nhập trước để tham gia đấu giá.
+                        Bạn cần đăng nhập trước để tham gia đấu giá.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

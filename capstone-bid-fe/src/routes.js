@@ -11,7 +11,6 @@ import Page404 from './pages/Page404';
 import ProductsPage from './pages/ProductsPage';
 import DashboardAppPage from './pages/DashboardAppPage';
 import HomePage from './pages/HomePage';
-import LandingPage from './pages/LandingPage';
 import SignUp from './pages/SignUp';
 import AddProduct from './pages/AddProduct';
 import AuctionPage from './pages/AuctionPage';

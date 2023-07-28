@@ -15,8 +15,8 @@ const SignUpForm = () => {
   const [phone, setPhoneNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [cccdnumber, setCitizenId] = useState('');
-  const [error, setError] = useState('');
-
+  const [err, setError] = useState('');
+  const MAX_FILE_SIZE = 23 * 1024 * 1024; // 23 MB in bytes
   const [avatar, setAvatar] = useState(null);
   const [cccdfrontImage, setFrontImage] = useState(null);
   const [cccdbackImage, setBackImage] = useState(null);
@@ -26,7 +26,14 @@ const SignUpForm = () => {
 
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "free" });
+  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  
+  const isValidImageFile = (file) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Add more allowed types if needed
+    return file && allowedTypes.includes(file.type) && file.size <= MAX_FILE_SIZE;
+  };
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,13 +57,17 @@ const SignUpForm = () => {
       setError('Mật Khẩu Không Giống');
       return;
     }
-
+    if (!avatar || !cccdfrontImage || !cccdbackImage) {
+      setError('Vui lòng tải lên đủ 3 hình ảnh (Ảnh đại diện, Mặt trước CCCD, Mặt sau CCCD).');
+      return;
+    }
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
     try {
 
-      const response = await axios.post('https://bids-api-testing.azurewebsites.net/api/Users', {
+      const response = await axios
+      .post('https://bids-api-testing.azurewebsites.net/api/Users', {
         userName,
         email,
         password,
@@ -67,8 +78,37 @@ const SignUpForm = () => {
         avatar,
         cccdfrontImage,
         cccdbackImage,
+      })
+      .then(data =>{
+
+      })
+      .catch(err =>{
+
+        if (err.response.status === 400) {
+          const errorMessage = err.response.data; // Assuming the error message is in the response data
+        console.log('Error:', errorMessage);
+        err = setError(errorMessage);
+        setErrorDialogOpen(true);
+        }
+        // if (err.response && err.response.data && err.response.data.errors) {
+        //   const serverErrors = err.response.data.errors;
+        //   let formattedErrors = "";
+    
+        //   Object.keys(serverErrors).forEach((key) => {
+        //     formattedErrors += `${key}:\n`;
+        //     serverErrors[key].forEach((errorMessage) => {
+        //       formattedErrors += `- ${errorMessage}\n`;
+        //     });
+        //   });
+    
+        //   setError(formattedErrors);
+        //   setErrorDialogOpen(true);
+        // } else {
+        //   setError('An unexpected error occurred.');
+        //   setErrorDialogOpen(true);
+        // }
       });
-      navigate('/home', { replace: true });
+      
       console.log('Server response:', response.data);
       setSuccessDialogOpen(true);
 
@@ -86,12 +126,13 @@ const SignUpForm = () => {
       setBackImage(null);
       setError('');
     } catch (error) {
-      console.error('Error:', error);
-      setErrorDialogOpen(true);
+      // console.error('Error:', error.response);
+     
     }
   };
 
   const handleSuccessDialogClose = () => {
+    navigate('/home', { replace: true });
     setSuccessDialogOpen(false);
   };
 
@@ -116,9 +157,6 @@ const SignUpForm = () => {
       }}
       onSubmit={handleSubmit}
     >
-      <Typography variant="h4" sx={{ marginBottom: '20px' }}>
-        Sign Up
-      </Typography>
       <TextField
         label="Tên Tài Khoản"
         type="text"
@@ -244,9 +282,9 @@ const SignUpForm = () => {
             setBackImage(backimg);
           }
         }} />
-      {error && (
+      {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
-          {error}
+          {err}
         </Typography>
       )}
 
@@ -265,14 +303,14 @@ const SignUpForm = () => {
       <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">Đã xảy ra lỗi khi tạo tài khoản, vui lòng kiểm tra lại thông tin cá nhân.</Typography>
+          <Typography  variant="body1">{err && err.split("\n").map((line, index) => <div key={index}>{line}</div>)}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
       <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }}>
-        Sign Up
+        Đăng Kí
       </Button>
     </Box>
   );

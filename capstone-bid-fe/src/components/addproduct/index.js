@@ -19,12 +19,12 @@ const AddProductForm = () => {
   const [image, setProductImage] = useState(null);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-
+const [error,setError] = useState();
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user)
 
-  const uploader = Uploader({ apiKey: "free" });
+  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
 
   const Product = styled(Box)(({ theme }) => ({
 
@@ -98,8 +98,25 @@ const AddProductForm = () => {
         setFirstPrice('');
         setStepPrice('');
       })
-      .catch((error) => {
-        console.error('Error while posting data:', error);
+      .catch(error => {
+        // Handle error
+        if (error.response) {
+          // The request was made, and the server responded with an error status code (4xx, 5xx)
+          if (error.response.status === 400) {
+            // The server returned a 400 status code
+            // You can access the error message from the response data
+            const errorMessage = error.response.data; // Assuming the error message is in the response data
+            console.log('Error:', errorMessage);
+            error = setError(errorMessage);
+            // Now you can save the errorMessage to your frontend state to display it on the UI
+            // this.setState({ errorMessage });
+          } else {
+            // Other error handling for different status codes
+          }
+        } else {
+          // The request was made but no response was received, or something happened in between
+          console.error('Error:', error.message);
+        }
         setErrorDialogOpen(true);
       });
   };
@@ -233,7 +250,7 @@ const AddProductForm = () => {
         <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
           <DialogTitle>Error</DialogTitle>
           <DialogContent>
-            <Typography variant="body1">Đã xảy ra lỗi khi tạo sản phẩm.</Typography>
+            <Typography variant="body1">{error}</Typography>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleErrorDialogClose}>OK</Button>
