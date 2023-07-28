@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -32,9 +33,12 @@ import {
   CardMedia,
 } from '@mui/material';
 import { Image } from 'mui-image';
+
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getUserWaiting } from 'src/services/user-actions';
+import { getUserWaiting, getStatusInfo } from 'src/services/user-actions';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
@@ -51,13 +55,13 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'userName', label: 'UserName', alignRight: false },
+  { id: 'userName', label: 'Họ và tên', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
-  { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
+  { id: 'cccdnumber', label: 'Số CCCD', alignRight: false },
   // { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'phone', label: 'Số điện thoại', alignRight: false },
+  // { id: 'dateOfBirth', label: 'D.O.B', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -117,9 +121,19 @@ export default function UserWaitingApprove() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
 
   const styleModal = {
     position: 'absolute',
@@ -175,12 +189,20 @@ export default function UserWaitingApprove() {
 
   const handleAcceptUser = (userId) => {
     acceptUserWaiting(userId);
+    toast.success('Chấp nhận người dùng thành công!', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
 
   const handleDenyUser = (userId) => {
     denyUserWaiting(userId);
+    toast.success('Từ chối người dùng thành công!', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
@@ -263,10 +285,9 @@ export default function UserWaitingApprove() {
           <Typography variant="h4" gutterBottom>
             Người dùng đang chờ duyệt
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
+          </Button> */}
         </Stack>
 
         <Card>
@@ -309,9 +330,12 @@ export default function UserWaitingApprove() {
                         <TableCell align="left">{cccdnumber}</TableCell>
                         {/* <TableCell align="left">{address}</TableCell> */}
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="warning" />
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
@@ -429,11 +453,16 @@ export default function UserWaitingApprove() {
                         <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Back Image" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt trước CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Front Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        {/* <Image src={upUser.cccdbackImage} /> */}
-                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt sau CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField fullWidth label="Email" defaultValue={upUser.email} />
@@ -445,7 +474,7 @@ export default function UserWaitingApprove() {
                         <TextField label="Số điện thoại" defaultValue={upUser.phone} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={fDate(upUser.dateOfBirth)} />
+                        <TextField label="Ngày sinh" defaultValue={formatDate(upUser.dateOfBirth)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button

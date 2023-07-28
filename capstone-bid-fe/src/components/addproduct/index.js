@@ -24,7 +24,7 @@ const AddProductForm = () => {
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user)
 
-  const uploader = Uploader({ apiKey: "public_FW25bUpBZmkPhjgTWxYkac1GPbYr" });
+  const uploader = Uploader({ apiKey: "free" });
 
   const Product = styled(Box)(({ theme }) => ({
 
@@ -114,8 +114,21 @@ const AddProductForm = () => {
   };
 
   return (
-    <Product>
-      <form onSubmit={handleSubmit}>
+    <Box
+      component="form"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '65%',
+        height: '100%',
+        margin: 'auto',
+        padding: '20px',
+        border: '1px solid #ccc',
+        borderRadius: '4px',
+      }}
+      onSubmit={handleSubmit}
+    >
         <TextField
           label="Tên Sản Phẩm"
           value={itemName}
@@ -237,8 +250,8 @@ const AddProductForm = () => {
         >
           Thêm Sản Phẩm
         </Button>
-      </form>
-    </Product>
+      
+    </Box>
   );
 };
 

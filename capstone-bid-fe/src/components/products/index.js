@@ -40,7 +40,7 @@ export default function Products() {
 
 
     const renderProducts =products && products.map((product) => (
-        <Grid item key={product.sessionId} xs={2} sm={4} md={4} display="flex" flexDirection={'column'} alignItems="center">
+        <Grid item key={product.sessionId} xs={3} sm={4} md={4} display="flex" flexDirection={'column'} alignItems="center">
             {matches ? (
                 <SingleProducts product={product} matches={matches} />
             ) : (

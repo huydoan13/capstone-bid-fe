@@ -9,7 +9,7 @@ import Footer from '../components/footer';
 import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
-import AppPagination from '../components/pagination';
+import StageProducts from '../components/products-instage/Stage-product';
 
 
 
@@ -30,10 +30,7 @@ function HomePage() {
                     <Typography variant="h4">Tài Sản Sắp Được đấu giá</Typography>
                 </Box>
                 <Products />
-                {/* <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography variant="h4">Tài Sản Đang Được đấu giá</Typography>
-                </Box>
-                <Products /> */}
+                
                 <Footer />
                 <AppDrawer />
                 <SearchBox/>

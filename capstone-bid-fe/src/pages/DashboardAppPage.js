@@ -23,15 +23,17 @@ import {
 export default function DashboardAppPage() {
   const theme = useTheme();
 
+  const user = JSON.parse(localStorage.getItem('loginUser'));
+
   return (
     <>
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> Tổng quan | Minimal UI </title>
       </Helmet>
 
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Hi, Welcome back
+          Xin chào {user?.role}
         </Typography>
 
         <Grid container spacing={3}>

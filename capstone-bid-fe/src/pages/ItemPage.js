@@ -23,8 +23,14 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  // Modal,
+  Modal,
   Chip,
+  TextField,
+  Box,
+  CardHeader,
+  CardContent,
+  Grid,
+  CardMedia,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
@@ -43,15 +49,15 @@ import { ItemListHead, ItemListToolbar } from '../sections/@dashboard/itemss';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'itemName', label: 'ItemName', alignRight: false },
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  // { id: 'quantity', label: 'Quantity', alignRight: false },
-  { id: 'image', label: 'Image', alignRight: false },
-  { id: 'fristPrice', label: 'FristPrice', alignRight: false },
-  { id: 'stepPrice', label: 'StepPrice', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'deposit', label: 'Deposit', alignRight: false },
+  { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
+  { id: 'categoryName', label: 'Loại', alignRight: false },
+  { id: 'userName', label: 'Tên tài khoản', alignRight: false },
+  { id: 'image', label: 'Hình ảnh', alignRight: false },
+  { id: 'fristPrice', label: 'Giá khởi điểm', alignRight: false },
+  // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
+  { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
+  // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  { id: 'deposit', label: 'Phí đặt cọc', alignRight: false },
   // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -104,13 +110,26 @@ export default function ItemPage() {
 
   const [item, setItem] = useState([]);
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const [itemDetail, setItemDetail] = useState({});
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '500px',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+  };
 
   const StyledProductImg = styled('img')({
     // top: 0,
@@ -140,13 +159,22 @@ export default function ItemPage() {
     setOpenPopoverId(null);
   };
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  const handleOpenModalWithItem = (itemId) => {
+    console.log('edit');
+    const itemDe = item.find((u) => u.itemId === itemId);
+    setItemDetail(itemDe);
+    setModalOpen(true);
+    handleCloseMenu();
+    // navigate('/dashboard/user-detail');
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -161,24 +189,6 @@ export default function ItemPage() {
       return;
     }
     setSelected([]);
-  };
-
-  const handleEditButton = () => {
-    console.log('edit');
-    handleCloseMenu();
-  };
-
-  const handleDeleteButton = (itemId) => {
-    deleteUser(itemId)
-      .then(() => {
-        const updatedUser = item.find((u) => u.itemId === itemId);
-        updatedUser.status = false;
-        setItem([...item]);
-      })
-      .catch((err) => {
-        console.log('Can not delete because:', err);
-      });
-    handleCloseMenu();
   };
 
   const handleClick = (event, name) => {
@@ -258,7 +268,19 @@ export default function ItemPage() {
                 />
                 <TableBody>
                   {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, categoryName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const {
+                      itemId,
+                      itemName,
+                      categoryName,
+                      userName,
+                      image,
+                      firstPrice,
+                      stepPrice,
+                      deposit,
+                      createDate,
+                      updateDate,
+                      status,
+                    } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -278,19 +300,30 @@ export default function ItemPage() {
 
                         <TableCell align="left">{itemName}</TableCell>
                         <TableCell align="left">{categoryName}</TableCell>
-                        {/* <TableCell align="left">{quantity}</TableCell> */}
-                        <TableCell align="left"><StyledProductImg src={image} /></TableCell>
-                        <TableCell align="left">{firstPrice}</TableCell>
-                        <TableCell align="left">{stepPrice}</TableCell>
-                        {/* <TableCell align="left">{deposit}</TableCell> */}
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
+                        <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">
-                          <Chip label={deposit ? 'True' : 'False'} color={status ? 'success' : 'error'} />
+                          <StyledProductImg src={image} />
+                        </TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        {/* <TableCell align="left">{stepPrice}</TableCell> */}
+                        {/* <TableCell align="left">{deposit}</TableCell> */}
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
+                        {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
+                        <TableCell align="left">
+                          <Chip label={deposit ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithItem(row.itemId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
@@ -327,7 +360,7 @@ export default function ItemPage() {
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
-                          </Popover>
+                          </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -376,6 +409,84 @@ export default function ItemPage() {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+
+          <Modal
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            open={modalOpen}
+            onClose={handleCloseModal}
+          >
+            <Box sx={styleModal}>
+              <form>
+                <Card>
+                  <CardHeader title="Thông tin chi tiết sản phẩm" />
+                  <CardContent>
+                    <Grid container spacing={3}>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
+                      </Grid> */}
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Tên sản phẩm" defaultValue={itemDetail.itemName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Loại" defaultValue={itemDetail.categoryName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số lượng" defaultValue={itemDetail.quantity} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Tên tài khoản" defaultValue={itemDetail.userName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Phí đặt cọc" defaultValue={itemDetail.deposit ? 'Có' : 'Không'} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={itemDetail.image} alt="Hình ảnh" />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField
+                          fullWidth
+                          multiline
+                          label="Mô tả chi tiết sản phẩm"
+                          defaultValue={itemDetail.descriptionDetail}
+                        />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField multiline label="Ngày tạo" defaultValue={formatDate(itemDetail.createDate)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField multiline label="Ngày cập nhật" defaultValue={formatDate(itemDetail.updateDate)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Giá khởi điểm" defaultValue={itemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Bước nhảy" defaultValue={itemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      {/* <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleAcceptBookingItem(bookingItemDetail.bookingItemId);
+                          }}
+                        >
+                          Chấp nhận
+                        </Button>
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleDenyBookingItem(bookingItemDetail.bookingItemId);
+                          }}
+                        >
+                          Từ Chối
+                        </Button>
+                      </Grid> */}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </form>
+            </Box>
+          </Modal>
         </Card>
       </Container>
     </>

@@ -22,12 +22,19 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  // Modal,
+  Modal,
   Chip,
+  Box,
+  CardHeader,
+  TextField,
+  Grid,
+  CardContent,
+  Select,
+  InputLabel,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllStaff, deleteStaff } from 'src/services/staff-actions';
+import { getAllStaff, deleteStaff, updateStaff } from 'src/services/staff-actions';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -40,12 +47,12 @@ import { StaffListHead, StaffListToolbar } from '../sections/staff';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'staffName', label: 'StaffName', alignRight: false },
+  { id: 'staffName', label: 'Họ và tên', alignRight: false },
   { id: 'email', label: 'Email', alignRight: false },
   // { id: 'cccdnumber', label: 'CCCD Number', alignRight: false },
-  { id: 'address', label: 'Address', alignRight: false },
-  { id: 'phone', label: 'Phone', alignRight: false },
-  { id: 'dateOfBirth', label: 'D.o.B', alignRight: false },
+  { id: 'address', label: 'Địa chỉ', alignRight: false },
+  { id: 'phone', label: 'SDT', alignRight: false },
+  { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
   // { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
@@ -98,13 +105,26 @@ export default function StaffPage() {
 
   const [staff, setStaff] = useState([]);
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const [staffDetail, setStaffDetail] = useState({});
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+  };
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -113,6 +133,35 @@ export default function StaffPage() {
       console.log(response.data);
     });
   }, []);
+
+  const handleOpenModalWithStaff = (staffId) => {
+    const upStaff = staff.find((u) => u.staffId === staffId);
+    console.log(upStaff);
+    setStaffDetail(upStaff);
+    setModalOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleDeleteButton = (staffId) => {
+    deleteStaff(staffId)
+      .then(() => {
+        const updatedCategory = staff.find((u) => u.staffId === staffId);
+        // updatedCategory.status = false;
+        setStaff([...staff]);
+      })
+      .catch((err) => {
+        console.log('Can not delete because:', err);
+      });
+    handleCloseMenu();
+  };
+
+  const handleUpdateButton = () => {
+    console.log('Update ne');
+    updateStaff(staffDetail);
+    console.log(staffDetail);
+    handleCloseModal();
+  };
+
 
   const handleOpenMenu = (event, staffId) => {
     setAnchorEl(event.currentTarget);
@@ -124,13 +173,13 @@ export default function StaffPage() {
     setOpenPopoverId(null);
   };
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -145,24 +194,6 @@ export default function StaffPage() {
       return;
     }
     setSelected([]);
-  };
-
-  const handleEditButton = () => {
-    console.log('edit');
-    handleCloseMenu();
-  };
-
-  const handleDeleteButton = (staffId) => {
-    deleteStaff(staffId)
-      .then(() => {
-        const updatedStaff = staff.find((u) => u.staffId === staffId);
-        updatedStaff.status = false;
-        setStaff([...staff]);
-      })
-      .catch((err) => {
-        console.log('Can not delete because:', err);
-      });
-    handleCloseMenu();
   };
 
   const handleClick = (event, name) => {
@@ -211,16 +242,16 @@ export default function StaffPage() {
   return (
     <>
       <Helmet>
-        <title> Staff | BIDS </title>
+        <title> Nhân viên | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Staff
+            Nhân viên
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New Staff
+          <Button href="staff-create" variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+            Tạo tài khoản nhân viên
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
@@ -264,7 +295,7 @@ export default function StaffPage() {
                         <TableCell align="left">{email}</TableCell>
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
-                        <TableCell align="left">{fDate(dateOfBirth)}</TableCell>
+                        <TableCell align="left">{formatDate(dateOfBirth)}</TableCell>
                         {/* <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
                         </TableCell> */}
@@ -293,9 +324,13 @@ export default function StaffPage() {
                               },
                             }}
                           >
-                            <MenuItem onClick={handleEditButton}>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenModalWithStaff(row.staffId);
+                              }}
+                            >
                               <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Edit
+                              Cập nhật
                             </MenuItem>
 
                             <MenuItem
@@ -305,7 +340,7 @@ export default function StaffPage() {
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
+                              Xóa
                             </MenuItem>
                           </Popover>
                         </TableCell>
@@ -356,6 +391,72 @@ export default function StaffPage() {
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+
+          <Modal
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            open={modalOpen}
+            onClose={handleCloseModal}
+          >
+            <Box sx={styleModal}>
+              <Card>
+                <CardHeader subheader="The information can be edited" title="Category Information" />
+                <CardContent>
+                  <Grid container spacing={3}>
+                    {/* <Grid item md={12} xs={12}>
+                      <TextField disabled fullWidth label="Staff Id" defaultValue={staffDetail.staffId} />
+                    </Grid> */}
+                    <Grid item md={12} xs={12}>
+                      <TextField multiline fullWidth label="Họ và tên" onChange={(e) => setStaffDetail({...staffDetail, staffName: e.target.value})} defaultValue={staffDetail.staffName} />
+                    </Grid>
+                    <Grid item md={12} xs={12}>
+                      <TextField multiline fullWidth label="Địa chỉ" onChange={(e) => setStaffDetail({...staffDetail, address: e.target.value})} defaultValue={staffDetail.address} />
+                    </Grid>
+                    <Grid item md={12} xs={12}>
+                      <TextField fullWidth label="Số điện thoại" onChange={(e) => setStaffDetail({...staffDetail, phone: e.target.value})} defaultValue={staffDetail.phone} />
+                    </Grid>
+                    
+                    {/* <Grid item md={12} xs={12}>
+                      <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                      <Select onChange={(e) => setUpCategory({...upCategory, status: e.target.value === 'true' })} value={upCategory.status} label="status" name="status" size="small">
+                        <MenuItem value="true">True</MenuItem>
+                        <MenuItem value="false">False</MenuItem>
+                      </Select>
+                    </Grid> */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'left',
+                        p: 5,
+                      }}
+                    >
+                      <Button
+                        onClick={() => {
+                          handleUpdateButton(staffDetail);
+                        }}
+                        color="primary"
+                        variant="contained"
+                      >
+                        Update
+                      </Button>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'right',
+                        p: 2,
+                      }}
+                    >
+                      <Button onClick={handleCloseModal} color="grey" variant="contained">
+                        Cancel
+                      </Button>
+                    </Box>
+                  </Grid>
+                </CardContent>
+              </Card>
+            </Box>
+          </Modal>
+
         </Card>
       </Container>
     </>

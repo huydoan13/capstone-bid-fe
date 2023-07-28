@@ -1,11 +1,46 @@
 import axios from "axios";
 import axiosInstance from "./axios-instance";
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api/';
+const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
 
 export async function getAllStaff() {
     const url = `https://bids-api-testing.azurewebsites.net/api/staffs`;
     return axiosInstance.get(url);
+}
+
+
+export async function createStaff(newStaff) {
+    const url = `${BASE_URL}/staffs`;
+    const data = {
+        staffName: newStaff.staffName,
+        email: newStaff.email,
+        password: newStaff.password,
+        address: newStaff.address,
+        phone: newStaff.phone,
+        dateOfBirth: newStaff.dateOfBirth,
+    }
+
+    try{
+        axiosInstance.post(url, data);
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+export async function updateStaff(upStaff) {
+    const url = `${BASE_URL}/staffs`;
+    const data = {
+        staffId: upStaff.staffId,
+        staffName: upStaff.staffName,
+        address: upStaff.address,
+        phone: upStaff.phone,
+    }
+    try {
+        axiosInstance.put(url, data);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 export async function deleteStaff(id) {
@@ -32,6 +67,25 @@ export async function denyUserWaiting(id) {
     try {
         axiosInstance.put(url, { data: { id } });
         console.log(`Deny User: ${id}`);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function banUser(id) {
+    const url = `${BASE_URL}/staffs/ban/${id}`;
+    try {
+        axiosInstance.put(url, { data: { id } });
+        console.log(`Ban User: ${id}`);
+    } catch (error) {
+        console.log(error);
+    }
+}
+export async function unBanUser(id) {
+    const url = `${BASE_URL}/staffs/unban/${id}`;
+    try {
+        axiosInstance.put(url, { data: { id } });
+        console.log(`UnBan User: ${id}`);
     } catch (error) {
         console.log(error);
     }

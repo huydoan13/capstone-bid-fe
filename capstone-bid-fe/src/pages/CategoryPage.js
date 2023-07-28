@@ -40,16 +40,17 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import { CategoryListHead, CategoryListToolbar } from '../sections/@dashboard/category';
+import CategoryCreate from '../sections/@dashboard/category/CategoryCreate';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'categoryName', label: 'CategoryName', alignRight: false },
-  { id: 'updateDate', label: 'UpdateDate', alignRight: false },
-  { id: 'createDate', label: 'CreateDate', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'categoryName', label: 'Tên Loại', alignRight: false },
+  { id: 'updateDate', label: 'Ngày cập nhật', alignRight: false },
+  { id: 'createDate', label: 'Ngày tạo', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -117,7 +118,9 @@ export default function CaterogyPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
 
   // const handleInputChange = (event) => {
@@ -147,6 +150,14 @@ export default function CaterogyPage() {
       console.log(response.data);
     });
   }, []);
+
+  const handleOpenDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setDialogOpen(false);
+  };
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -265,9 +276,10 @@ export default function CaterogyPage() {
           <Typography variant="h4" gutterBottom>
             Loại đấu giá
           </Typography>
-          <Button href="item-type-create" variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button onClick={handleOpenDialog} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới Loại đấu giá
           </Button>
+          <CategoryCreate open={dialogOpen} onClose={handleCloseDialog} />
         </Stack>
         <Card>
           <CategoryListToolbar
@@ -309,10 +321,10 @@ export default function CaterogyPage() {
                           </TableCell> */}
 
                         <TableCell align="left">{categoryName}</TableCell>
-                        <TableCell align="left">{fDate(updateDate)}</TableCell>
-                        <TableCell align="left">{fDate(createDate)}</TableCell>
+                        <TableCell align="left">{formatDate(updateDate)}</TableCell>
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
+                          <Chip label={status ? 'Đang hoạt động' : 'Ngưng hoạt động'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">

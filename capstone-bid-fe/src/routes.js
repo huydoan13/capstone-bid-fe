@@ -16,34 +16,49 @@ import SignUp from './pages/SignUp';
 import AddProduct from './pages/AddProduct';
 import AuctionPage from './pages/AuctionPage';
 import Profile from './pages/Profile';
+import PrepareSession from './pages/PrepareSession';
+import InstageSession from './pages/InstageSession';
+import FinishSession from './pages/FinishSession';
 // import StaffPage from './pages/StaffPage';
 import StaffPage from './pages/StaffPage';
 import CategoryPage from './pages/CategoryPage';
 import SessionPage from './pages/SessionPage';
 import ItemPage from './pages/ItemPage';
-import ItemTypeCreate from './sections/@dashboard/category/CategoryCreate';
+import CategoryCreate from './sections/@dashboard/category/CategoryCreate';
 import { RolesAuthRoute } from './context/RolesAuthRoute';
 import UserWaitingApprove from './pages/UserWaitingApprove';
 import UserBan from './pages/UserBan';
 import UserDetail from './sections/@dashboard/user/UserDetail';
 import BookingItemsPage from './pages/BookingItems';
+import AllBookingItemPage from './pages/AllBookingItem';
+import SessionNotPayPage from './pages/SessionNotPay';
+import SessionOutOfDatePage from './pages/SessionOutOfDate';
+import SessionCreate from './sections/@dashboard/session/SessionCreate';
+import SessionSuccessPage from './pages/SessionSuccess';
+import SessionRulePage from './pages/SessionRule';
+import FeePage from './pages/FeePage';
+import { StaffCreateNew } from './sections/staff';
+import BookingItemNoSe from './pages/BookingItemNoSe';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
   const routes = useRoutes([
-    { path: 'home', element: (
-      <Suspense>
-        <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
-          <HomePage />
-        </RolesAuthRoute>
-      </Suspense>
-    ), },
+    // { path: 'home', element: (
+    //   <Suspense>
+    //     <RolesAuthRoute roles={['Admin', 'Staff', 'Auctioneer', 'Bidder']}>
+    //       <HomePage />
+    //     </RolesAuthRoute>
+    //   </Suspense>
+    // ), },
     { path: 'auction', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
-    { path: 'landing', element: <LandingPage />},
+    { path: 'home', element: <HomePage />},
+    { path: 'prepare', element: <PrepareSession />},
+    { path: 'instage', element: <InstageSession />},
+    { path: 'finish', element: <FinishSession />},
     {
       path: '/dashboard',
       element: (
@@ -58,13 +73,14 @@ export default function Router() {
 
         { path: 'app', element: <DashboardAppPage /> },
         {
-          path: 'user', element: <UserPage />,
+          path: 'user',
+          element: <UserPage />,
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },
         { path: 'user-detail', element: <UserDetail /> },
-        { path: 'products', element: <ProductsPage /> },
-        { path: 'blog', element: <BlogPage /> },
+        // { path: 'products', element: <ProductsPage /> },
+        // { path: 'blog', element: <BlogPage /> },
         {
           path: 'staff',
           element: (
@@ -75,17 +91,83 @@ export default function Router() {
             </Suspense>
           ),
         },
-        { path: 'category', element: <CategoryPage /> },
-        { path: 'item-type-create', element: <ItemTypeCreate /> },
+        {
+          path: 'staff-create',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <StaffCreateNew />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'category',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <CategoryPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'session-rule',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <SessionRulePage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'fee',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <FeePage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
+        { path: 'session-success', element: <SessionSuccessPage /> },
+        { path: 'session-not-pay', element: <SessionNotPayPage /> },
+        { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
+        { path: 'session-create/:itemId', element: <SessionCreate /> },
         { path: 'items', element: <ItemPage /> },
-        { path: 'booking-items', element: (
-          <Suspense>
-            <RolesAuthRoute roles={['Staff']}>
-              <BookingItemsPage />
-            </RolesAuthRoute>
-          </Suspense>
-        ), },
+        {
+          path: 'booking-items',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Staff']}>
+                <BookingItemsPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'booking-item-no-session',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Staff']}>
+                <BookingItemNoSe />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'all-booking-items',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <AllBookingItemPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
       ],
     },
     {
@@ -95,7 +177,7 @@ export default function Router() {
     {
       element: <SimpleLayout />,
       children: [
-        { element: <Navigate to="/landing" />, index: true },
+        { element: <Navigate to="/home" />, index: true },
         { path: '404', element: <Page404 /> },
         { path: '*', element: <Navigate to="/404" /> },
       ],

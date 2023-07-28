@@ -45,58 +45,63 @@ function NavItem({ item }) {
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
   if (items && items.length > 0) {
-    return (
-      <>
-        {/* <ListItemButton onClick={handleClick}>
-          <ListItemIcon>{item.icon}</ListItemIcon>
-          <ListItemText primary={title} />
-          {open ? <ExpandLess /> : <ExpandMore />}
-        </ListItemButton> */}
-        <StyledNavItem
-          onClick={handleClick}
-          sx={{
-            '&.active': {
-              color: 'text.primary',
-              bgcolor: 'action.selected',
-              fontWeight: 'fontWeightBold',
-            },
-          }}
-        >
-          <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+    const matchingSubItems = items.filter(subItem => subItem.role?.includes(user.role));
 
-          <ListItemText disableTypography primary={title} />
+    if ( role?.includes(user.role) || matchingSubItems.length > 0) {
 
-          {open ? <ExpandLess /> : <ExpandMore />}
-
-          {info && info}
-        </StyledNavItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            {items.map((subItem) => (
-              <StyledNavItem
-                key={subItem.title}
-                component={RouterLink}
-                to={subItem.path}
-                sx={{
-                  '&.active': {
-                    color: 'text.primary',
-                    bgcolor: 'action.selected',
-                    fontWeight: 'fontWeightBold',
-                  },
-                  pl: 2,
-                }}
-              >
-                <StyledNavItemIcon>{subItem.icon && subItem.icon}</StyledNavItemIcon>
-
-                <ListItemText disableTypography primary={subItem.title} />
-
-                {info && info}
-              </StyledNavItem>
-            ))}
-          </List>
-        </Collapse>
-      </>
-    );
+      return (
+        <>
+          {/* <ListItemButton onClick={handleClick}>
+            <ListItemIcon>{item.icon}</ListItemIcon>
+            <ListItemText primary={title} />
+            {open ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton> */}
+          <StyledNavItem
+            onClick={handleClick}
+            sx={{
+              '&.active': {
+                color: 'text.primary',
+                bgcolor: 'action.selected',
+                fontWeight: 'fontWeightBold',
+              },
+            }}
+          >
+            <StyledNavItemIcon>{icon && icon}</StyledNavItemIcon>
+  
+            <ListItemText disableTypography primary={title} />
+  
+            {open ? <ExpandLess /> : <ExpandMore />}
+  
+            {info && info}
+          </StyledNavItem>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              {items.map((subItem) => (
+                <StyledNavItem
+                  key={subItem.title}
+                  component={RouterLink}
+                  to={subItem.path}
+                  sx={{
+                    '&.active': {
+                      color: 'text.primary',
+                      bgcolor: 'action.selected',
+                      fontWeight: 'fontWeightBold',
+                    },
+                    pl: 2,
+                  }}
+                >
+                  <StyledNavItemIcon>{subItem.icon && subItem.icon}</StyledNavItemIcon>
+  
+                  <ListItemText disableTypography primary={subItem.title} />
+  
+                  {subItem.info && subItem.info}
+                </StyledNavItem>
+              ))}
+            </List>
+          </Collapse>
+        </>
+      );
+    }
   }
 
     if (role?.includes(user.role)) {

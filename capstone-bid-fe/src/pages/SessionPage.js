@@ -40,8 +40,8 @@ import { UserListHead, UserListToolbar } from '../sections/@dashboard/user';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'feeName', label: 'FeeName', alignRight: false },
   { id: 'sessionName', label: 'SessionName', alignRight: false },
+  { id: 'feeName', label: 'FeeName', alignRight: false },
   { id: 'beginTime', label: 'BeginTime', alignRight: false },
   { id: 'auctionTime', label: 'AuctionTime', alignRight: false },
   { id: 'endTime', label: 'EndTime', alignRight: false },
@@ -104,7 +104,7 @@ export default function SessionPage() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).format('DD/MM/YYYY');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   // lay du lieu tat ca user
   useEffect(() => {
@@ -264,11 +264,11 @@ export default function SessionPage() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{feeName}</TableCell>
                         <TableCell align="left">{sessionName}</TableCell>
-                        <TableCell align="left">{fDate(beginTime)}</TableCell>
+                        <TableCell align="left">{feeName}</TableCell>
+                        {/* <TableCell align="left">{fDate(beginTime)}</TableCell>
                         <TableCell align="left">{fDate(auctionTime)}</TableCell>
-                        <TableCell align="left">{fDate(endTime)}</TableCell>
+                        <TableCell align="left">{fDate(endTime)}</TableCell> */}
                         <TableCell align="left">{finailPrice}</TableCell>
                         <TableCell align="left">
                           <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />

@@ -10,7 +10,7 @@ export function RolesAuthRoute({ children, roles }) {
 
   if (canAccess) return <>{children}</>;
 
-  return <Navigate to='/login' />;
+  return <Navigate to='/404' />;
 }
 
 
