@@ -2,6 +2,10 @@ import { Typography } from "@mui/material";
 import { ProductMetaWrapper } from "../../style/Products";
 
 export default function ProductMeta({ product, matches }) {
+
+  function formatToVND(price) {
+    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+  }
     return (
       <ProductMetaWrapper>
         
@@ -9,7 +13,7 @@ export default function ProductMeta({ product, matches }) {
           {product.sessionName}
         </Typography>
         <Typography variant={matches ? "caption" : "body1"}>
-          {product.finalPrice} VND
+        Giá khởi Điểm : {formatToVND(product.firstPrice)}
         </Typography>
         <Typography variant={matches ? "caption" : "body1"}>
           {product.beginTime}

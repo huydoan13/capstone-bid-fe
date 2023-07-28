@@ -270,21 +270,30 @@ const ProfilePage = () => {
                             <DialogActions>
                                 <Grid container spacing={2} justifyContent="center">
                                     <Grid item>
-                                        <Button
-                                            variant="contained"
-                                            color="info"
-                                            disabled={isAuctioneer}
-                                            style={{ width: '100%', borderRadius: '20px' }}
-                                            onClick={handleUpgradeToAuctioneer}
-                                        >
-                                            Thăng Cấp Thành Người Bán
-                                        </Button>
+                                    {!isAuctioneer && (
+                                            <Button
+                                                variant="contained"
+                                                color="info"
+                                                style={{ width: '100%'}}
+                                                onClick={handleUpgradeToAuctioneer}
+                                            >
+                                                Thăng Cấp Thành Người Bán
+                                            </Button>
+                                        )}
+
                                     </Grid>
                                     <Grid item>
                                         {/* Styled Disabled Button */}
-                                        <Button href='/addproduct' color="info" variant="contained" disabled={!isAuctioneer} style={{ width: '100%', borderRadius: '20px' }}>
-                                            Thêm Sản Phẩm Đấu giá
-                                        </Button>
+                                        {isAuctioneer && (
+                                            <Button
+                                                href="/addproduct"
+                                                color="info"
+                                                variant="contained"
+                                                style={{ width: '100%' }}
+                                            >
+                                                Thêm Sản Phẩm Đấu giá
+                                            </Button>
+                                        )}
                                     </Grid>
                                 </Grid>
                             </DialogActions>
