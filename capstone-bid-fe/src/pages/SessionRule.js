@@ -203,6 +203,7 @@ export default function SessionRule() {
   const handleOpenModalWithSessionRule = (sessionRuleId) => {
     console.log('edit');
     const updatedSession = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
+    console.log(updatedSession);
     setSessionRuleDetail(updatedSession);
     setModalOpen(true);
     handleCloseMenu();

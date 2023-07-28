@@ -136,6 +136,7 @@ export default function UserPage() {
     // Perform the action you want when the image is clicked
     // For example, open the image in a larger view or trigger a modal to display the image
     // You can implement this logic based on your specific requirements
+    navigate(user.cccdfrontImage);
     console.log('Image clicked!');
   };
 
@@ -204,7 +205,6 @@ export default function UserPage() {
     handleCloseMenu();
   };
 
-
   const handleBanUser = (userId) => {
     banUser(userId);
     toast.success('Cấm người dùng thành công', {
@@ -272,7 +272,6 @@ export default function UserPage() {
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button> */}
-
         </Stack>
 
         <Card>
@@ -324,7 +323,7 @@ export default function UserPage() {
                         </TableCell>
 
                         <TableCell align="right">
-                        <Button
+                          <Button
                             color="secondary"
                             onClick={() => {
                               handleOpenModalWithUser(row.userId);
@@ -445,17 +444,30 @@ export default function UserPage() {
                         <TextField label="Số CCCD" defaultValue={userDetail.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={userDetail.cccdfrontImage} alt="CCCD Back Image" className={classes.cardMedia} />
+                        <a href={userDetail.cccdfrontImage} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={userDetail.cccdfrontImage}
+                            alt="CCCD Back Image"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        {/* <Image src={userDetail.cccdbackImage} /> */}
-                        <CardMedia component="img" image={userDetail.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
+                        <a href={userDetail.cccdbackImage} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={userDetail.cccdbackImage}
+                            alt="CCCD Back Image"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField fullWidth label="Email" defaultValue={userDetail.email} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Địa chỉ" defaultValue={userDetail.address} />
+                        <TextField multiline fullWidth label="Địa chỉ" defaultValue={userDetail.address} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Số điện thoại" defaultValue={userDetail.phone} />
@@ -468,17 +480,13 @@ export default function UserPage() {
                           onClick={() => {
                             handleBanUser(userDetail.userId);
                           }}
-                          sx = {{color: 'red'}}
+                          sx={{ color: 'red' }}
                         >
                           Cấm người dùng
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={handleCloseModal}
-                        >
-                          Hủy
-                        </Button>
+                        <Button onClick={handleCloseModal}>Hủy</Button>
                       </Grid>
                     </Grid>
                   </CardContent>

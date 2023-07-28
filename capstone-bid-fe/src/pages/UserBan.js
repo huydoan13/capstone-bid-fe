@@ -444,22 +444,30 @@ export default function UserBan() {
                         <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt trước CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Front Image" className={classes.cardMedia} />
+                        <a href={upUser.cccdfrontImage} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={upUser.cccdfrontImage}
+                            alt="CCCD Back Image"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt sau CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
+                        <a href={upUser.cccdbackImage} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={upUser.cccdbackImage}
+                            alt="CCCD Back Image"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField fullWidth label="Email" defaultValue={upUser.email} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Địa chỉ" defaultValue={upUser.address} />
+                        <TextField multiline fullWidth label="Địa chỉ" defaultValue={upUser.address} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Số điện thoại" defaultValue={upUser.phone} />

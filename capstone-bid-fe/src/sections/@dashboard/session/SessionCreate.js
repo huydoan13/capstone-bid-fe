@@ -15,6 +15,7 @@ import {
   InputLabel,
 } from '@mui/material';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { toast } from 'react-toastify';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAllSessionRule } from '../../../services/session-rule-actions';
@@ -78,6 +79,10 @@ function SessionCreate() {
       // setEndTime('');
       // if (response.status === 200) {
       navigate('/dashboard/booking-items');
+      toast.success('Tạo phiên đấu giá thành công', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+      });
       // } else {
       //   setErrMsg('Phien dau gia da ton tai');
       // }

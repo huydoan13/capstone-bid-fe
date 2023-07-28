@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
@@ -127,6 +128,16 @@ export default function AllBookingItem() {
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
   const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
 
   const styleModal = {
     position: 'absolute',
@@ -477,7 +488,14 @@ export default function AllBookingItem() {
                         <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
+                        <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={bookingItemDetail.image}
+                            alt="CCCD Back Image"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />

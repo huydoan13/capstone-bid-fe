@@ -1,7 +1,9 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 import { styled } from '@mui/material/styles';
+import { toast } from 'react-toastify';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -128,6 +130,24 @@ export default function BookingItemNoSe() {
 
   const navigate = useNavigate();
 
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
+
+  const handleImageClick = () => {
+    // Perform the action you want when the image is clicked
+    // For example, open the image in a larger view or trigger a modal to display the image
+    // You can implement this logic based on your specific requirements
+    navigate(bookingItemDetail.image);
+    console.log('Image clicked!');
+  };
+
   const styleModal = {
     position: 'absolute',
     top: '50%',
@@ -210,12 +230,20 @@ export default function BookingItemNoSe() {
   const handleAcceptBookingItem = (bookingItemId) => {
     acceptBookingItemWaiting(bookingItemId);
     navigate(`/dashboard/session-create/${bookingItemDetail.itemId}`);
+    toast.success('Chấp nhận đơn đăng kí thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
 
   const handleDenyBookingItem = (bookingItemId) => {
     denyBookingItemWaiting(bookingItemId);
+    toast.success('Từ chối đơn đăng kí thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     handleCloseModal();
     handleCloseMenu();
   };
@@ -477,7 +505,14 @@ export default function BookingItemNoSe() {
                         <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
+                      <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={bookingItemDetail.image}
+                            alt="Hinh anh"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />

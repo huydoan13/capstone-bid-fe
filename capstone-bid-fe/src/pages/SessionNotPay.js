@@ -449,10 +449,20 @@ export default function SessionNotPay() {
                         <TextField multiline label="Loại sản phẩm" defaultValue={upSession.categoryName} />
                       </Grid>
                       <Grid item md={12} xs={12}>
+                        <TextField fullWidth multiline label="Miêu tả sản phẩm" defaultValue={upSession.description} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
                           Hình ảnh sản phẩm
                         </Typography>
-                        <CardMedia component="img" image={upSession.image} alt="Item Image" className={classes.cardMedia} />
+                        <a href={upSession.image} target="_blank" rel="noopener noreferrer">
+                          <CardMedia
+                            component="img"
+                            image={upSession.image}
+                            alt="Hinh anh san pham"
+                            className={classes.cardMedia}
+                          />
+                        </a>
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>

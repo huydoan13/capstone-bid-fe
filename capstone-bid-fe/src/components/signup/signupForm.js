@@ -80,7 +80,8 @@ const SignUpForm = () => {
         cccdbackImage,
       })
       .then(data =>{
-
+        console.log(data);
+        setSuccessDialogOpen(true);
       })
       .catch(err =>{
 
