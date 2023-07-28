@@ -32,7 +32,7 @@ const StaffCreateNew = () => {
   const navigate = useNavigate()
   
   const handleCancel = () => {
-    navigate('/staff', { replace: true });
+    navigate('/dashboard/staff', { replace: true });
   }
 
   const handleSubmit = async (e) => {

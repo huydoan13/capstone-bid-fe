@@ -56,7 +56,7 @@ export default function StaffListToolbar({ numSelected, filterName, onFilterName
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search Staff..."
+          placeholder="Tìm kiếm theo tên"
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />
