@@ -23,18 +23,32 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
-  // Modal,
+  Modal,
   Chip,
+  TextField,
+  Box,
+  CardHeader,
+  CardContent,
+  Grid,
+  CardMedia,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { getAllBookingItem, getStatusInfo } from 'src/services/booking-item-actions';
-// eslint-disable-next-line import/no-unresolved
+import { useNavigate } from 'react-router-dom';
+import {
+  getBookingItemWaiting,
+  acceptBookingItemWaiting,
+  denyBookingItemWaiting,
+  getStatusInfo,
+  getAllBookingItem,
+  getStatusLabel,
+} from '../services/booking-item-actions';
 import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
+import SessionCreate from '../sections/@dashboard/session/SessionCreate';
 
 // ----------------------------------------------------------------------
 
@@ -98,9 +112,11 @@ export default function AllBookingItem() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [item, setItem] = useState([]);
+  const [bookingItem, setBookingItem] = useState([]);
 
-  // const [modalOpen, setModalOpen] = useState(false);
+  const [bookingItemDetail, setBookingItemDetail] = useState({});
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   const [openPopoverId, setOpenPopoverId] = useState(null);
 
@@ -110,7 +126,20 @@ export default function AllBookingItem() {
 
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
-    const StyledProductImg = styled('img')({
+  const navigate = useNavigate();
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '500px',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+  };
+
+  const StyledProductImg = styled('img')({
     // top: 0,
     width: '50px',
     height: '50px',
@@ -123,7 +152,7 @@ export default function AllBookingItem() {
   // lay du lieu tat ca user
   useEffect(() => {
     getAllBookingItem().then((response) => {
-      setItem(response.data);
+      setBookingItem(response.data);
       console.log(response.data);
     });
   }, []);
@@ -146,6 +175,14 @@ export default function AllBookingItem() {
   //   setOpen(null);
   // };
 
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -154,30 +191,34 @@ export default function AllBookingItem() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = item.map((n) => n.name);
+      const newSelecteds = bookingItem.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleEditButton = () => {
+  const handleOpenModalWithBookingItem = (bookingItemId) => {
     console.log('edit');
+    const bookingItemde = bookingItem.find((u) => u.bookingItemId === bookingItemId);
+    setBookingItemDetail(bookingItemde);
+    setModalOpen(true);
+    handleCloseMenu();
+    // navigate('/dashboard/user-detail');
+  };
+
+  const handleAcceptBookingItem = (bookingItemId) => {
+    acceptBookingItemWaiting(bookingItemId);
+    navigate(`/dashboard/session-create/${bookingItemDetail.itemId}`);
+    handleCloseModal();
     handleCloseMenu();
   };
 
-//   const handleDeleteButton = (itemId) => {
-//     deleteUser(itemId)
-//       .then(() => {
-//         const updatedUser = item.find((u) => u.itemId === itemId);
-//         updatedUser.status = false;
-//         setItem([...item]);
-//       })
-//       .catch((err) => {
-//         console.log('Can not delete because:', err);
-//       });
-//     handleCloseMenu();
-//   };
+  const handleDenyBookingItem = (bookingItemId) => {
+    denyBookingItemWaiting(bookingItemId);
+    handleCloseModal();
+    handleCloseMenu();
+  };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -216,22 +257,22 @@ export default function AllBookingItem() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - item.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bookingItem.length) : 0;
 
-  const filteredItems = applySortFilter(item, getComparator(order, orderBy), filterName);
+  const filteredItems = applySortFilter(bookingItem, getComparator(order, orderBy), filterName);
 
   const isNotFound = !filteredItems.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Tổng đơn đăng kí | BIDS </title>
+        <title> Đơn đăng kí đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Tổng đơn đăng kí đấu giá
+            Đơn đăng kí đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá
@@ -240,7 +281,11 @@ export default function AllBookingItem() {
         </Stack>
 
         <Card>
-          <BookingItemListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <BookingItemListToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+          />
 
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
@@ -249,14 +294,28 @@ export default function AllBookingItem() {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={item.length}
+                  rowCount={bookingItem.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
                   {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { itemId, itemName, categoryName, userName, quantity, image, firstPrice, stepPrice, deposit , createDate, updateDate, status } = row;
+                    const {
+                      itemId,
+                      bookingItemId,
+                      itemName,
+                      categoryName,
+                      userName,
+                      quantity,
+                      image,
+                      firstPrice,
+                      stepPrice,
+                      deposit,
+                      createDate,
+                      updateDate,
+                      status,
+                    } = row;
                     const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
@@ -281,20 +340,29 @@ export default function AllBookingItem() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocalString()}</TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
                         {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
                         <TableCell align="left">
-                        <Chip
+                          <Chip
                             label={getStatusInfo(status).text}
                             style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
                           />
                         </TableCell>
 
                         <TableCell align="right">
-                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithBookingItem(row.bookingItemId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
@@ -323,15 +391,15 @@ export default function AllBookingItem() {
                             </MenuItem>
 
                             <MenuItem
-                            //   onClick={() => {
-                            //     handleDeleteButton(row.userId);
-                            //   }}
+                              onClick={() => {
+                                handleDeleteButton(row.userId);
+                              }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
                             </MenuItem>
-                          </Popover>
+                          </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -374,12 +442,85 @@ export default function AllBookingItem() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={item.length}
+            count={bookingItem.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
+
+          <Modal
+            aria-labelledby="modal-modal-title"
+            aria-describedby="modal-modal-description"
+            open={modalOpen}
+            onClose={handleCloseModal}
+          >
+            <Box sx={styleModal}>
+              <form>
+                <Card>
+                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardContent>
+                    <Grid container spacing={3}>
+                      {/* <Grid item md={6} xs={12}>
+                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
+                      </Grid> */}
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Trạng thái" defaultValue={getStatusLabel(bookingItemDetail.status)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
+                      </Grid>
+                      {/* <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleAcceptBookingItem(bookingItemDetail.bookingItemId);
+                          }}
+                        >
+                          Chấp nhận
+                        </Button>
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <Button
+                          onClick={() => {
+                            handleDenyBookingItem(bookingItemDetail.bookingItemId);
+                          }}
+                        >
+                          Từ Chối
+                        </Button>
+                      </Grid> */}
+                    </Grid>
+                  </CardContent>
+                </Card>
+              </form>
+            </Box>
+          </Modal>
         </Card>
       </Container>
     </>

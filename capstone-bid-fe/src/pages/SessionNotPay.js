@@ -319,7 +319,7 @@ export default function SessionNotPay() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice.toLocaleString()}</TableCell>
+                        <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip
@@ -476,7 +476,7 @@ export default function SessionNotPay() {
                         <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />
+                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
                       </Grid>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />

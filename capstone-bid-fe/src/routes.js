@@ -36,6 +36,9 @@ import SessionOutOfDatePage from './pages/SessionOutOfDate';
 import SessionCreate from './sections/@dashboard/session/SessionCreate';
 import SessionSuccessPage from './pages/SessionSuccess';
 import SessionRulePage from './pages/SessionRule';
+import FeePage from './pages/FeePage';
+import { StaffCreateNew } from './sections/staff';
+import BookingItemNoSe from './pages/BookingItemNoSe';
 
 // ----------------------------------------------------------------------
 
@@ -89,6 +92,16 @@ export default function Router() {
           ),
         },
         {
+          path: 'staff-create',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <StaffCreateNew />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
           path: 'category',
           element: (
             <Suspense>
@@ -108,6 +121,16 @@ export default function Router() {
             </Suspense>
           ),
         },
+        {
+          path: 'fee',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Admin']}>
+                <FeePage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'session-success', element: <SessionSuccessPage /> },
@@ -121,6 +144,16 @@ export default function Router() {
             <Suspense>
               <RolesAuthRoute roles={['Staff']}>
                 <BookingItemsPage />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'booking-item-no-session',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Staff']}>
+                <BookingItemNoSe />
               </RolesAuthRoute>
             </Suspense>
           ),

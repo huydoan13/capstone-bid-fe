@@ -31,6 +31,8 @@ import {
   CardContent,
   Grid,
   CardMedia,
+  Select,
+  InputLabel,
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
@@ -44,7 +46,7 @@ import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
 import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
-import { getAllSessionRule } from '../services/session-rule-actions';
+import { deleteSessionRule, getAllSessionRule } from '../services/session-rule-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
 // mock
 // import USERLIST from '../_mock/user';
@@ -53,12 +55,12 @@ import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/sess
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Luật đấu giá', alignRight: false },
-  { id: 'increaseTime', label: 'increaseTime', alignRight: false },
-  { id: 'freeTime', label: 'freeTime', alignRight: false },
-  { id: 'delayTime', label: 'delayTime', alignRight: false },
-  { id: 'delayFreeTime', label: 'delayFreeTime', alignRight: false },
-  { id: 'createDate', label: 'createDate', alignRight: false },
-  { id: 'updateDate', label: 'updateDate', alignRight: false },
+  { id: 'increaseTime', label: 'Số lần tăng giá', alignRight: false },
+  { id: 'freeTime', label: 'Thời gian tự do', alignRight: false },
+  { id: 'delayTime', label: 'Đếm ngược đấu giá', alignRight: false },
+  { id: 'delayFreeTime', label: 'Đếm ngược tự do', alignRight: false },
+  // { id: 'createDate', label: 'createDate', alignRight: false },
+  // { id: 'updateDate', label: 'updateDate', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -111,7 +113,7 @@ export default function SessionRule() {
 
   const [sessionRule, setSessionRule] = useState([]);
 
-  const [upSession, setUpSession] = useState({});
+  const [sessionRuleDetail, setSessionRuleDetail] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -198,27 +200,27 @@ export default function SessionRule() {
     handleCloseMenu();
   };
 
-  const handleOpenModalWithUser = (sessionRuleId) => {
+  const handleOpenModalWithSessionRule = (sessionRuleId) => {
     console.log('edit');
     const updatedSession = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
-    setUpSession(updatedSession);
+    setSessionRuleDetail(updatedSession);
     setModalOpen(true);
     handleCloseMenu();
     // navigate('/dashboard/user-detail');
   };
 
-  // const handleDeleteButton = (userId) => {
-  //   deleteUser(userId)
-  //     .then(() => {
-  //       const updatedUser = user.find((u) => u.userId === userId);
-  //       updatedUser.status = false;
-  //       setUser([...user]);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Can not delete because:', err);
-  //     });
-  //   handleCloseMenu();
-  // };
+  const handleDeleteButton = (sessionRuleId) => {
+    deleteSessionRule(sessionRuleId)
+      .then(() => {
+        const updatedUser = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
+        console.log(updatedUser);
+        setSessionRule([...sessionRule]);
+      })
+      .catch((err) => {
+        console.log('Can not delete because:', err);
+      });
+    handleCloseMenu();
+  };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -275,7 +277,7 @@ export default function SessionRule() {
             Luật đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
+            Tạo mới luật
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
@@ -330,23 +332,18 @@ export default function SessionRule() {
                         <TableCell align="left">{freeTime}</TableCell>
                         <TableCell align="left">{delayTime}</TableCell>
                         <TableCell align="left">{delayFreeTime}</TableCell>
-                        <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
-                        <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
-                        {/* <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell>
-                        <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice.toLocaleString()}</TableCell> */}
-                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
+                        {/* <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
+                        <TableCell align="left">{`${updateDate.day}/${updateDate.month}/${updateDate.year} ${updateDate.hours}:${updateDate.minute}`}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <Chip label={status ? 'Có hiệu lực' : 'Không hiệu lực'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, sessionRuleId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionRuleId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -364,27 +361,26 @@ export default function SessionRule() {
                                 },
                               },
                             }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.sessionId);
-                            }}
                           >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                          <MenuItem
+                              onClick={() => {
+                                handleOpenModalWithSessionRule(row.sessionRuleId);
+                              }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Xem chi tiết
+                            </MenuItem>
 
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
+                            <MenuItem
+                              onClick={() => {
+                                handleDeleteButton(row.sessionRuleId);
+                              }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                              Xóa
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -443,70 +439,56 @@ export default function SessionRule() {
             <Box sx={styleModal}>
               <form>
                 <Card>
-                  <CardHeader title="Thông tin chi tiết phiên đấu giá" />
+                  <CardHeader title="Thông tin chi tiết luật đấu giá" />
                   <CardContent>
                     <Grid container spacing={3}>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Phiên đấu giá" defaultValue={upSession.sessionName} />
+                        <TextField fullWidth multiline label="Luật đấu giá" defaultValue={sessionRuleDetail.name} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Phân khúc" defaultValue={upSession.feeName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Tên sản phẩm" defaultValue={upSession.itemName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Loại sản phẩm" defaultValue={upSession.categoryName} />
+                        <TextField fullWidth multiline label="Số lần tăng giá" defaultValue={sessionRuleDetail.increaseTime} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Hình ảnh sản phẩm
-                        </Typography>
-                        <CardMedia
-                          component="img"
-                          image={upSession.image}
-                          alt="Item Image"
-                          className={classes.cardMedia}
-                        />
+                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime} />
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt trước CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdfrontImage} alt="CCCD Front Image" />
+                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.days} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt sau CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
+                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.hours} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.minutes} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.seconds} />
                       </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian bắt đầu" defaultValue={formatDate(upSession.beginTime)} />
+                      <Grid item md={12} xs={12}>
+                        <TextField multiline label="Đếm ngược đấu giá" defaultValue={sessionRuleDetail.delayTime} />
                       </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
+                      <Grid item md={12} xs={12}>
+                        <TextField multiline label="Đếm ngược tự do" defaultValue={sessionRuleDetail.delayFreeTime} />
                       </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField
-                          multiline
-                          label="Thời gian đấu giá"
-                          defaultValue={formatAuctionTime(upSession.auctionTime)}
-                        />
+                      <Grid item md={12} xs={12}>
+                        <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                        <Select
+                          onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, status: e.target.value === 'true' })}
+                          value={sessionRuleDetail.status}
+                          label="status"
+                          name="status"
+                          size="small"
+                        >
+                          <MenuItem value="true">Có hiệu lực</MenuItem>
+                          <MenuItem value="false">Không hiệu lực</MenuItem>
+                        </Select>
                       </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />
-                      </Grid>
-                      {/* <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
-                      </Grid> */}
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptUser(upSession.sessionId);
+                            handleAcceptUser(sessionRuleDetail.sessionId);
                           }}
                         >
                           Chấp nhận
@@ -515,7 +497,7 @@ export default function SessionRule() {
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleDenyUser(upSession.sessionId);
+                            handleDenyUser(sessionRuleDetail.sessionId);
                           }}
                         >
                           Từ Chối

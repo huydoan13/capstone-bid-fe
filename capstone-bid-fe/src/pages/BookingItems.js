@@ -40,6 +40,7 @@ import {
   acceptBookingItemWaiting,
   denyBookingItemWaiting,
   getStatusInfo,
+  getStatusLabel,
 } from '../services/booking-item-actions';
 import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
@@ -338,7 +339,7 @@ export default function BookingItems() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocaleString()}</TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -478,16 +479,16 @@ export default function BookingItems() {
                         <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice} />
+                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice} />
+                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Trạng thái" defaultValue={bookingItemDetail.status} />
+                        <TextField label="Trạng thái" defaultValue={getStatusLabel(bookingItemDetail.status)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />

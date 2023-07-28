@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -9,7 +10,7 @@ import {
   Table,
   Stack,
   Paper,
-  Avatar,
+  // Avatar,
   Button,
   Popover,
   Checkbox,
@@ -24,38 +25,36 @@ import {
   TablePagination,
   Modal,
   Chip,
+  Grid,
+  CardMedia,
   TextField,
   Box,
   CardHeader,
   CardContent,
-  Grid,
-  CardMedia,
+  Select,
+  InputLabel,
 } from '@mui/material';
-import { Image } from 'mui-image';
 // components
-import { useNavigate } from 'react-router-dom';
-import UserDetail from '../sections/@dashboard/user/UserDetail';
-import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
-import { fDate } from '../utils/formatTime';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { deleteFee, getAllFee, updateFee } from '../services/fee-actions';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { getSessionsOutOfDate } from '../services/session-actions';
-import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
+import { FeeListHead, FeeListToolbar } from '../sections/@dashboard/fee';
 // mock
 // import USERLIST from '../_mock/user';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'sessionName', label: 'Phiên đấu giá', alignRight: false },
-  { id: 'feeName', label: 'Phân khúc', alignRight: false },
-  { id: 'beginTime', label: 'Thời gian bắt đầu', alignRight: false },
-  // { id: 'auctionTime', label: 'Thời gian đấu giá', alignRight: false },
-  { id: 'endTime', label: 'Thời gian kết thúc', alignRight: false },
-  { id: 'finailPrice', label: 'Giá chốt', alignRight: false },
+  { id: 'feeName', label: 'Tên phân khúc', alignRight: false },
+  { id: 'min', label: 'Giá trị tối thiểu', alignRight: false },
+  { id: 'max', label: 'Giá trị tối đa', alignRight: false },
+  { id: 'participationFee', label: 'Phí tham gia', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -86,12 +85,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_fee) => _fee.feeName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function SessionOutOfDate() {
+export default function FeePage() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -106,9 +105,18 @@ export default function SessionOutOfDate() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [session, setSession] = useState([]);
+  const [fee, setFee] = useState([]);
 
-  const [upSession, setUpSession] = useState({});
+  const [feeDetail, setFeeDetail] = useState({
+    feeId: fee.feeId,
+    name: fee.name,
+    min: fee.min,
+    max: fee.max,
+    participationFee: fee.participationFee,
+    depositFee: fee.depositFee,
+    surcharge: fee.surcharge,
+    status: Boolean(fee.status),
+  });
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -116,9 +124,26 @@ export default function SessionOutOfDate() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
+
+  const handleImageClick = () => {
+    // Perform the action you want when the image is clicked
+    // For example, open the image in a larger view or trigger a modal to display the image
+    // You can implement this logic based on your specific requirements
+    console.log('Image clicked!');
+  };
 
   const styleModal = {
     position: 'absolute',
@@ -133,8 +158,8 @@ export default function SessionOutOfDate() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getSessionsOutOfDate().then((response) => {
-      setSession(response.data);
+    getAllFee().then((response) => {
+      setFee(response.data);
       console.log(response.data);
     });
   }, []);
@@ -149,13 +174,13 @@ export default function SessionOutOfDate() {
     setOpenPopoverId(null);
   };
 
-  const handleOpenModal = () => {
-    setModalOpen(true);
-  };
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -165,46 +190,40 @@ export default function SessionOutOfDate() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = session.map((n) => n.name);
+      const newSelecteds = fee.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleAcceptUser = (userId) => {
-    acceptUserWaiting(userId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
-
-  const handleDenyUser = (userId) => {
-    denyUserWaiting(userId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
-
-  const handleOpenModalWithUser = (sessionId) => {
-    console.log('edit');
-    const updatedSession = session.find((u) => u.sessionId === sessionId);
-    setUpSession(updatedSession);
+  const handleOpenModalWithFee = (feeId) => {
+    const updatedFee = fee.find((u) => u.feeId === feeId);
+    setFeeDetail(updatedFee);
     setModalOpen(true);
     handleCloseMenu();
     // navigate('/dashboard/user-detail');
   };
 
-  // const handleDeleteButton = (userId) => {
-  //   deleteUser(userId)
-  //     .then(() => {
-  //       const updatedUser = user.find((u) => u.userId === userId);
-  //       updatedUser.status = false;
-  //       setUser([...user]);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Can not delete because:', err);
-  //     });
-  //   handleCloseMenu();
-  // };
+  const handleUpdateButton = () => {
+    console.log('Update ne');
+    updateFee(feeDetail);
+    console.log(feeDetail);
+    handleCloseModal();
+  };
+
+  const handleDeleteButton = (feeId) => {
+    deleteFee(feeId)
+      .then(() => {
+        const updatedFee = fee.find((u) => u.feeId === feeId);
+        console.log(updatedFee);
+        setFee([...fee]);
+      })
+      .catch((err) => {
+        console.log('Can not delete because:', err);
+      });
+    handleCloseMenu();
+  };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -235,61 +254,71 @@ export default function SessionOutOfDate() {
     setFilterName(event.target.value);
   };
 
-  // const handleOpenModal = () => {
-  //   setModalOpen(true);
-  // };
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
 
-  // const handleCloseModal = () => {
-  //   setModalOpen(false);
-  // };
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - fee.length) : 0;
 
-  const filteredUsers = applySortFilter(session, getComparator(order, orderBy), filterName);
+  const filteredFees = applySortFilter(fee, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredFees.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá quá hạn | BIDS </title>
+        <title> Phân khúc đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Phiên đấu giá quá hạn
+            Phân khúc đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
+            Tạo mới phân khúc
           </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <SessionListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-          {/* <UserDetail userDetail={upUser} /> */}
+          <FeeListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <SessionListHead
+                <FeeListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={session.length}
+                  rowCount={fee.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finailPrice, status } = row;
-                    const selectedUser = selected.indexOf(sessionName) !== -1;
+                  {filteredFees.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const {
+                      feeId,
+                      feeName,
+                      min,
+                      max,
+                      participationFee,
+                      depositFee,
+                      surcharge,
+                      createDate,
+                      updateDate,
+                      status,
+                    } = row;
+                    const selectedUser = selected.indexOf(feeName) !== -1;
 
                     return (
-                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={feeId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, feeName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -301,24 +330,33 @@ export default function SessionOutOfDate() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{sessionName}</TableCell>
                         <TableCell align="left">{feeName}</TableCell>
-                        <TableCell align="left">{finailPrice}</TableCell>
-                        <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        <TableCell align="left">{auctionTime}</TableCell>
-                        {/* <TableCell align="left">{address}</TableCell> */}
-                        {/* <TableCell align="left">{phone}</TableCell> */}
-                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
+                        <TableCell align="left">{min.toLocaleString()}</TableCell>
+                        <TableCell align="left">{max.toLocaleString()}</TableCell>
+                        <TableCell align="left">{participationFee.toLocaleString()}</TableCell>
+                        {/* <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="warning" />
+                          <Chip
+                            label={status ? 'Đang hoạt động' : 'Ngưng hoạt động'}
+                            color={status ? 'success' : 'error'}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          {/* <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithUser(row.feeId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button> */}
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, feeId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === feeId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -336,27 +374,26 @@ export default function SessionOutOfDate() {
                                 },
                               },
                             }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
                           >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                            <MenuItem
+                              onClick={() => {
+                                handleOpenModalWithFee(row.feeId);
+                              }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Xem chi tiết
+                            </MenuItem>
 
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
+                            <MenuItem
+                              onClick={() => {
+                                handleDeleteButton(row.feeId);
+                              }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                              Xóa
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -399,13 +436,12 @@ export default function SessionOutOfDate() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={session.length}
+            count={fee.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
-
           <Modal
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
@@ -415,59 +451,78 @@ export default function SessionOutOfDate() {
             <Box sx={styleModal}>
               <form>
                 <Card>
-                  <CardHeader title="Thông tin chi tiết tài khoản" />
+                  <CardHeader title="Thông tin chi tiết phân khúc" />
                   <CardContent>
                     <Grid container spacing={3}>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Họ và tên" defaultValue={upSession.userName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Số CCCD" defaultValue={upSession.cccdnumber} />
-                      </Grid>
                       <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt trước CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdfrontImage} alt="CCCD Front Image" />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt sau CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Email" defaultValue={upSession.email} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Địa chỉ" defaultValue={upSession.address} />
+                        <TextField fullWidth label="Tên phân khúc" defaultValue={feeDetail.feeName} onChange={(e) => setFeeDetail({...feeDetail, feeName: e.target.value})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Số điện thoại" defaultValue={upSession.phone} />
+                        <TextField label="Giá trị tối thiểu" defaultValue={feeDetail.min?.toLocaleString()} onChange={(e) => setFeeDetail({...feeDetail, min: e.target.value})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
+                        <TextField fullWidth label="Giá trị tối đa" defaultValue={feeDetail.max?.toLocaleString()} onChange={(e) => setFeeDetail({...feeDetail, max: e.target.value})} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField
+                          fullWidth
+                          label="Phí tham gia"
+                          defaultValue={feeDetail.participationFee?.toLocaleString()}
+                          onChange={(e) => setFeeDetail({...feeDetail, participationFee: e.target.value})}
+                        />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Phí đặt cọc" defaultValue={feeDetail.depositFee?.toLocaleString()} onChange={(e) => setFeeDetail({...feeDetail, depositFee: e.target.value})} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Phí hoa hồng" defaultValue={feeDetail.surcharge?.toLocaleString()} onChange={(e) => setFeeDetail({...feeDetail, surcharge: e.target.value})} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField
+                          disabled
+                          fullWidth
+                          label="Ngày tạo"
+                          defaultValue={`${feeDetail.createDate?.day}/${feeDetail.createDate?.month}/${feeDetail.createDate?.year} ${feeDetail.createDate?.hours}:${feeDetail.createDate?.minute}`}
+                          onChange={(e) => setFeeDetail({...feeDetail, createDate: e.target.value})}
+                        />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField
+                          disabled
+                          fullWidth
+                          label="Ngày cập nhật"
+                          defaultValue={`${feeDetail.updateDate?.day}/${feeDetail.updateDate?.month}/${feeDetail.updateDate?.year} ${feeDetail.updateDate?.hours}:${feeDetail.updateDate?.minute}`}
+                          onChange={(e) => setFeeDetail({...feeDetail, updateDate: e.target.value})}
+                        />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <InputLabel id="demo-simple-select-label">Status</InputLabel>
+                        <Select
+                          onChange={(e) => setFeeDetail({ ...feeDetail, status: e.target.value === 'true' })}
+                          value={feeDetail.status}
+                          label="status"
+                          name="status"
+                          size="small"
+                        >
+                          <MenuItem value="true">Đang hoạt động</MenuItem>
+                          <MenuItem value="false">Ngưng hoạt động</MenuItem>
+                        </Select>
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptUser(upSession.sessionId);
+                            handleUpdateButton(feeDetail);
                           }}
+                          sx={{ color: 'green' }}
                         >
-                          Chấp nhận
+                          Cập nhật
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={() => {
-                            handleDenyUser(upSession.sessionId);
-                          }}
-                        >
-                          Từ Chối
-                        </Button>
+                        <Button onClick={handleCloseModal}>Hủy</Button>
                       </Grid>
                     </Grid>
                   </CardContent>

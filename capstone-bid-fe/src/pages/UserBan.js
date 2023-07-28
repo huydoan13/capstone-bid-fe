@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -123,6 +124,16 @@ export default function UserBan() {
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const navigate = useNavigate();
+
+  const useStyles = makeStyles((theme) => ({
+    cardMedia: {
+      width: '400px', // Điều chỉnh chiều rộng tùy ý
+      height: '300px', // Điều chỉnh chiều cao tùy ý
+      objectFit: 'contain', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
+    },
+  }));
+
+  const classes = useStyles();
 
   const styleModal = {
     position: 'absolute',
@@ -433,11 +444,16 @@ export default function UserBan() {
                         <TextField label="Số CCCD" defaultValue={upUser.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Back Image" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt trước CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upUser.cccdfrontImage} alt="CCCD Front Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        {/* <Image src={upUser.cccdbackImage} /> */}
-                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" />
+                        <Typography variant="subtitle1" gutterBottom>
+                          Mặt sau CCCD
+                        </Typography>
+                        <CardMedia component="img" image={upUser.cccdbackImage} alt="CCCD Back Image" className={classes.cardMedia} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField fullWidth label="Email" defaultValue={upUser.email} />

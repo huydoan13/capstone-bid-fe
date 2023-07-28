@@ -1,6 +1,7 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
+import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -9,7 +10,7 @@ import {
   Table,
   Stack,
   Paper,
-  Avatar,
+  // Avatar,
   Button,
   Popover,
   Checkbox,
@@ -31,31 +32,36 @@ import {
   Grid,
   CardMedia,
 } from '@mui/material';
-import { Image } from 'mui-image';
 // components
-import { useNavigate } from 'react-router-dom';
-import UserDetail from '../sections/@dashboard/user/UserDetail';
-import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
+import { useNavigate } from 'react-router-dom';
+import {
+  getBookingItemWaiting,
+  acceptBookingItemWaiting,
+  denyBookingItemWaiting,
+  getStatusInfo,
+  getStatusLabel,
+  getBookingItemNoSesssion,
+} from '../services/booking-item-actions';
+import { BookingItemListToolbar, BookingItemListHead } from '../sections/@dashboard/booking-item';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
-// sections
-import { getSessionsOutOfDate } from '../services/session-actions';
-import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
-// mock
-// import USERLIST from '../_mock/user';
+import SessionCreate from '../sections/@dashboard/session/SessionCreate';
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'sessionName', label: 'Phiên đấu giá', alignRight: false },
-  { id: 'feeName', label: 'Phân khúc', alignRight: false },
-  { id: 'beginTime', label: 'Thời gian bắt đầu', alignRight: false },
-  // { id: 'auctionTime', label: 'Thời gian đấu giá', alignRight: false },
-  { id: 'endTime', label: 'Thời gian kết thúc', alignRight: false },
-  { id: 'finailPrice', label: 'Giá chốt', alignRight: false },
+  { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
+  { id: 'categoryName', label: 'Loại', alignRight: false },
+  { id: 'userName', label: 'Tên người dùng', alignRight: false },
+  { id: 'image', label: 'Hình ảnh', alignRight: false },
+  { id: 'fristPrice', label: 'Giá ban đầu', alignRight: false },
+  // { id: 'stepPrice', label: 'StepPrice', alignRight: false },
+  { id: 'createDate', label: 'Ngày khởi tạo', alignRight: false },
+  // { id: 'updateDate', label: 'UpdateDate', alignRight: false },
+  // { id: 'deposit', label: 'Deposit', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -86,12 +92,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.itemName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function SessionOutOfDate() {
+export default function BookingItemNoSe() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -106,9 +112,9 @@ export default function SessionOutOfDate() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [session, setSession] = useState([]);
+  const [bookingItem, setBookingItem] = useState([]);
 
-  const [upSession, setUpSession] = useState({});
+  const [bookingItemDetail, setBookingItemDetail] = useState({});
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -116,7 +122,9 @@ export default function SessionOutOfDate() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
+
+  const user = JSON.parse(localStorage.getItem('loginUser'));
 
   const navigate = useNavigate();
 
@@ -131,10 +139,20 @@ export default function SessionOutOfDate() {
     p: 5,
   };
 
+  const StyledProductImg = styled('img')({
+    // top: 0,
+    width: '50px',
+    height: '50px',
+    // // objectFit: 'cover',
+    // position: 'absolute',
+    display: 'flex',
+    alignItems: 'center',
+  });
+
   // lay du lieu tat ca user
   useEffect(() => {
-    getSessionsOutOfDate().then((response) => {
-      setSession(response.data);
+    getBookingItemNoSesssion(user.Email).then((response) => {
+      setBookingItem(response.data);
       console.log(response.data);
     });
   }, []);
@@ -148,6 +166,14 @@ export default function SessionOutOfDate() {
     setAnchorEl(null);
     setOpenPopoverId(null);
   };
+
+  // const handleOpenMenu = (event) => {
+  //   setOpen(event.currentTarget);
+  // };
+
+  // const handleCloseMenu = () => {
+  //   setOpen(null);
+  // };
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -165,46 +191,34 @@ export default function SessionOutOfDate() {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = session.map((n) => n.name);
+      const newSelecteds = bookingItem.map((n) => n.name);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleAcceptUser = (userId) => {
-    acceptUserWaiting(userId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
-
-  const handleDenyUser = (userId) => {
-    denyUserWaiting(userId);
-    handleCloseModal();
-    handleCloseMenu();
-  };
-
-  const handleOpenModalWithUser = (sessionId) => {
+  const handleOpenModalWithBookingItem = (bookingItemId) => {
     console.log('edit');
-    const updatedSession = session.find((u) => u.sessionId === sessionId);
-    setUpSession(updatedSession);
+    const bookingItemde = bookingItem.find((u) => u.bookingItemId === bookingItemId);
+    setBookingItemDetail(bookingItemde);
     setModalOpen(true);
     handleCloseMenu();
     // navigate('/dashboard/user-detail');
   };
 
-  // const handleDeleteButton = (userId) => {
-  //   deleteUser(userId)
-  //     .then(() => {
-  //       const updatedUser = user.find((u) => u.userId === userId);
-  //       updatedUser.status = false;
-  //       setUser([...user]);
-  //     })
-  //     .catch((err) => {
-  //       console.log('Can not delete because:', err);
-  //     });
-  //   handleCloseMenu();
-  // };
+  const handleAcceptBookingItem = (bookingItemId) => {
+    acceptBookingItemWaiting(bookingItemId);
+    navigate(`/dashboard/session-create/${bookingItemDetail.itemId}`);
+    handleCloseModal();
+    handleCloseMenu();
+  };
+
+  const handleDenyBookingItem = (bookingItemId) => {
+    denyBookingItemWaiting(bookingItemId);
+    handleCloseModal();
+    handleCloseMenu();
+  };
 
   const handleClick = (event, name) => {
     const selectedIndex = selected.indexOf(name);
@@ -243,53 +257,71 @@ export default function SessionOutOfDate() {
   //   setModalOpen(false);
   // };
 
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - session.length) : 0;
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - bookingItem.length) : 0;
 
-  const filteredUsers = applySortFilter(session, getComparator(order, orderBy), filterName);
+  const filteredItems = applySortFilter(bookingItem, getComparator(order, orderBy), filterName);
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredItems.length && !!filterName;
 
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá quá hạn | BIDS </title>
+        <title> Đơn đăng kí đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Phiên đấu giá quá hạn
+            Đơn đăng kí đấu giá
           </Typography>
           <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            New User
+            Tạo mới đơn đăng kí đấu giá
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <SessionListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-          {/* <UserDetail userDetail={upUser} /> */}
+          <BookingItemListToolbar
+            numSelected={selected.length}
+            filterName={filterName}
+            onFilterName={handleFilterByName}
+          />
+
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <SessionListHead
+                <BookingItemListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={session.length}
+                  rowCount={bookingItem.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finailPrice, status } = row;
-                    const selectedUser = selected.indexOf(sessionName) !== -1;
+                  {filteredItems.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                    const {
+                      itemId,
+                      bookingItemId,
+                      itemName,
+                      categoryName,
+                      userName,
+                      quantity,
+                      image,
+                      firstPrice,
+                      stepPrice,
+                      deposit,
+                      createDate,
+                      updateDate,
+                      status,
+                    } = row;
+                    const selectedUser = selected.indexOf(itemName) !== -1;
 
                     return (
-                      <TableRow hover key={sessionId} tabIndex={-1} role="checkbox" selected={selectedUser}>
+                      <TableRow hover key={itemId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, itemName)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -301,24 +333,40 @@ export default function SessionOutOfDate() {
                           </Stack>
                         </TableCell> */}
 
-                        <TableCell align="left">{sessionName}</TableCell>
-                        <TableCell align="left">{feeName}</TableCell>
-                        <TableCell align="left">{finailPrice}</TableCell>
-                        <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        <TableCell align="left">{auctionTime}</TableCell>
-                        {/* <TableCell align="left">{address}</TableCell> */}
-                        {/* <TableCell align="left">{phone}</TableCell> */}
-                        {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
+                        <TableCell align="left">{itemName}</TableCell>
+                        <TableCell align="left">{categoryName}</TableCell>
+                        <TableCell align="left">{userName}</TableCell>
+                        {/* <TableCell align="left">{quantity}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="warning" />
+                          <StyledProductImg src={image} />
+                        </TableCell>
+                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        {/* <TableCell align="left">{stepPrice}</TableCell>
+                        <TableCell align="left">{deposit}</TableCell> */}
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
+                        {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
+                        <TableCell align="left">
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          <Button
+                            color="secondary"
+                            onClick={() => {
+                              handleOpenModalWithBookingItem(row.bookingItemId);
+                            }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === itemId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -336,27 +384,22 @@ export default function SessionOutOfDate() {
                                 },
                               },
                             }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
                           >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                            <MenuItem onClick={handleEditButton}>
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
+                              Edit
+                            </MenuItem>
 
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
+                            <MenuItem
+                              onClick={() => {
+                                handleDeleteButton(row.userId);
+                              }}
                               sx={{ color: 'error.main' }}
                             >
                               <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
                               Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                            </MenuItem>
+                          </Popover> */}
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -399,7 +442,7 @@ export default function SessionOutOfDate() {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={session.length}
+            count={bookingItem.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -422,39 +465,42 @@ export default function SessionOutOfDate() {
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
                       <Grid item md={6} xs={12}>
-                        <TextField label="Họ và tên" defaultValue={upSession.userName} />
+                        <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Số CCCD" defaultValue={upSession.cccdnumber} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt trước CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdfrontImage} alt="CCCD Front Image" />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Mặt sau CCCD
-                        </Typography>
-                        <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Email" defaultValue={upSession.email} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth label="Địa chỉ" defaultValue={upSession.address} />
+                        <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Số điện thoại" defaultValue={upSession.phone} />
+                        <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
+                        <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <CardMedia component="img" image={bookingItemDetail.image} alt="Hình ảnh" />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Trạng thái" defaultValue={getStatusLabel(bookingItemDetail.status)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
+                      </Grid>
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleAcceptUser(upSession.sessionId);
+                            handleAcceptBookingItem(bookingItemDetail.bookingItemId);
                           }}
                         >
                           Chấp nhận
@@ -463,7 +509,7 @@ export default function SessionOutOfDate() {
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
-                            handleDenyUser(upSession.sessionId);
+                            handleDenyBookingItem(bookingItemDetail.bookingItemId);
                           }}
                         >
                           Từ Chối

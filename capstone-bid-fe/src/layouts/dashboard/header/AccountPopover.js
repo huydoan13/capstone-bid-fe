@@ -10,15 +10,15 @@ import account from '../../../_mock/account';
 
 const MENU_OPTIONS = [
   {
-    label: 'Home',
+    label: 'Trang chủ',
     icon: 'eva:home-fill',
   },
   {
-    label: 'Profile',
+    label: 'Hồ sơ',
     icon: 'eva:person-fill',
   },
   {
-    label: 'Settings',
+    label: 'Cài đặt',
     icon: 'eva:settings-2-fill',
   },
 ];
@@ -101,7 +101,7 @@ export default function AccountPopover() {
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem onClick={logout} sx={{ m: 1 }}>
-          Logout
+          Đăng xuất
         </MenuItem>
       </Popover>
     </>
