@@ -61,9 +61,9 @@ const AuctionForm = () => {
     fetchAuctionData();
     fetchSessionDetails();
     
-    // const interval = setInterval(fetchAuctionData, 5000);
+    const interval = setInterval(fetchAuctionData && fetchSessionDetails, 5000);
     return () => {
-      // clearInterval(interval);
+      clearInterval(interval);
     };
   }, []);
 
@@ -192,12 +192,12 @@ const fetchSessionDetails = async () => {
           </Typography>
         </Box>
         <Button
-          sx={{ position: "absolute", marginLeft: "15%", width: "200px" }}
+          sx={{ position: "absolute", marginLeft: "12%", width: "200px" }}
           color="primary"
           variant="contained"
           onClick={() => {
-            fetchAuctionData();
-            fetchSessionDetails();
+            // fetchAuctionData();
+            // fetchSessionDetails();
             setIsDialogOpen(true);
             setCurrentPrice(auctionData[0]?.finalPrice);
           }}
@@ -237,6 +237,7 @@ const fetchSessionDetails = async () => {
   const handleDialogClose = async () => {
     await makeApiCall();
     fetchAuctionData();
+    fetchSessionDetails();
     setIsDialogOpen(false);
     setIsCountdownRunning(true);
 
@@ -348,6 +349,7 @@ const fetchSessionDetails = async () => {
             <Grid item xs={12} sm={6}>
               <TextField
                 id="multiline-textfield"
+                label="Lịch Sử Tăng Giá"
                 multiline
                 rows={18}
                 variant="outlined"

@@ -16,7 +16,7 @@ const SignUpForm = () => {
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [cccdnumber, setCitizenId] = useState('');
   const [err, setError] = useState('');
-
+  const MAX_FILE_SIZE = 23 * 1024 * 1024; // 23 MB in bytes
   const [avatar, setAvatar] = useState(null);
   const [cccdfrontImage, setFrontImage] = useState(null);
   const [cccdbackImage, setBackImage] = useState(null);
@@ -26,8 +26,13 @@ const SignUpForm = () => {
 
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "free" });
-
+  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  
+  const isValidImageFile = (file) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Add more allowed types if needed
+    return file && allowedTypes.includes(file.type) && file.size <= MAX_FILE_SIZE;
+  };
+  
   
 
   const handleSubmit = async (e) => {
@@ -52,7 +57,10 @@ const SignUpForm = () => {
       setError('Mật Khẩu Không Giống');
       return;
     }
-
+    if (!avatar || !cccdfrontImage || !cccdbackImage) {
+      setError('Vui lòng tải lên đủ 3 hình ảnh (Ảnh đại diện, Mặt trước CCCD, Mặt sau CCCD).');
+      return;
+    }
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
@@ -149,9 +157,6 @@ const SignUpForm = () => {
       }}
       onSubmit={handleSubmit}
     >
-      <Typography variant="h4" sx={{ marginBottom: '20px' }}>
-        Sign Up
-      </Typography>
       <TextField
         label="Tên Tài Khoản"
         type="text"

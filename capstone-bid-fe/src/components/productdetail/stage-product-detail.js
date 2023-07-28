@@ -162,8 +162,8 @@ export default function StageProductDetail({ open, onClose, product }) {
                             </Typography>
                             <Typography margin={'1%'} variant="subtitle">Mô tả sản phẩm : {product.description} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)} </Typography>
-                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.firstPrice)} </Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.firstPrice)} </Typography>
+                            <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)} </Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>

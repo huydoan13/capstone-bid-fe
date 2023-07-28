@@ -134,7 +134,7 @@ export default function FinishProductDetail({ open, onClose, product }) {
                             </Typography>
                             
                             <Typography margin={'1%'} variant="subtitle">Mô tả : {product.description} VND</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Giá Cuối Cùng : {formatToVND(product.finalPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>

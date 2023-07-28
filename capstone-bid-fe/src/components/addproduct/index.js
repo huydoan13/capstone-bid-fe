@@ -24,7 +24,7 @@ const [error,setError] = useState();
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user)
 
-  const uploader = Uploader({ apiKey: "free" });
+  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
 
   const Product = styled(Box)(({ theme }) => ({
 

@@ -13,7 +13,7 @@ export default function StageProductMeta({ product, matches }) {
           {product.sessionName}
         </Typography>
         <Typography variant={matches ? "caption" : "body1"}>
-        Giá khởi Điểm : {formatToVND(product.firstPrice)}
+        Giá khởi Điểm : {formatToVND(product.finalPrice)}
         </Typography>
         <Typography variant={matches ? "caption" : "body1"}>
           {product.beginTime}
