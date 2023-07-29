@@ -306,7 +306,7 @@ const SignUpForm = () => {
       <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <Typography  variant="body1">{err && err.split("\n").map((line, index) => <div key={index}>{line}</div>)}</Typography>
+          <Typography  variant="body1">{err}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
