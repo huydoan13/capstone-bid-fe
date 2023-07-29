@@ -61,7 +61,10 @@ const AuctionForm = () => {
     fetchAuctionData();
     fetchSessionDetails();
     
-    const interval = setInterval(fetchAuctionData && fetchSessionDetails, 5000);
+    const interval = setInterval(() => {
+      fetchAuctionData();
+      fetchSessionDetails();
+    }, 5000);
     return () => {
       clearInterval(interval);
     };
@@ -150,6 +153,7 @@ const fetchSessionDetails = async () => {
 
           const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(5, 'minutes').format("HH:mm:ss"));
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
+            localStorage.clear('countdownTime');
             const delayFreeTime = auctionData[0]?.delayFreeTime;
             if (delayFreeTime) {
               setCurrentDelayTime(delayFreeTime);
@@ -351,10 +355,10 @@ const fetchSessionDetails = async () => {
                 id="multiline-textfield"
                 label="Lịch Sử Tăng Giá"
                 multiline
-                rows={18}
+                rows={30}
                 variant="outlined"
                 fullWidth
-                value={sessionDetails.map((detail) => `${detail.userName} || ${detail.price} || ${formatCreateDate(detail.createDate)}`).join('\n')}
+                value={sessionDetails.map((detail) => `${detail.userName} || ${formatToVND(detail.price)} || ${formatCreateDate(detail.createDate)}`).join('\n')}
                 
               // You can add any additional props or event handlers as needed
               />
