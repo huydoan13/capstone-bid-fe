@@ -91,6 +91,8 @@ const SignUpForm = () => {
         err = setError(errorMessage);
         setErrorDialogOpen(true);
         }
+        console.log('Server response:', response.data);
+      setSuccessDialogOpen(true);
         // if (err.response && err.response.data && err.response.data.errors) {
         //   const serverErrors = err.response.data.errors;
         //   let formattedErrors = "";
