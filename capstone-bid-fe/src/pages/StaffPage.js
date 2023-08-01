@@ -53,7 +53,7 @@ const TABLE_HEAD = [
   { id: 'address', label: 'Địa chỉ', alignRight: false },
   { id: 'phone', label: 'SDT', alignRight: false },
   { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Status', alignRight: false },
   { id: '' },
 ];
 
@@ -296,9 +296,9 @@ export default function StaffPage() {
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{formatDate(dateOfBirth)}</TableCell>
-                        {/* <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
-                        </TableCell> */}
+                        <TableCell align="left">
+                          <Chip label={status ? 'Đang hoạt động' : 'Đã cấm'} color={status ? 'success' : 'error'} />
+                        </TableCell>
 
                         <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, staffId)}>

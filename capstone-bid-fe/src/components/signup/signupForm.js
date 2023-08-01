@@ -67,7 +67,7 @@ const SignUpForm = () => {
     try {
 
       const response = await axios
-      .post('https://bids-api-testing.azurewebsites.net/api/Users', {
+      .post('https://bids-online.azurewebsites.net/api/Users', {
         userName,
         email,
         password,

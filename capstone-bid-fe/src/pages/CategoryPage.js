@@ -268,7 +268,7 @@ export default function CaterogyPage() {
   return (
     <>
       <Helmet>
-        <title> Caterogy | BIDS </title>
+        <title> Loại đấu giá | BIDS </title>
       </Helmet>
 
       <Container>

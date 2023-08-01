@@ -35,7 +35,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   getBookingItemWaiting,
   acceptBookingItemWaiting,
@@ -285,9 +285,9 @@ export default function AllBookingItem() {
           <Typography variant="h4" gutterBottom>
             Đơn đăng kí đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -351,7 +351,9 @@ export default function AllBookingItem() {
                         <TableCell align="left">
                           <StyledProductImg src={image} />
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        <TableCell align="left">
+                          {firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -364,15 +366,17 @@ export default function AllBookingItem() {
                         </TableCell>
 
                         <TableCell align="right">
+                        <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
                           <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithBookingItem(row.bookingItemId);
-                            }}
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
                             Chi tiết
                           </Button>
+                          </Link>
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
@@ -460,62 +464,94 @@ export default function AllBookingItem() {
             onRowsPerPageChange={handleChangeRowsPerPage}
           />
 
-          <Modal
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description"
-            open={modalOpen}
-            onClose={handleCloseModal}
-          >
-            <Box sx={styleModal}>
-              <form>
-                <Card>
-                  <CardHeader title="Thông tin chi tiết tài khoản" />
-                  <CardContent>
-                    <Grid container spacing={3}>
-                      {/* <Grid item md={6} xs={12}>
+          <div>
+            <Modal
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+              open={modalOpen}
+              onClose={handleCloseModal}
+              style={{
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)', // Semi-transparent background
+              }}
+            >
+              <Box
+                style={{
+                  background: '#fff',
+                  borderRadius: '5px',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
+                  overflowY: 'auto',
+                }}
+              >
+                <form>
+                  <Card>
+                    <CardHeader title="Thông tin chi tiết tài khoản" />
+                    <CardContent>
+                      <Grid container spacing={3}>
+                        {/* <Grid item md={6} xs={12}>
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
-                          <CardMedia
-                            component="img"
-                            image={bookingItemDetail.image}
-                            alt="CCCD Back Image"
-                            className={classes.cardMedia}
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Tên sản phẩm" defaultValue={bookingItemDetail.itemName} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Loại" defaultValue={bookingItemDetail.categoryName} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Tên tài khoản" defaultValue={bookingItemDetail.userName} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField
+                            label="Giá khởi điểm"
+                            defaultValue={bookingItemDetail.firstPrice?.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })}
                           />
-                        </a>
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Trạng thái" defaultValue={getStatusLabel(bookingItemDetail.status)} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
-                      </Grid>
-                      {/* <Grid item md={6} xs={12}>
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField
+                            label="Bước nhảy"
+                            defaultValue={bookingItemDetail.stepPrice?.toLocaleString('vi-VN', {
+                              style: 'currency',
+                              currency: 'VND',
+                            })}
+                          />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Trạng thái" defaultValue={getStatusLabel(bookingItemDetail.status)} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Ngày tạo" defaultValue={formatDate(bookingItemDetail.createDate)} />
+                        </Grid>
+                        <Grid item md={3} xs={12}>
+                          <TextField label="Ngày cập nhật" defaultValue={formatDate(bookingItemDetail.updateDate)} />
+                        </Grid>
+                        <Grid item md={12} xs={12}>
+                          <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
+                            <CardMedia
+                              component="img"
+                              image={bookingItemDetail.image}
+                              alt="CCCD Back Image"
+                              className={classes.cardMedia}
+                            />
+                          </a>
+                        </Grid>
+                        {/* <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {
                             handleAcceptBookingItem(bookingItemDetail.bookingItemId);
@@ -533,12 +569,13 @@ export default function AllBookingItem() {
                           Từ Chối
                         </Button>
                       </Grid> */}
-                    </Grid>
-                  </CardContent>
-                </Card>
-              </form>
-            </Box>
-          </Modal>
+                      </Grid>
+                    </CardContent>
+                  </Card>
+                </form>
+              </Box>
+            </Modal>
+          </div>
         </Card>
       </Container>
     </>

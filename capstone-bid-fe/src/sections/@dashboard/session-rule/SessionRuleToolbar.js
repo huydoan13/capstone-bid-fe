@@ -32,13 +32,13 @@ const StyledSearch = styled(OutlinedInput)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-CategoryListToolbar.propTypes = {
+SessionListToolbar.propTypes = {
   numSelected: PropTypes.number,
   filterName: PropTypes.string,
   onFilterName: PropTypes.func,
 };
 
-export default function CategoryListToolbar({ numSelected, filterName, onFilterName }) {
+export default function SessionListToolbar({ numSelected, filterName, onFilterName }) {
   return (
     <StyledRoot
       sx={{
@@ -56,7 +56,7 @@ export default function CategoryListToolbar({ numSelected, filterName, onFilterN
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm kiếm theo tên"
+          placeholder="Tìm phiên đấu giá..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />

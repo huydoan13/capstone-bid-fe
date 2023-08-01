@@ -2,7 +2,7 @@ import axios from 'axios';
 import axiosInstance from './axios-instance';
 
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
+const BASE_URL = 'https://bids-online.azurewebsites.net/api';
 
 export async function getAllSessions() {
     const url = `${BASE_URL}/sessions`;

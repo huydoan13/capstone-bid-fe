@@ -39,7 +39,7 @@ import { Image } from 'mui-image';
 import { getAllUserBan, getStatusInfo } from 'src/services/user-actions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting, unBanUser } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -197,7 +197,6 @@ export default function UserBan() {
     handleCloseMenu();
   };
 
-
   const handleOpenModalWithUser = (userId) => {
     console.log('edit');
     const updatedUser = user.find((u) => u.userId === userId);
@@ -353,15 +352,17 @@ export default function UserBan() {
                               },
                             }}
                           > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                          <Link to={`/dashboard/user-ban-detail/${row.userId}`}>
+                            <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
 
                           {/* <MenuItem
                               // onClick={() => {
@@ -480,17 +481,13 @@ export default function UserBan() {
                           onClick={() => {
                             handleUnBanUser(upUser.userId);
                           }}
-                          sx={{ color: 'green'}}
+                          sx={{ color: 'green' }}
                         >
                           Gỡ cấm người dùng
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={handleCloseModal}
-                        >
-                          Hủy
-                        </Button>
+                        <Button onClick={handleCloseModal}>Hủy</Button>
                       </Grid>
                     </Grid>
                   </CardContent>

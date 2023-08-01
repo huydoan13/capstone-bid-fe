@@ -36,7 +36,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   getBookingItemWaiting,
   acceptBookingItemWaiting,
@@ -381,15 +381,17 @@ export default function BookingItemNoSe() {
                         </TableCell>
 
                         <TableCell align="right">
+                        <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
                           <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithBookingItem(row.bookingItemId);
-                            }}
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
                             Chi tiết
                           </Button>
+                          </Link>
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>

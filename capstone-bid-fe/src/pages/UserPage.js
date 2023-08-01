@@ -34,7 +34,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllUserActive, getStatusInfo } from '../services/user-actions';
@@ -323,7 +323,18 @@ export default function UserPage() {
                         </TableCell>
 
                         <TableCell align="right">
+                        <Link to={`/dashboard/user-detail/${row.userId}`}>
                           <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          </Link>
+                          {/* <Button
                             color="secondary"
                             onClick={() => {
                               handleOpenModalWithUser(row.userId);
@@ -331,7 +342,7 @@ export default function UserPage() {
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
                             Chi tiết
-                          </Button>
+                          </Button> */}
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>

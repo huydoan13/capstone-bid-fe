@@ -4,6 +4,7 @@ import moment from 'moment';
 import { styled } from '@mui/material/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 // @mui
 import {
   Card,
@@ -273,7 +274,7 @@ export default function ItemPage() {
                       itemName,
                       categoryName,
                       userName,
-                      image,
+                      images,
                       firstPrice,
                       stepPrice,
                       deposit,
@@ -302,9 +303,18 @@ export default function ItemPage() {
                         <TableCell align="left">{categoryName}</TableCell>
                         <TableCell align="left">{userName}</TableCell>
                         <TableCell align="left">
-                          <StyledProductImg src={image} />
+                          {images && images.length > 0 ? (
+                            <StyledProductImg src={images[0].detail} />
+                          ) : (
+                            <div>No image available</div>
+                          )}
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        {/* <TableCell align="left">
+                          <StyledProductImg src={images[0].detail} />
+                        </TableCell> */}
+                        <TableCell align="left">
+                          {firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell> */}
                         {/* <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -314,15 +324,17 @@ export default function ItemPage() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithItem(row.itemId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                          <Link to={`/dashboard/item-detail/${row.itemId}`}>
+                            <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
@@ -441,7 +453,7 @@ export default function ItemPage() {
                         <TextField label="Phí đặt cọc" defaultValue={itemDetail.deposit ? 'Có' : 'Không'} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <CardMedia component="img" image={itemDetail.image} alt="Hình ảnh" />
+                        <CardMedia component="img" image={itemDetail.images} alt="Hình ảnh" />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField
@@ -458,10 +470,22 @@ export default function ItemPage() {
                         <TextField multiline label="Ngày cập nhật" defaultValue={formatDate(itemDetail.updateDate)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={itemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Giá khởi điểm"
+                          defaultValue={itemDetail.firstPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={itemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Bước nhảy"
+                          defaultValue={itemDetail.stepPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       {/* <Grid item md={6} xs={12}>
                         <Button

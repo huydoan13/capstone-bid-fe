@@ -28,6 +28,7 @@ import { RolesAuthRoute } from './context/RolesAuthRoute';
 import UserWaitingApprove from './pages/UserWaitingApprove';
 import UserBan from './pages/UserBan';
 import UserDetail from './sections/@dashboard/user/UserDetail';
+import UserWaitingDetail from './sections/@dashboard/user/UserWaitingDetail';
 import BookingItemsPage from './pages/BookingItems';
 import AllBookingItemPage from './pages/AllBookingItem';
 import SessionNotPayPage from './pages/SessionNotPay';
@@ -38,6 +39,9 @@ import SessionRulePage from './pages/SessionRule';
 import FeePage from './pages/FeePage';
 import { StaffCreateNew } from './sections/staff';
 import BookingItemNoSe from './pages/BookingItemNoSe';
+import BookingItemDetail from './sections/@dashboard/booking-item/BookingItemDetail';
+import ItemDetail from './sections/@dashboard/itemss/ItemDetail';
+import UserBanDetail from './sections/@dashboard/user/UserBanDetail';
 
 // ----------------------------------------------------------------------
 
@@ -77,7 +81,9 @@ export default function Router() {
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },
-        { path: 'user-detail', element: <UserDetail /> },
+        { path: 'user-detail/:userId', element: <UserDetail /> },
+        { path: 'user-waiting-detail/:userId', element: <UserWaitingDetail /> },
+        { path: 'user-ban-detail/:userId', element: <UserBanDetail /> },
         // { path: 'products', element: <ProductsPage /> },
         // { path: 'blog', element: <BlogPage /> },
         {
@@ -137,6 +143,8 @@ export default function Router() {
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
         { path: 'session-create/:itemId', element: <SessionCreate /> },
         { path: 'items', element: <ItemPage /> },
+        { path: 'item-detail/:itemId', element: <ItemDetail /> },
+        { path: 'booking-item-detail/:bookingItemId', element: <BookingItemDetail /> },
         {
           path: 'booking-items',
           element: (

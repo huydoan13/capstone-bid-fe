@@ -1,7 +1,7 @@
 import axiosInstance from './axios-instance';
 
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
+const BASE_URL = 'https://bids-online.azurewebsites.net/api';
 
 export async function getAllSessionRule() {
     const url = `${BASE_URL}/sessionrule`;
@@ -31,7 +31,6 @@ export async function updateSessionRule(upSessionRule) {
     const data = {
         sessionRuleId: upSessionRule.sessionRuleId,
         name: upSessionRule.name,
-        increaseTime: upSessionRule.increaseTime,
         freeTime: upSessionRule.freeTime,
         delayTime: upSessionRule.delayTime,
         delayFreeTime: upSessionRule.delayFreeTime,

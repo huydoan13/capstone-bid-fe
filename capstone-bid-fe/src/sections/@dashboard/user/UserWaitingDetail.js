@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import { makeStyles } from '@mui/styles';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Card,
   Table,
@@ -29,12 +31,10 @@ import {
   CardMedia,
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import { getUserById, getStatusLabel, getRoleLabel } from '../../../services/user-actions';
-import { banUser } from '../../../services/staff-actions';
+import { acceptUserWaiting, denyUserWaiting } from '../../../services/staff-actions';
 
-const UserDetail = () => {
+const UserWaitingDetail = () => {
   const { userId } = useParams();
   const [userDetail, setUserDetail] = useState({});
   const [loading, setLoading] = useState(true);
@@ -42,7 +42,7 @@ const UserDetail = () => {
 
   const useStyles = makeStyles((theme) => ({
     cardMedia: {
-      width: '500px', // Điều chỉnh chiều rộng tùy ý
+      //   width: '530px',
       height: '500px', // Điều chỉnh chiều cao tùy ý
       objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
     },
@@ -52,20 +52,25 @@ const UserDetail = () => {
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
   const handleButtonBack = () => {
-    navigate('/dashboard/user');
+    navigate('/dashboard/user-waiting');
   };
 
-  const handleBanUser = (userId) => {
-    banUser(userId);
-    toast.success('Cấm người dùng thành công', {
+  const handleAcceptUser = (userId) => {
+    acceptUserWaiting(userId);
+    toast.success('Chấp nhận người dùng thành công!', {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
     });
-    navigate('/dashboard/user');
+    navigate('/dashboard/user-waiting');
   };
 
-  const handleCancelButton = () => {
-    navigate('/dashboard/user');
+  const handleDenyUser = (userId) => {
+    denyUserWaiting(userId);
+    toast.success('Từ chối người dùng thành công!', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
+    navigate('/dashboard/user-waiting');
   };
 
   useEffect(() => {
@@ -255,6 +260,26 @@ const UserDetail = () => {
                 </a>
               </Grid>
             </Grid>
+            <Grid container spacing={2}>
+              <Grid item md={6} xs={12}>
+                <Button
+                  onClick={() => {
+                    handleAcceptUser(userDetail.userId);
+                  }}
+                >
+                  Chấp nhận
+                </Button>
+              </Grid>
+              <Grid item md={6} xs={12}>
+                <Button
+                  onClick={() => {
+                    handleDenyUser(userDetail.userId);
+                  }}
+                >
+                  Từ Chối
+                </Button>
+              </Grid>
+            </Grid>
             {/* <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
@@ -275,21 +300,6 @@ const UserDetail = () => {
                     />
                   </Grid>
                 </Grid> */}
-            <Grid container spacing={2}>
-              <Grid item md={6} xs={12}>
-                <Button
-                  onClick={() => {
-                    handleBanUser(userDetail.userId);
-                  }}
-                  sx={{ color: 'red' }}
-                >
-                  Cấm người dùng
-                </Button>
-              </Grid>
-              <Grid item md={6} xs={12}>
-                <Button onClick={handleCancelButton}>Hủy</Button>
-              </Grid>
-            </Grid>
           </Box>
         </CardContent>
       </Card>
@@ -297,4 +307,4 @@ const UserDetail = () => {
   );
 };
 
-export default UserDetail;
+export default UserWaitingDetail;
