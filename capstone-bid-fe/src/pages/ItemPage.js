@@ -320,7 +320,7 @@ export default function ItemPage() {
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
                         {/* <TableCell align="left">{fDate(updateDate)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={deposit ? 'Có' : 'Không'} color={status ? 'success' : 'error'} />
+                          <Chip label={deposit ? 'Có' : 'Không'} color={deposit ? 'success' : 'error'} />
                         </TableCell>
 
                         <TableCell align="right">
