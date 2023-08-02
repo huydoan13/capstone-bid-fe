@@ -205,6 +205,10 @@ export default function FeePage() {
     // navigate('/dashboard/user-detail');
   };
 
+  const handleCreateButton = () => {
+    navigate('/dashboard/fee-create');
+  }
+
   const handleUpdateButton = () => {
     console.log('Update ne');
     updateFee(feeDetail);
@@ -279,7 +283,7 @@ export default function FeePage() {
           <Typography variant="h4" gutterBottom>
             Phân khúc đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button onClick={handleCreateButton} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới phân khúc
           </Button>
         </Stack>
@@ -434,7 +438,7 @@ export default function FeePage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={fee.length}
             rowsPerPage={rowsPerPage}
@@ -461,24 +465,24 @@ export default function FeePage() {
                         <TextField fullWidth label="Tên phân khúc" defaultValue={feeDetail.feeName} onChange={(e) => setFeeDetail({...feeDetail, feeName: e.target.value})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá trị tối thiểu" defaultValue={feeDetail.min?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, min: e.target.value})} />
+                        <TextField label="Giá trị tối thiểu" defaultValue={feeDetail.min?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, min: parseFloat(e.target.value)})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField fullWidth label="Giá trị tối đa" defaultValue={feeDetail.max?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, max: e.target.value})} />
+                        <TextField fullWidth label="Giá trị tối đa" defaultValue={feeDetail.max?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, max: parseFloat(e.target.value)})} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField
                           fullWidth
                           label="Phí tham gia"
                           defaultValue={`${(feeDetail.participationFee * 100).toFixed(2)}%`}
-                          onChange={(e) => setFeeDetail({...feeDetail, participationFee: e.target.value})}
+                          onChange={(e) => setFeeDetail({...feeDetail, participationFee: parseFloat(e.target.value)})}
                         />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Phí đặt cọc" defaultValue={feeDetail.depositFee?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, depositFee: e.target.value})} />
+                        <TextField label="Phí đặt cọc" defaultValue={feeDetail.depositFee?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, depositFee: parseFloat(e.target.value)})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Phí hoa hồng" defaultValue={`${(feeDetail.surcharge * 100).toFixed(2)}%`} onChange={(e) => setFeeDetail({...feeDetail, surcharge: e.target.value})} />
+                        <TextField label="Phí hoa hồng" defaultValue={`${(feeDetail.surcharge * 100).toFixed(2)}%`} onChange={(e) => setFeeDetail({...feeDetail, surcharge: parseFloat(e.target.value)})} />
                       </Grid>
                       <Grid item md={12} xs={12}>
                         <TextField

@@ -30,11 +30,11 @@ import {
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getItemById } from '../../../services/item-actions';
+import { getSessionsById, getStatusLabel } from '../../../services/session-actions';
 
-const ItemDetail = () => {
-  const { itemId } = useParams();
-  const [itemDetail, setItemDetail] = useState({});
+const SessionDetail = () => {
+  const { sessionId } = useParams();
+  const [sessionDetail, setSessionDetail] = useState({});
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -75,18 +75,19 @@ const ItemDetail = () => {
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
-  const handleButtonBack = () => {
-    navigate('/dashboard/items');
-  };
+  //   const handleButtonBack = () => {
+  //     navigate('/dashboard/items');
+  //   };
 
   const handlePrevImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + itemDetail[0].images.length) % itemDetail[0].images.length);
+    setCurrentImageIndex(
+      (prevIndex) => (prevIndex - 1 + sessionDetail[0].images.length) % sessionDetail[0].images.length
+    );
   };
 
   const handleNextImage = () => {
-    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % itemDetail[0].images.length);
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % sessionDetail[0].images.length);
   };
-
 
   const handleSelectImage = (imageObj) => {
     setSelectedImage(imageObj);
@@ -100,12 +101,12 @@ const ItemDetail = () => {
   };
 
   useEffect(() => {
-    getItemById(itemId).then((res) => {
-      setItemDetail(res.data);
+    getSessionsById(sessionId).then((res) => {
+      setSessionDetail(res.data);
       console.log(res.data);
       setLoading(false);
     });
-  }, [itemId]);
+  }, [sessionId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -113,15 +114,35 @@ const ItemDetail = () => {
 
   return (
     <Container>
-      <Button onClick={handleButtonBack}>Trở về</Button>
+      {/* <Button onClick={handleButtonBack}>Trở về</Button> */}
       <Card>
-        <CardHeader title="Thông tin chi tiết sản phẩm" />
+        <CardHeader title="Thông tin chi tiết phiên đấu giá" />
         <CardContent>
           <Box sx={{ p: 2 }}>
-            {itemDetail.map((item) => (
-              <div key={item.itemId}>
+            {sessionDetail.map((item) => (
+              <div key={item.sessionId}>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phiên đấu giá"
+                      defaultValue={item.sessionName}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px' }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phân khúc"
+                      defaultValue={item.feeName}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px' }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={4}>
                     <TextField
                       fullWidth
                       label="Tên sản phẩm"
@@ -130,17 +151,6 @@ const ItemDetail = () => {
                       sx={{ marginBottom: '20px' }}
                     />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Tên tài khoản"
-                      defaultValue={item.userName}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2}>
                   <Grid item xs={12} sm={4}>
                     <TextField
                       fullWidth
@@ -153,17 +163,8 @@ const ItemDetail = () => {
                   <Grid item xs={12} sm={4}>
                     <TextField
                       fullWidth
-                      label="Phí đặt cọc"
-                      defaultValue={item.deposit ? 'Có' : 'Không'}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="Số lượng"
-                      defaultValue={item.quantity}
+                      label="Trạng thái"
+                      defaultValue={getStatusLabel(item.status)}
                       variant="outlined"
                       sx={{ marginBottom: '20px' }}
                     />
@@ -175,7 +176,7 @@ const ItemDetail = () => {
                       fullWidth
                       multiline
                       label="Mô tả chi tiết"
-                      defaultValue={item.descriptionDetail}
+                      defaultValue={item.description}
                       variant="outlined"
                       sx={{ marginBottom: '20px' }}
                     />
@@ -189,25 +190,12 @@ const ItemDetail = () => {
                         label={desc.description}
                         defaultValue={desc.detail}
                         variant="outlined"
-                        sx={{ marginBottom: '30px' }}
+                        // sx={{ marginBottom: '30px' }}
                       />
                     </Grid>
                   ))}
                 </Grid>
                 <Grid container spacing={2}>
-                  {/* Single big view for the selected image */}
-                  {/* <Grid item xs={12} sm={12}>
-            <Button onClick={() => handleSelectImage(selectedImage)}>
-              <CardMedia
-                component="img"
-                src={selectedImage && selectedImage.detail}
-                alt="Selected Image"
-                className={classes.bigCardMedia}
-              />
-            </Button>
-          </Grid> */}
-
-                  {/* Three small views for other images */}
                   {item.images.map((imageObj, index) => (
                     <Grid item xs={12} sm={3} key={index}>
                       {/* Button to select the image */}
@@ -226,8 +214,31 @@ const ItemDetail = () => {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="Giá khởi điểm"
-                      defaultValue={item.firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                      label="Đặt cọc"
+                      defaultValue={item.deposit ? 'Có' : 'Không'}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px', marginTop: '20px' }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phí đặt cọc"
+                      defaultValue={item.depositFee}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px', marginTop: '20px' }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Phí tham gia"
+                      defaultValue={item.participationFee.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      })}
                       variant="outlined"
                       sx={{ marginBottom: '20px', marginTop: '20px' }}
                     />
@@ -246,8 +257,31 @@ const ItemDetail = () => {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="Ngày cập nhật"
-                      defaultValue={formatDate(item.updateDate)}
+                      label="Giá khởi đầu"
+                      defaultValue={item.firstPrice.toLocaleString('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                      })}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px', marginTop: '20px' }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Giá cuối cùng"
+                      defaultValue={item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                      variant="outlined"
+                      sx={{ marginBottom: '20px', marginTop: '20px' }}
+                    />
+                  </Grid>
+                </Grid>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Ngày bắt đầu"
+                      defaultValue={formatDate(item.beginTime)}
                       variant="outlined"
                       sx={{ marginBottom: '20px' }}
                     />
@@ -255,8 +289,8 @@ const ItemDetail = () => {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="Ngày tạo"
-                      defaultValue={formatDate(item.createDate)}
+                      label="Ngày kết thúc"
+                      defaultValue={formatDate(item.endTime)}
                       variant="outlined"
                       sx={{ marginBottom: '20px' }}
                     />
@@ -280,16 +314,16 @@ const ItemDetail = () => {
                   mb: '10px',
                 }}
               >
-                <IconButton onClick={handlePrevImage} disabled={itemDetail[0].images.length <= 1}>
+                <IconButton onClick={handlePrevImage} disabled={sessionDetail[0].images.length <= 1}>
                   <ArrowBackIcon />
                 </IconButton>
                 <CardMedia
                   component="img"
-                  src={itemDetail[0].images[currentImageIndex].detail}
+                  src={sessionDetail[0].images[currentImageIndex].detail}
                   alt="Selected Image"
                   className={classes.modalCardMedia}
                 />
-                <IconButton onClick={handleNextImage} disabled={itemDetail[0].images.length <= 1}>
+                <IconButton onClick={handleNextImage} disabled={sessionDetail[0].images.length <= 1}>
                   <ArrowForwardIcon />
                 </IconButton>
               </Box>
@@ -301,4 +335,4 @@ const ItemDetail = () => {
   );
 };
 
-export default ItemDetail;
+export default SessionDetail;

@@ -302,9 +302,9 @@ export default function BookingItemNoSe() {
           <Typography variant="h4" gutterBottom>
             Đơn đăng kí đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -336,7 +336,7 @@ export default function BookingItemNoSe() {
                       categoryName,
                       userName,
                       quantity,
-                      image,
+                      images,
                       firstPrice,
                       stepPrice,
                       deposit,
@@ -366,7 +366,11 @@ export default function BookingItemNoSe() {
                         <TableCell align="left">{userName}</TableCell>
                         {/* <TableCell align="left">{quantity}</TableCell> */}
                         <TableCell align="left">
-                          <StyledProductImg src={image} />
+                          {images && images.length > 0 ? (
+                            <StyledProductImg src={images[0].detail} />
+                          ) : (
+                            <div>Không có hình</div>
+                          )}
                         </TableCell>
                         <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
@@ -470,7 +474,7 @@ export default function BookingItemNoSe() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={bookingItem.length}
             rowsPerPage={rowsPerPage}

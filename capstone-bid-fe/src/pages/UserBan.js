@@ -91,7 +91,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.email.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -303,7 +303,7 @@ export default function UserBan() {
                     return (
                       <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -414,7 +414,7 @@ export default function UserBan() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={user.length}
             rowsPerPage={rowsPerPage}

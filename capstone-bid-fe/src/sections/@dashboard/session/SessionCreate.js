@@ -15,7 +15,7 @@ import {
   InputLabel,
   Grid,
 } from '@mui/material';
-import moment from 'moment'; 
+import moment from 'moment';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { toast } from 'react-toastify';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -77,6 +77,11 @@ function SessionCreate() {
     }
   }, [sessionRuleId, sessionRules]);
 
+  const getSevenDaysFromToday = () => {
+    const sevenDaysFromToday = moment().add(7, 'days'); // Add 7 days to the current date
+    return sevenDaysFromToday;
+  };
+
   const handleCancelButton = () => {
     navigate('/dashboard/booking-items');
   };
@@ -85,7 +90,15 @@ function SessionCreate() {
     event.preventDefault();
 
     try {
-      const response = await createSession(sessionData, itemId);
+      const localBeginTime = sessionData.beginTime.local().format('YYYY-MM-DDTHH:mm:ss');
+      const localEndTime = sessionData.endTime.local().format('YYYY-MM-DDTHH:mm:ss');
+
+      const formattedSessionData = {
+        ...sessionData,
+        beginTime: localBeginTime,
+        endTime: localEndTime,
+      };
+      const response = await createSession(formattedSessionData, itemId);
       // setSessionName('');
       // setSessionRuleId('');
       // setBeginTime('');
@@ -123,7 +136,7 @@ function SessionCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <TextField
-                  label="Session Name"
+                  label="Tên phiên đấu giá"
                   value={sessionData.sessionName}
                   onChange={(event) => setSessionData({ ...sessionData, sessionName: event.target.value })}
                   fullWidth
@@ -134,7 +147,7 @@ function SessionCreate() {
             </Grid>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
-                <TextField label="Item Id" value={itemId} fullWidth disabled sx={{ mb: 3 }} />
+                <TextField label="Mã sản phẩm" value={itemId} fullWidth disabled sx={{ mb: 3 }} />
               </Grid>
             </Grid>
             <Grid container spacing={2}>
@@ -144,7 +157,7 @@ function SessionCreate() {
                   <Select
                     value={sessionData.sessionRuleId}
                     onChange={(event) => setSessionData({ ...sessionData, sessionRuleId: event.target.value })}
-                    label="Session Rule"
+                    label="Quy tắc đấu giá"
                   >
                     {sessionRules.map((sessionRule) => (
                       <MenuItem key={sessionRule.sessionRuleId} value={sessionRule.sessionRuleId}>
@@ -159,8 +172,9 @@ function SessionCreate() {
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider fullWidth dateAdapter={AdapterMoment}>
                   <DateTimePicker
-                    label="Begin Time"
+                    label="Thời gian bắt đầu"
                     minDate={getToday()}
+                    maxDate={getSevenDaysFromToday()}
                     value={sessionData.beginTime}
                     fullWidth
                     onChange={(date) => setSessionData({ ...sessionData, beginTime: date })}
@@ -171,8 +185,9 @@ function SessionCreate() {
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider fullWidth dateAdapter={AdapterMoment}>
                   <DateTimePicker
-                    label="End Time"
+                    label="Thời gian kết thúc"
                     minDate={getToday()}
+                    maxDate={getSevenDaysFromToday()}
                     value={sessionData.endTime}
                     fullWidth
                     onChange={(date) => setSessionData({ ...sessionData, endTime: date })}
@@ -204,17 +219,12 @@ function SessionCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Button sx={{ marginLeft: '50px' }} type="submit" variant="contained" color="primary">
-                  Create Session
+                  Tạo phiên đấu giá
                 </Button>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <Button
-                  sx={{ marginLeft: '50px' }}
-                  onClick={handleCancelButton}
-                  variant="contained"
-                  color="primary"
-                >
-                  Cancel
+                <Button sx={{ marginLeft: '50px' }} onClick={handleCancelButton} variant="contained" color="primary">
+                  Hủy
                 </Button>
               </Grid>
             </Grid>

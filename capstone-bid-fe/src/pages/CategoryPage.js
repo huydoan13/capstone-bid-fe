@@ -414,7 +414,7 @@ export default function CaterogyPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={category.length}
             rowsPerPage={rowsPerPage}

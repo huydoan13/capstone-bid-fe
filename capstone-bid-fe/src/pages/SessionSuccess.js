@@ -272,9 +272,9 @@ export default function SessionSuccess() {
           <Typography variant="h4" gutterBottom>
             Phiên đấu giá thành công
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -412,7 +412,7 @@ export default function SessionSuccess() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={session.length}
             rowsPerPage={rowsPerPage}

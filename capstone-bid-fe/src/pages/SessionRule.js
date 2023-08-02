@@ -201,6 +201,10 @@ export default function SessionRule() {
     handleCloseMenu();
   }
 
+  const handleCreateButton = () => {
+    navigate('/dashboard/session-rule-create');
+  }
+
   const handleOpenModalWithSessionRule = (sessionRuleId) => {
     console.log('edit');
     const updatedSession = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
@@ -278,7 +282,7 @@ export default function SessionRule() {
           <Typography variant="h4" gutterBottom>
             Luật đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button onClick={handleCreateButton} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới luật
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
@@ -430,7 +434,7 @@ export default function SessionRule() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={sessionRule.length}
             rowsPerPage={rowsPerPage}

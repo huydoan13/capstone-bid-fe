@@ -28,6 +28,7 @@ import {
   Grid,
   CardMedia,
 } from '@mui/material';
+import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -44,17 +45,21 @@ const BookingItemDetail = () => {
   const [bookingItemDetail, setBookingItemDetail] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
-  // const useStyles = makeStyles((theme) => ({
-  //   cardMedia: {
-  //     width: '500px', // Điều chỉnh chiều rộng tùy ý
-  //     height: '500px', // Điều chỉnh chiều cao tùy ý
-  //     objectFit: 'cover', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
-  //   },
-  // }));
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '70%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+  };
 
   const useStyles = makeStyles((theme) => ({
     bigCardMedia: {
@@ -74,7 +79,6 @@ const BookingItemDetail = () => {
       margin: 'auto',
       display: 'block',
     },
-    // ... (other styles)
   }));
 
   const classes = useStyles();
@@ -84,6 +88,16 @@ const BookingItemDetail = () => {
   const handleSelectImage = (imageObj) => {
     setSelectedImage(imageObj);
     setIsModalOpen(true); // Open the modal when a small image is clicked
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex(
+      (prevIndex) => (prevIndex - 1 + bookingItemDetail[0].images.length) % bookingItemDetail[0].images.length
+    );
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % bookingItemDetail[0].images.length);
   };
 
   // Step 3: Create function to close the modal
@@ -247,6 +261,34 @@ const BookingItemDetail = () => {
                   </Grid>
                 </Grid>
                 <Grid container spacing={2}>
+                  {/* Single big view for the selected image */}
+                  {/* <Grid item xs={12} sm={12}>
+            <Button onClick={() => handleSelectImage(selectedImage)}>
+              <CardMedia
+                component="img"
+                src={selectedImage && selectedImage.detail}
+                alt="Selected Image"
+                className={classes.bigCardMedia}
+              />
+            </Button>
+          </Grid> */}
+
+                  {/* Three small views for other images */}
+                  {item.images.map((imageObj, index) => (
+                    <Grid item xs={12} sm={3} key={index}>
+                      {/* Button to select the image */}
+                      <Button onClick={() => handleSelectImage(imageObj)}>
+                        <CardMedia
+                          component="img"
+                          src={imageObj.detail}
+                          alt={`Image ${index + 1}`}
+                          className={classes.smallCardMedia}
+                        />
+                      </Button>
+                    </Grid>
+                  ))}
+                </Grid>
+                <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
@@ -268,34 +310,6 @@ const BookingItemDetail = () => {
                     />
                   </Grid>
                 </Grid>
-                <Grid container spacing={2}>
-          {/* Single big view for the selected image */}
-          {/* <Grid item xs={12} sm={12}>
-            <Button onClick={() => handleSelectImage(selectedImage)}>
-              <CardMedia
-                component="img"
-                src={selectedImage && selectedImage.detail}
-                alt="Selected Image"
-                className={classes.bigCardMedia}
-              />
-            </Button>
-          </Grid> */}
-
-          {/* Three small views for other images */}
-          {item.images.map((imageObj, index) => (
-            <Grid item xs={12} sm={3} key={index}>
-              {/* Button to select the image */}
-              <Button onClick={() => handleSelectImage(imageObj)}>
-                <CardMedia
-                  component="img"
-                  src={imageObj.detail}
-                  alt={`Image ${index + 1}`}
-                  className={classes.smallCardMedia}
-                />
-              </Button>
-            </Grid>
-          ))}
-        </Grid>
                 {/* <Grid container spacing={2}>
                   {item.images.map((imageObj, index) => (
                     <Grid item xs={12} sm={6} key={index}>
@@ -340,14 +354,32 @@ const BookingItemDetail = () => {
         </CardContent>
       </Card>
       <Modal open={isModalOpen} onClose={handleCloseModal}>
-        <Box sx={{ p: 2 }}>
+        <Box sx={styleModal}>
           {selectedImage && (
-            <CardMedia
-              component="img"
-              src={selectedImage.detail}
-              alt="Selected Image"
-              className={classes.modalCardMedia}
-            />
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  width: '100%',
+                  mb: '10px',
+                }}
+              >
+                <IconButton onClick={handlePrevImage} disabled={bookingItemDetail[0].images.length <= 1}>
+                  <ArrowBackIcon />
+                </IconButton>
+                <CardMedia
+                  component="img"
+                  src={bookingItemDetail[0].images[currentImageIndex].detail}
+                  alt="Selected Image"
+                  className={classes.modalCardMedia}
+                />
+                <IconButton onClick={handleNextImage} disabled={bookingItemDetail[0].images.length <= 1}>
+                  <ArrowForwardIcon />
+                </IconButton>
+              </Box>
+            </>
           )}
         </Box>
       </Modal>

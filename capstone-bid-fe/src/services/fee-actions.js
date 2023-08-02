@@ -8,6 +8,23 @@ export async function getAllFee() {
   return axiosInstance.get(url);
 }
 
+export async function createFee(fee) {
+  const url = `${BASE_URL}/fee`;
+  const data = {
+    name: fee.name,
+    min: fee.min,
+    max: fee.max,
+    participationFee: fee.participationFee,
+    depositFee: fee.depositFee,
+    surcharge: fee.surcharge,
+  };
+  try {
+    axiosInstance.post(url, data);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export async function updateFee(fee) {
   const url = `${BASE_URL}/fee`;
   const data = {

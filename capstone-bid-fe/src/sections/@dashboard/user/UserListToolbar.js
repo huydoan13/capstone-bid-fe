@@ -56,7 +56,7 @@ export default function UserListToolbar({ numSelected, filterName, onFilterName 
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm kiếm theo tên"
+          placeholder="Tìm kiếm theo email"
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />

@@ -42,6 +42,9 @@ import BookingItemNoSe from './pages/BookingItemNoSe';
 import BookingItemDetail from './sections/@dashboard/booking-item/BookingItemDetail';
 import ItemDetail from './sections/@dashboard/itemss/ItemDetail';
 import UserBanDetail from './sections/@dashboard/user/UserBanDetail';
+import FeeCreate from './sections/@dashboard/fee/FeeCreate';
+import SessionRuleCreate from './sections/@dashboard/session-rule/SessionRuleCreate';
+import SessionDetail from './sections/@dashboard/session/SessionDetail';
 
 // ----------------------------------------------------------------------
 
@@ -126,6 +129,7 @@ export default function Router() {
             </Suspense>
           ),
         },
+        { path: 'session-rule-create', element: <SessionRuleCreate /> },
         {
           path: 'fee',
           element: (
@@ -136,8 +140,10 @@ export default function Router() {
             </Suspense>
           ),
         },
+        { path: 'fee-create', element: <FeeCreate /> },
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
+        { path: 'session-detail/:sessionId', element: <SessionDetail /> },
         { path: 'session-success', element: <SessionSuccessPage /> },
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },

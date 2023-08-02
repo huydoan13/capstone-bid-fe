@@ -30,6 +30,7 @@ import {
   Grid,
   CardMedia,
 } from '@mui/material';
+import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserById, getStatusLabel, getRoleLabel } from '../../../services/user-actions';
 import { acceptUserWaiting, denyUserWaiting } from '../../../services/staff-actions';
@@ -38,7 +39,51 @@ const UserWaitingDetail = () => {
   const { userId } = useParams();
   const [userDetail, setUserDetail] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const navigate = useNavigate();
+
+  const styleModal = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 5,
+    display: 'flex',
+
+  };
+
+  const imageContainerStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center', // Center the image vertically
+    maxHeight: '80vh',
+    overflow: 'auto',
+    width: '100%', // Set the width to 100% to make the background color cover the entire modal width
+    backgroundColor: 'background.paper', // Apply the background color to the entire container
+  };
+
+  const arrowButtonContainerStyle = {
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  const arrowButtonStyle = {
+    background: 'rgba(0, 0, 0, 0.3)',
+    borderRadius: '50%',
+    color: 'white',
+    padding: '10px', // Increase padding for larger button size
+    fontSize: '24px', // Increase font size
+    margin: '5px', // Reduce margin for closer placement to image
+    cursor: 'pointer',
+    border: 'none',
+    outline: 'none',
+  };
 
   const useStyles = makeStyles((theme) => ({
     cardMedia: {
@@ -49,6 +94,25 @@ const UserWaitingDetail = () => {
   }));
   const classes = useStyles();
 
+  const handleImageClick = (imageUrl, index) => {
+    setSelectedImage(imageUrl);
+    setCurrentImageIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const handleNextImage = () => {
+    const nextIndex = (currentImageIndex + 1) % 2; // Assuming you have two images
+    setSelectedImage(nextIndex === 0 ? userDetail.cccdfrontImage : userDetail.cccdbackImage);
+    setCurrentImageIndex(nextIndex);
+  };
+
+  const handlePrevImage = () => {
+    const prevIndex = (currentImageIndex - 1 + 2) % 2; // Assuming you have two images
+    setSelectedImage(prevIndex === 0 ? userDetail.cccdfrontImage : userDetail.cccdbackImage);
+    setCurrentImageIndex(prevIndex);
+  };
+
+  const formatBirthDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
   const handleButtonBack = () => {
@@ -169,7 +233,7 @@ const UserWaitingDetail = () => {
                 <TextField
                   fullWidth
                   label="Ngày sinh"
-                  defaultValue={formatDate(userDetail.dateOfBirth)}
+                  defaultValue={formatBirthDate(userDetail.dateOfBirth)}
                   variant="outlined"
                   sx={{ marginBottom: '20px' }}
                 />
@@ -240,24 +304,24 @@ const UserWaitingDetail = () => {
                 </Grid> */}
             <Grid container spacing={2} sx={{ marginBottom: '20px' }}>
               <Grid item md={6} xs={12}>
-                <a href={userDetail.cccdfrontImage} target="_blank" rel="noopener noreferrer">
+                <Button onClick={() => handleImageClick(userDetail.cccdfrontImage, 0)}>
                   <CardMedia
                     component="img"
                     image={userDetail.cccdfrontImage}
                     alt="Image"
                     className={classes.cardMedia}
                   />
-                </a>
+                </Button>
               </Grid>
               <Grid item md={6} xs={12}>
-                <a href={userDetail.cccdbackImage} target="_blank" rel="noopener noreferrer">
+                <Button onClick={() => handleImageClick(userDetail.cccdbackImage, 1)}>
                   <CardMedia
                     component="img"
                     image={userDetail.cccdbackImage}
                     alt="Image"
                     className={classes.cardMedia}
                   />
-                </a>
+                </Button>
               </Grid>
             </Grid>
             <Grid container spacing={2}>
@@ -280,29 +344,31 @@ const UserWaitingDetail = () => {
                 </Button>
               </Grid>
             </Grid>
-            {/* <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Giá khởi điểm"
-                      defaultValue={userDetail.firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Bước nhảy"
-                      defaultValue={userDetail.stepPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                </Grid> */}
           </Box>
         </CardContent>
       </Card>
+      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Box sx={styleModal}>
+          {selectedImage && (
+            <Box sx={imageContainerStyle}>
+              <Box sx={arrowButtonContainerStyle}>
+                <IconButton style={arrowButtonStyle} onClick={handlePrevImage} disabled={currentImageIndex === 0}>
+                  <ArrowBackIcon />
+                </IconButton>
+                <CardMedia
+                  component="img"
+                  src={selectedImage}
+                  alt="Selected Image"
+                  className={classes.modalCardMedia}
+                />
+                <IconButton style={arrowButtonStyle} onClick={handleNextImage} disabled={currentImageIndex === 1}>
+                  <ArrowForwardIcon />
+                </IconButton>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      </Modal>
     </Container>
   );
 };

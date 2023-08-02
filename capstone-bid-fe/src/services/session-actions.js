@@ -8,6 +8,12 @@ export async function getAllSessions() {
     const url = `${BASE_URL}/sessions`;
     return axiosInstance.get(url);
 }
+
+export async function getSessionsById(id) {
+    const url = `${BASE_URL}/sessions/${id}`;
+    return axiosInstance.get(url);
+}
+
 export async function getSessionsSuccess() {
     const url = `${BASE_URL}/sessions/by_complete`;
     return axiosInstance.get(url);
@@ -63,3 +69,16 @@ export function getStatusInfo(status) {
         return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
     }
   }
+
+  export const getStatusLabel = (status) => {
+    switch (status) {
+      case 1:
+        return 'Đang chờ duyệt';
+      case 2:
+        return 'Đang hoạt động';
+      case 3:
+        return 'Đã cấm';
+      default:
+        return 'Không rõ';
+    }
+  };

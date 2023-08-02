@@ -246,9 +246,9 @@ export default function ItemPage() {
           <Typography variant="h4" gutterBottom>
             Sản phẩm đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo sản phẩm đấu giá
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -306,7 +306,7 @@ export default function ItemPage() {
                           {images && images.length > 0 ? (
                             <StyledProductImg src={images[0].detail} />
                           ) : (
-                            <div>No image available</div>
+                            <div>Không có hình</div>
                           )}
                         </TableCell>
                         {/* <TableCell align="left">
@@ -413,7 +413,7 @@ export default function ItemPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={item.length}
             rowsPerPage={rowsPerPage}
