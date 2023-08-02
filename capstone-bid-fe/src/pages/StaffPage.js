@@ -53,7 +53,7 @@ const TABLE_HEAD = [
   { id: 'address', label: 'Địa chỉ', alignRight: false },
   { id: 'phone', label: 'SDT', alignRight: false },
   { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
-  { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
