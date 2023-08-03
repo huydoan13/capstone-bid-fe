@@ -260,10 +260,9 @@ export default function SessionOutOfDate() {
           <Typography variant="h4" gutterBottom>
           Phiên đấu giá quá hạn
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
-          </Button>
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
+          </Button> */}
         </Stack>
 
         <Card>
@@ -397,7 +396,7 @@ export default function SessionOutOfDate() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={session.length}
             rowsPerPage={rowsPerPage}

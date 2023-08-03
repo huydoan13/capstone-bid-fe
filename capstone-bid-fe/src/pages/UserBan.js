@@ -39,7 +39,7 @@ import { Image } from 'mui-image';
 import { getAllUserBan, getStatusInfo } from 'src/services/user-actions';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting, unBanUser } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -91,7 +91,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.email.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -196,7 +196,6 @@ export default function UserBan() {
     handleCloseModal();
     handleCloseMenu();
   };
-
 
   const handleOpenModalWithUser = (userId) => {
     console.log('edit');
@@ -304,7 +303,7 @@ export default function UserBan() {
                     return (
                       <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -353,15 +352,17 @@ export default function UserBan() {
                               },
                             }}
                           > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                          <Link to={`/dashboard/user-ban-detail/${row.userId}`}>
+                            <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
 
                           {/* <MenuItem
                               // onClick={() => {
@@ -413,7 +414,7 @@ export default function UserBan() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={user.length}
             rowsPerPage={rowsPerPage}
@@ -480,17 +481,13 @@ export default function UserBan() {
                           onClick={() => {
                             handleUnBanUser(upUser.userId);
                           }}
-                          sx={{ color: 'green'}}
+                          sx={{ color: 'green' }}
                         >
                           Gỡ cấm người dùng
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={handleCloseModal}
-                        >
-                          Hủy
-                        </Button>
+                        <Button onClick={handleCloseModal}>Hủy</Button>
                       </Grid>
                     </Grid>
                   </CardContent>

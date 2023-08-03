@@ -1,10 +1,15 @@
 import axios from "axios";
 import axiosInstance from "./axios-instance";
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
+const BASE_URL = 'https://bids-online.azurewebsites.net/api';
 
 export async function getAllUser() {
     const url = `${BASE_URL}/users`;
+    return axiosInstance.get(url);
+}
+
+export async function getUserById(id) {
+    const url = `${BASE_URL}/users/${id}`;
     return axiosInstance.get(url);
 }
 
@@ -36,3 +41,31 @@ export function getStatusInfo(status) {
         return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
     }
   }
+
+  export const getRoleLabel = (status) => {
+    switch (status) {
+      case 'Bidder':
+        return 'Người đấu giá';
+      case 'Auctioneer':
+        return 'Người đăng phiên';
+      case 'Admin':
+        return 'Quản trị viên';
+      case 'Staff':
+        return 'Nhân viên';
+      default:
+        return '';
+    }
+  };
+
+  export const getStatusLabel = (status) => {
+    switch (status) {
+      case 'Waitting':
+        return 'Đang chờ duyệt';
+      case 'Acctive':
+        return 'Đang hoạt động';
+      case 'Ban':
+        return 'Đã cấm';
+      default:
+        return 'Không rõ';
+    }
+  };

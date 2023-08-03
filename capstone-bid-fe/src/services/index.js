@@ -3,7 +3,7 @@ import axios from 'axios';
 const service = {
     getData: () => {
         return new Promise((resolve, reject) => {
-            const apiUrl = "https://bids-api-testing.azurewebsites.net/api/Sessions/by_not_start";
+            const apiUrl = "https://bids-online.azurewebsites.net/api/Sessions/by_not_start";
 
             // Fetch data from the API using Axios
             axios.get(apiUrl)

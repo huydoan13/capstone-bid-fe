@@ -56,7 +56,7 @@ export default function CategoryListToolbar({ numSelected, filterName, onFilterN
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search Category..."
+          placeholder="Tìm kiếm theo tên"
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />

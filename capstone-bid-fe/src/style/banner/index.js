@@ -2,7 +2,7 @@ import { styled } from "@mui/material/styles";
 import { Box, Button, Typography } from "@mui/material";
 import { Colors } from "../theme";
 
-
+const Image ="https://images.unsplash.com/photo-1483921020237-2ff51e8e4b22?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHdpZGUlMjBiYWNrZ3JvdW5kJTIwc25vd3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60"
 
 export const BannerContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -10,7 +10,8 @@ export const BannerContainer = styled(Box)(({ theme }) => ({
     width: '100%',
     height: '100%',
     padding: '0px 0px',
-    background: Colors.light_gray,
+    backgroundImage: `url(${Image})`,
+    backgroundSize: 'cover',
     [theme.breakpoints.down('sm')]: {
         flexDirection: 'column',
         alignItem: 'center'

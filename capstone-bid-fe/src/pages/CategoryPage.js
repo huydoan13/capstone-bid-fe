@@ -268,7 +268,7 @@ export default function CaterogyPage() {
   return (
     <>
       <Helmet>
-        <title> Caterogy | BIDS </title>
+        <title> Loại đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
@@ -414,7 +414,7 @@ export default function CaterogyPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={category.length}
             rowsPerPage={rowsPerPage}

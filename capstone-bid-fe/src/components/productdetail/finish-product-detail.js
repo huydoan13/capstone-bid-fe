@@ -14,12 +14,13 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
 
-
+import moment from "moment";
 import { useEffect, useState } from "react";
 import useDialogModal from "../../hooks/useDialogModal";
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import AuctionForm from "../auction";
+
 
 
 
@@ -43,6 +44,10 @@ function getTimeRemaining(endTime) {
 function SlideTransition(props) {
     return <Slide direction="down" {...props} />;
 }
+
+const formatCreateDate = (createDate) => {
+    return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
+  };
 
 const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
@@ -135,9 +140,9 @@ export default function FinishProductDetail({ open, onClose, product }) {
                             
                             <Typography margin={'1%'} variant="subtitle">Mô tả : {product.description} VND</Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá Cuối Cùng : {formatToVND(product.finalPrice)}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {formatCreateDate(product.beginTime)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {formatCreateDate(product.auctionTime)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {formatCreateDate(product.endTime)}</Typography>
 
                         
                             

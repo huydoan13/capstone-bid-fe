@@ -54,7 +54,7 @@ export default function LoginForm() {
 
     try {
       const response = await axiosInstance.post(
-        'https://bids-api-testing.azurewebsites.net/api/Login/login',
+        'https://bids-online.azurewebsites.net/api/Login/login',
         JSON.stringify({ email, password }),
         {
           headers: { 'Content-Type': 'application/json' },

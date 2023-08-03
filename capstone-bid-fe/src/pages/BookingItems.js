@@ -35,7 +35,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   getBookingItemWaiting,
   acceptBookingItemWaiting,
@@ -292,9 +292,9 @@ export default function BookingItems() {
           <Typography variant="h4" gutterBottom>
             Đơn đăng kí đấu giá
           </Typography>
-          <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -326,7 +326,7 @@ export default function BookingItems() {
                       categoryName,
                       userName,
                       quantity,
-                      image,
+                      images,
                       firstPrice,
                       stepPrice,
                       deposit,
@@ -356,9 +356,15 @@ export default function BookingItems() {
                         <TableCell align="left">{userName}</TableCell>
                         {/* <TableCell align="left">{quantity}</TableCell> */}
                         <TableCell align="left">
-                          <StyledProductImg src={image} />
+                          {images && images.length > 0 ? (
+                            <StyledProductImg src={images[0].detail} />
+                          ) : (
+                            <div>Không có hình</div>
+                          )}
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        <TableCell align="left">
+                          {firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -371,15 +377,17 @@ export default function BookingItems() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithBookingItem(row.bookingItemId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                          <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
+                            <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
@@ -458,7 +466,7 @@ export default function BookingItems() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={bookingItem.length}
             rowsPerPage={rowsPerPage}
@@ -495,7 +503,7 @@ export default function BookingItems() {
                         <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                      <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
+                        <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
                           <CardMedia
                             component="img"
                             image={bookingItemDetail.image}
@@ -505,10 +513,22 @@ export default function BookingItems() {
                         </a>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Giá khởi điểm"
+                          defaultValue={bookingItemDetail.firstPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Bước nhảy"
+                          defaultValue={bookingItemDetail.stepPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />

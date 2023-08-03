@@ -34,7 +34,7 @@ import {
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getAllUserActive, getStatusInfo } from '../services/user-actions';
@@ -88,7 +88,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.email.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -297,7 +297,7 @@ export default function UserPage() {
                     return (
                       <TableRow hover key={userId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, userName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -323,7 +323,18 @@ export default function UserPage() {
                         </TableCell>
 
                         <TableCell align="right">
+                        <Link to={`/dashboard/user-detail/${row.userId}`}>
                           <Button
+                            // color="secondary"
+                            // onClick={() => {
+                            //   handleOpenModalWithItem(row.itemId);
+                            // }}
+                          >
+                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                            Chi tiết
+                          </Button>
+                          </Link>
+                          {/* <Button
                             color="secondary"
                             onClick={() => {
                               handleOpenModalWithUser(row.userId);
@@ -331,7 +342,7 @@ export default function UserPage() {
                           >
                             <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
                             Chi tiết
-                          </Button>
+                          </Button> */}
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
@@ -414,7 +425,7 @@ export default function UserPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={user.length}
             rowsPerPage={rowsPerPage}

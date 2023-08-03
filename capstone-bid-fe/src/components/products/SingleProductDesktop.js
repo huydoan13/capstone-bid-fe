@@ -20,6 +20,7 @@ export default function SingleProductDesktop({ product, matches }) {
         useDialogModal(ProductDetail);
 
     const [showOptions, setShowOptions] = useState(false);
+    const firstImageURL = product.images && product.images.length > 0 ? product.images[0].detail : null;
 
     const handleMouseEnter = () => {
         setShowOptions(true);
@@ -30,17 +31,17 @@ export default function SingleProductDesktop({ product, matches }) {
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                
-                <ProductImage src={product.image} />
+            
+            {firstImageURL && <ProductImage src={firstImageURL} />} {/* Display the first image */}
                 
                 {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />
                 </ProductFavButton> */}
-                {/* {(showOptions || matches) && (
-                    <ProductAddToCart show={showOptions} variant="contained">
-                        Đấu Giá Ngay
+                {(showOptions || matches) && (
+                    <ProductAddToCart onClick={() => showProductDetailDialog()} show={showOptions} variant="contained">
+                        Thông tin sản phẩm
                     </ProductAddToCart>
-                )} */}
+                )}
                 <ProductActionsWrapper show={showOptions || matches}>
                     <Stack direction={matches ? "row" : "column"}>
                         <ProductActionButton>

@@ -10,6 +10,9 @@ import { useUIContext } from "../../context/ui";
 
 export default function AppbarDesktop({ matches }) {
     const { setShowSearchBox } = useUIContext();
+    const user = localStorage.getItem('loginUser');
+    const jsonUser = JSON.parse(user);
+    const role = jsonUser?.Role
 
     // State to handle the dropdown menu
     const [anchorEl, setAnchorEl] = useState(null);
@@ -60,9 +63,25 @@ export default function AppbarDesktop({ matches }) {
                     </MenuItem>
                 </Menu>
                 {/* Continue with other list items */}
-                <ListItemText primary="Tin Tức" />
-                <ListItemText primary="Giới Thiệu" />
-                <ListItemText primary="Liên Hệ" />
+                {role === "Auctioneer" ? (
+                    <>
+                        <ListItemButton component="a" href="/addproduct">
+                            <ListItemText primary="Thêm Sản Phẩm Đấu Giá" />
+                        </ListItemButton>
+                        <ListItemButton component="a" href="/myproduct">
+                            <ListItemText primary="Sản Phẩm Của Tôi" />
+                        </ListItemButton>
+                        <ListItemButton component="a" href="/auctionhistory">
+                            <ListItemText primary="Lịch Sử Đấu Giá" />
+                        </ListItemButton>
+                    </>
+                ) : (
+                    <>
+                        <ListItemText primary="Tin Tức" />
+                        <ListItemText primary="Giới Thiệu" />
+                        <ListItemText primary="Liên Hệ" />
+                    </>
+                )}
                 <ListItemButton justifyCont onClick={() => setShowSearchBox(true)}>
                     <ListItemIcon>
                         <SearchIcon />

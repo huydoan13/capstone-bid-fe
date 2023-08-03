@@ -1,10 +1,10 @@
 import axios from "axios";
 import axiosInstance from "./axios-instance";
 
-const BASE_URL = 'https://bids-api-testing.azurewebsites.net/api';
+const BASE_URL = 'https://bids-online.azurewebsites.net/api';
 
 export async function getAllStaff() {
-    const url = `https://bids-api-testing.azurewebsites.net/api/staffs`;
+    const url = `https://bids-online.azurewebsites.net/api/staffs`;
     return axiosInstance.get(url);
 }
 

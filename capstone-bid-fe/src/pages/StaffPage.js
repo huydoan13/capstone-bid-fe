@@ -53,7 +53,7 @@ const TABLE_HEAD = [
   { id: 'address', label: 'Địa chỉ', alignRight: false },
   { id: 'phone', label: 'SDT', alignRight: false },
   { id: 'dateOfBirth', label: 'Ngày sinh', alignRight: false },
-  // { id: 'status', label: 'Status', alignRight: false },
+  { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
 
@@ -83,7 +83,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.staffName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.email.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -279,7 +279,7 @@ export default function StaffPage() {
                     return (
                       <TableRow hover key={staffId} tabIndex={-1} role="checkbox" selected={selectedUser}>
                         <TableCell padding="checkbox">
-                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, staffName)} />
+                          <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, email)} />
                         </TableCell>
 
                         {/* <TableCell component="th" scope="row" padding="none">
@@ -296,9 +296,9 @@ export default function StaffPage() {
                         <TableCell align="left">{address}</TableCell>
                         <TableCell align="left">{phone}</TableCell>
                         <TableCell align="left">{formatDate(dateOfBirth)}</TableCell>
-                        {/* <TableCell align="left">
-                          <Chip label={status ? 'Active' : 'Banned'} color={status ? 'success' : 'error'} />
-                        </TableCell> */}
+                        <TableCell align="left">
+                          <Chip label={status ? 'Đang hoạt động' : 'Đã cấm'} color={status ? 'success' : 'error'} />
+                        </TableCell>
 
                         <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, staffId)}>
@@ -383,7 +383,7 @@ export default function StaffPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={staff.length}
             rowsPerPage={rowsPerPage}

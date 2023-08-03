@@ -25,7 +25,7 @@ function HomePage() {
             <UIProvider>
                 <Appbar />
                 <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography variant="h4">Tài Sản Đang Được đấu giá</Typography>
+                    <Typography background variant="h4">Tài Sản Đang Được đấu giá</Typography>
                 </Box>
                 <StageProducts />
                 <Footer />

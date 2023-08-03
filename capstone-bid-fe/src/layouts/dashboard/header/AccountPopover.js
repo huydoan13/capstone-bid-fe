@@ -9,10 +9,10 @@ import account from '../../../_mock/account';
 // ----------------------------------------------------------------------
 
 const MENU_OPTIONS = [
-  {
-    label: 'Trang chủ',
-    icon: 'eva:home-fill',
-  },
+  // {
+  //   label: 'Trang chủ',
+  //   icon: 'eva:home-fill',
+  // },
   {
     label: 'Hồ sơ',
     icon: 'eva:person-fill',

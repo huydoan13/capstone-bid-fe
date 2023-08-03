@@ -223,9 +223,9 @@ export default function SessionPage() {
           <Typography variant="h4" gutterBottom>
             Session
           </Typography>
-          <Button onClick={() => { handleCreateSessionButton() }} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
+          {/* <Button onClick={() => { handleCreateSessionButton() }} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New Session
-          </Button>
+          </Button> */}
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
@@ -353,7 +353,7 @@ export default function SessionPage() {
           </Scrollbar>
 
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50, 100]}
             component="div"
             count={session.length}
             rowsPerPage={rowsPerPage}

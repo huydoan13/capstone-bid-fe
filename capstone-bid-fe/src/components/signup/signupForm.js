@@ -27,13 +27,36 @@ const SignUpForm = () => {
   const navigate = useNavigate()
 
   const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
-  
-  const isValidImageFile = (file) => {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif']; // Add more allowed types if needed
-    return file && allowedTypes.includes(file.type) && file.size <= MAX_FILE_SIZE;
+
+
+  const isValidImageURL = async (url) => {
+    try {
+      const response = await axios.get(url, {
+        responseType: 'blob',
+      });
+
+      const image = new Image();
+      image.src = URL.createObjectURL(response.data);
+
+      return new Promise((resolve, reject) => {
+        image.onload = () => {
+          URL.revokeObjectURL(image.src);
+
+          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+          const isTypeAllowed = allowedTypes.includes(image.type);
+          const isSizeValid = response.headers['content-length'] <= MAX_FILE_SIZE;
+
+          resolve(isTypeAllowed && isSizeValid);
+        };
+
+        image.onerror = () => {
+          reject(new Error('Failed to load the image.'));
+        };
+      });
+    } catch (error) {
+      return false; // Return false if there was an error fetching the image
+    }
   };
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,56 +85,71 @@ const SignUpForm = () => {
       return;
     }
 
+    if (!isValidImageURL(avatar)) {
+      setError('Hình ảnh đại diện không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
+      return;
+    }
+
+    if (!isValidImageURL(cccdfrontImage)) {
+      setError('Hình ảnh mặt trước CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
+      return;
+    }
+
+    if (!isValidImageURL(cccdbackImage)) {
+      setError('Hình ảnh mặt sau CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
+      return;
+    }
+
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
     try {
 
       const response = await axios
-      .post('https://bids-api-testing.azurewebsites.net/api/Users', {
-        userName,
-        email,
-        password,
-        address,
-        phone,
-        dateOfBirth: date,
-        cccdnumber,
-        avatar,
-        cccdfrontImage,
-        cccdbackImage,
-      })
-      .then(data =>{
-        console.log(data);
-        setSuccessDialogOpen(true);
-      })
-      .catch(err =>{
+        .post('https://bids-online.azurewebsites.net/api/Users', {
+          userName,
+          email,
+          password,
+          address,
+          phone,
+          dateOfBirth: date,
+          cccdnumber,
+          avatar,
+          cccdfrontImage,
+          cccdbackImage,
+        })
+        .then(data => {
+          console.log(data);
+          setSuccessDialogOpen(true);
+        })
+        .catch(err => {
 
-        if (err.response.status === 400) {
-          const errorMessage = err.response.data; // Assuming the error message is in the response data
-        console.log('Error:', errorMessage);
-        err = setError(errorMessage);
-        setErrorDialogOpen(true);
-        }
-        console.log('Server response:', response.data);
-      setSuccessDialogOpen(true);
-        // if (err.response && err.response.data && err.response.data.errors) {
-        //   const serverErrors = err.response.data.errors;
-        //   let formattedErrors = "";
-    
-        //   Object.keys(serverErrors).forEach((key) => {
-        //     formattedErrors += `${key}:\n`;
-        //     serverErrors[key].forEach((errorMessage) => {
-        //       formattedErrors += `- ${errorMessage}\n`;
-        //     });
-        //   });
-    
-        //   setError(formattedErrors);
-        //   setErrorDialogOpen(true);
-        // } else {
-        //   setError('An unexpected error occurred.');
-        //   setErrorDialogOpen(true);
-        // }
-      });
-      
+          if (err.response.status === 400) {
+            const errorMessage = err.response.data; // Assuming the error message is in the response data
+            console.log('Error:', errorMessage);
+            err = setError(errorMessage);
+            setErrorDialogOpen(true);
+          }
+          console.log('Server response:', response.data);
+          setSuccessDialogOpen(true);
+          // if (err.response && err.response.data && err.response.data.errors) {
+          //   const serverErrors = err.response.data.errors;
+          //   let formattedErrors = "";
+
+          //   Object.keys(serverErrors).forEach((key) => {
+          //     formattedErrors += `${key}:\n`;
+          //     serverErrors[key].forEach((errorMessage) => {
+          //       formattedErrors += `- ${errorMessage}\n`;
+          //     });
+          //   });
+
+          //   setError(formattedErrors);
+          //   setErrorDialogOpen(true);
+          // } else {
+          //   setError('An unexpected error occurred.');
+          //   setErrorDialogOpen(true);
+          // }
+        });
+
       console.log('Server response:', response.data);
       setSuccessDialogOpen(true);
 
@@ -130,7 +168,7 @@ const SignUpForm = () => {
       setError('');
     } catch (error) {
       // console.error('Error:', error.response);
-     
+
     }
   };
 
@@ -306,7 +344,7 @@ const SignUpForm = () => {
       <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <Typography  variant="body1">{err}</Typography>
+          <Typography variant="body1">{err}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
