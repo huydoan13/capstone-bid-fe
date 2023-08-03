@@ -21,6 +21,21 @@ export default function StageSingleProductDesktop({ product, matches }) {
         useDialogModal(StageProductDetail);
 
     const [showOptions, setShowOptions] = useState(false);
+    const [firstImage, setFirstImage] = useState("");
+
+
+    const handleAuctionButtonClick = () => {
+        window.location.href = "/auction";
+    };
+
+    useEffect (() => {
+        // Extract the first image URL from the server response
+        if (product.images && product.images.length > 0) {
+            setFirstImage(product.images[0].detail);
+        }
+    }, [product]);
+
+
 
     const handleMouseEnter = () => {
         setShowOptions(true);
@@ -31,14 +46,14 @@ export default function StageSingleProductDesktop({ product, matches }) {
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-                
-                <ProductImage src={product.image} />
-                
+
+                {firstImage && <ProductImage src={firstImage} />}
+
                 {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />
                 </ProductFavButton> */}
                 {(showOptions || matches) && (
-                    <ProductAddToCart show={showOptions} variant="contained">
+                    <ProductAddToCart show={showOptions} onClick={() => handleAuctionButtonClick()} variant="contained">
                         Đấu Giá Ngay
                     </ProductAddToCart>
                 )}

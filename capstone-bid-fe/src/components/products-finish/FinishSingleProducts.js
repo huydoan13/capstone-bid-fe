@@ -1,5 +1,5 @@
 import { Box, Stack, Tooltip } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FavoriteIcon from "@mui/icons-material/Favorite"
 import ShareIcon from "@mui/icons-material/Share"
 import FitScreenIcon from "@mui/icons-material/FitScreen"
@@ -14,18 +14,25 @@ export default function StageSingleProducts({ product, matches }) {
         useDialogModal(FinishProductDetail);
 
     const [showOptions, setShowOptions] = useState(false);
-
+    const [firstImage, setFirstImage] = useState("");
     const handleMouseEnter = () => {
         setShowOptions(true);
     };
     const handleMouseLeave = () => {
         setShowOptions(false);
     };
+
+    useEffect(() => {
+        // Extract the first image URL from the server response
+        if (product.images && product.images.length > 0) {
+            setFirstImage(product.images[0].detail);
+        }
+    }, [product]);
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 
-                <ProductImage src={product.image ?? ""} />
+            {firstImage && <ProductImage src={firstImage} />}
                 <StageProductMeta product={product} matches={matches} />
                 <ProductActionsWrapper>
                     <Stack direction={matches ? "row" : "column"}>

@@ -16,17 +16,14 @@ import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
 
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import moment from "moment";
 import useDialogModal from "../../hooks/useDialogModal";
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import AuctionForm from "../auction";
+
 
 
 
@@ -40,6 +37,7 @@ function getTimeRemaining(endTime) {
     const hours = Math.floor((remainingTime / (1000 * 60 * 60)) % 24);
     const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
 
+
     return {
         total: remainingTime,
         days,
@@ -52,10 +50,13 @@ function SlideTransition(props) {
     return <Slide direction="down" {...props} />;
 }
 
+const formatCreateDate = (createDate) => {
+    return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
+};
+
 const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
     padding: theme.spacing(1),
-    border: ' 1px solid #000000',
     marginTop: '1%',
 }));
 
@@ -73,9 +74,16 @@ export default function ProductDetail({ open, onClose, product }) {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     const [isDialogOpen, setDialogOpen] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(product?.images[0]?.detail);
+    const [startIndex, setStartIndex] = useState(0);
     const [AuctionDetailDialog, showAuctionDetailDialog, closeProductDialog] =
         useDialogModal(AuctionForm);
     const [countdown, setCountdown] = useState(getTimeRemaining(product.beginTime));
+
+
+    const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
+const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+const [dialogMessage, setDialogMessage] = useState("");
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown(getTimeRemaining(product.beginTime));
@@ -87,31 +95,54 @@ export default function ProductDetail({ open, onClose, product }) {
         };
     }, [product.beginTime]);
 
+    console.log(product)
+
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user);
     const isLoggedIn = !!jsonUser && !!jsonUser.Email;
-    const apiUrl = 'https://bids-api-testing.azurewebsites.net/api/SessionDetails/joinning';
-    const autoApi = 'https://bids-api-testing.azurewebsites.net/api/Sessions/session_status_to_in_stage';
+    const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning';
+    const autoApi = 'https://bids-online.azurewebsites.net/api/Sessions/session_status_to_in_stage';
 
     const joinAuction = () => {
         const requestData = {
-            sessionId: product.sessionId,
-            userId: jsonUser.Id
+          sessionId: product.sessionId,
+          userId: jsonUser.Id
         };
+      
+        axios.post(apiUrl, requestData, { headers: { Authorization: `Bearer ${token}` } })
+          .then(response => {
+            // Handle the response from the API if needed.
+            // For example, you can show a success message or refresh the page.
+            setIsSuccessDialogOpen(true);
+            setDialogMessage("Đăng kí thành công");
+          })
+          .catch(error => {
+            console.error('Error joining the auction:', error);
+            if (error.response && error.response.status === 400 && error.response.data) {
+              setIsErrorDialogOpen(true);
+              setDialogMessage(error.response.data);
+            } else {
+              setIsErrorDialogOpen(true);
+              setDialogMessage("Đã có lỗi xảy ra");
+            }
+          });
+      };
 
-        axios.post(apiUrl, requestData, { headers: { Authorization: `Bearer ${token}` } },)
-            .then(response => {
-                // Handle the response from the API if needed.
-                // For example, you can show a success message or refresh the page.
-                // window.location.reload();
-            })
-            .catch(error => {
-                // Handle errors, such as displaying an error message to the user.
-                console.error('Error joining the auction:', error);
-            });
+
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
     };
 
+    const handleSlideLeft = () => {
+        setStartIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+    };
+
+    const handleSlideRight = () => {
+        setStartIndex((prevIndex) =>
+            Math.min(prevIndex + 1, product.images.length - 3)
+        );
+    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -150,9 +181,7 @@ export default function ProductDetail({ open, onClose, product }) {
     // Function to handle the auction button click
     const handleAuctionButtonClick = () => {
         localStorage.setItem("sessionId", product.sessionId);
-        if (isLoggedIn) {
-            // If the user is logged in, show the auction details dialog.
-            // window.location.href = "/auction";
+        if (isLoggedIn) {           
             joinAuction();
         } else {
             // If the user is not logged in, show the custom dialog.
@@ -194,7 +223,43 @@ export default function ProductDetail({ open, onClose, product }) {
                 <DialogContent>
                     <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
                         <Product sx={{ mr: 2 }}>
-                            <ProductDetailImage src={product.image} />
+                            {/* Use the product.image from the API link as the src */}
+                            <ProductDetailImage src={selectedImage} />
+                            <Box display="flex" justifyContent="flex-start" mt={2}>
+                                {/* Render small images on the same row */}
+                                {product.images.map((image, index) => (
+                                    <Box key={index} sx={{ flex: "0 0 auto" }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImageClick(image.detail)}
+                                            onKeyPress={(event) => {
+                                                // Add keyboard event listener to handle Enter key press
+                                                if (event.key === 'Enter') {
+                                                    handleImageClick(image.detail);
+                                                }
+                                            }}
+                                            style={{
+                                                background: "none",
+                                                border: "none",
+                                                cursor: "pointer",
+                                                padding: 0,
+                                                margin: 5,
+                                                width: "100px", // Set the width for small images
+                                            }}
+                                        >
+                                            <img
+                                                src={image.detail}
+                                                alt=""
+                                                style={{
+                                                    width: "100%",
+                                                    marginBottom: "4px",
+                                                    border: selectedImage === image.detail ? "2px solid blue" : "none",
+                                                }}
+                                            />
+                                        </button>
+                                    </Box>
+                                ))}
+                            </Box>
                         </Product>
                         <ProductDetailInfoWrapper>
 
@@ -202,7 +267,7 @@ export default function ProductDetail({ open, onClose, product }) {
                                 Tên Sản Phẩm : {product.itemName}
                             </Typography>
 
-                            <Typography>Thời gian đếm ngược bắt đầu trả giá:</Typography>
+                            <Typography fontWeight={"bold"}>Thời gian đếm ngược bắt đầu trả giá:</Typography>
                             <Typography margin={"1%"} variant="subtitle">
                                 {countdown.days}&nbsp; Ngày &nbsp;:&nbsp;  {countdown.hours}&nbsp; Giờ  &nbsp;: &nbsp; {countdown.minutes}&nbsp; Phút  &nbsp;:&nbsp;  {countdown.seconds}&nbsp; Giây
                             </Typography>
@@ -210,10 +275,15 @@ export default function ProductDetail({ open, onClose, product }) {
                             <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {formatCreateDate(product.beginTime)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {formatCreateDate(product.endTime)}</Typography>
+                            <Typography margin={'1%'} fontWeight={"bold"} variant="dashed">Thông tin chi tiết sản phẩm : </Typography>
 
+                            {product.descriptions.map((description, index) => (
+                                <Typography key={index} margin={'1%'} variant="subtitle">
+                                    {description.description}: {description.detail}
+                                </Typography>
+                            ))}
                             <Box
                                 sx={{ mt: 4 }}
                                 display="flex"
@@ -224,26 +294,10 @@ export default function ProductDetail({ open, onClose, product }) {
                                     Đăng Kí Đấu Giá.
                                 </Button>
                             </Box>
-                            <Box
-                                display="flex"
-                                alignItems="center"
-                                sx={{ mt: 4, color: Colors.light }}
-                            >
-                                <FavoriteIcon sx={{ mr: 2 }} />
-                                Add to wishlist
-                            </Box>
-                            <Box
-                                sx={{
-                                    mt: 4,
-                                    color: Colors.dove_gray,
-                                }}
-                            >
-                                <FacebookIcon />
-                                <TwitterIcon sx={{ pl: 2 }} />
-                                <InstagramIcon sx={{ pl: 2 }} />
-                            </Box>
+
                         </ProductDetailInfoWrapper>
                     </ProductDetailWrapper>
+
                 </DialogContent>
             </Dialog>
             <AuctionDetailDialog product={product} />
@@ -263,6 +317,33 @@ export default function ProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Dialog open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
+  <DialogTitle>Thành Công</DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      {dialogMessage}
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setIsSuccessDialogOpen(false)} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
+<Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+  <DialogTitle>Lỗi</DialogTitle>
+  <DialogContent>
+    <DialogContentText>
+      {dialogMessage}
+    </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setIsErrorDialogOpen(false)} color="primary">
+      OK
+    </Button>
+  </DialogActions>
+</Dialog>
         </>
     );
 }

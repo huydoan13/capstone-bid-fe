@@ -5,7 +5,7 @@ const token = localStorage.getItem('token');
 const FinishService = {
     getDataFinish: () => {
         return new Promise((resolve, reject) => {
-            const apiUrl = "https://bids-api-testing.azurewebsites.net/api/Sessions/by_havent_pay";
+            const apiUrl = "https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay";
 
             // Fetch data from the API using Axios
             axios.get(apiUrl,{headers: { Authorization: `Bearer ${token}` },})

@@ -4,6 +4,7 @@ import { useTheme } from "@mui/material/styles";
 import axios from 'axios';
 import moment from 'moment';
 
+
 import {
   Container,
   Grid,
@@ -27,6 +28,7 @@ import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
+import Scrollbar from '../scrollbar/Scrollbar';
 
 const BidDialogContext = createContext();
 
@@ -44,7 +46,11 @@ const AuctionForm = () => {
     const storedDelayTime = localStorage.getItem('currentDelayTime');
     return storedDelayTime || null; // Set to null initially to fetch from API later
   });
+  const [currentBigImage, setCurrentBigImage] = useState(null);
   const theme = useTheme();
+  const currentTime = moment();
+  const [isWinner, setIsWinner] = useState(false);
+  const [winnerData, setWinnerData] = useState(null);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
   const token = localStorage.getItem('token');
   const sessionId = localStorage.getItem('sessionId');
@@ -52,15 +58,15 @@ const AuctionForm = () => {
   const jsonUser = JSON.parse(user);
   const [sessionDetails, setSessionDetails] = useState([]);
 
-  const api = `https://bids-api-testing.azurewebsites.net/api/Sessions/${sessionId}`
-  const IncreaseApi = `https://bids-api-testing.azurewebsites.net/api/SessionDetails/increase_price`
-  const NotPayApi = `https://bids-api-testing.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
-  const sessionDetailAPI = `https://bids-api-testing.azurewebsites.net/api/SessionDetails/by_session/${sessionId}`
+  const api = `https://bids-online.azurewebsites.net/api/Sessions/${sessionId}`
+  const IncreaseApi = `https://bids-online.azurewebsites.net/api/SessionDetails/increase_price`
+  const NotPayApi = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
+  const sessionDetailAPI = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session/${sessionId}`
 
   useEffect(() => {
     fetchAuctionData();
     fetchSessionDetails();
-    
+
     const interval = setInterval(() => {
       fetchAuctionData();
       fetchSessionDetails();
@@ -80,16 +86,16 @@ const AuctionForm = () => {
 
   function formatToVND(price) {
     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-}
-
-const fetchSessionDetails = async () => {
-  try {
-    const response = await axios.get(sessionDetailAPI, { headers: { Authorization: `Bearer ${token}` } });
-    setSessionDetails(response.data);
-  } catch (error) {
-    console.error('Error fetching session details:', error);
   }
-};
+
+  const fetchSessionDetails = async () => {
+    try {
+      const response = await axios.get(sessionDetailAPI, { headers: { Authorization: `Bearer ${token}` } });
+      setSessionDetails(response.data);
+    } catch (error) {
+      console.error('Error fetching session details:', error);
+    }
+  };
 
 
   const fetchAuctionData = async () => {
@@ -112,7 +118,6 @@ const fetchSessionDetails = async () => {
   const makeApiCall = async () => {
     try {
       const response = await axios.post(IncreaseApi, { userId: jsonUser.Id, sessionId }, { headers: { Authorization: `Bearer ${token}` } });
-      console.log("API response:", response.data);
       // The price update via setInterval will automatically reflect here
     } catch (error) {
       console.error('Error calling API:', error);
@@ -121,12 +126,16 @@ const fetchSessionDetails = async () => {
 
   const handleGoBack = async () => {
     try {
-      await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
+      const response = await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
+      console.log("API response:", response.data);
+
+      setWinnerData(response.data); // Store the winner data from the API response
     } catch (error) {
       console.error('Error updating session status:', error);
       // Handle error if needed
     }
   };
+
   const formatCreateDate = (createDate) => {
     return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
   };
@@ -184,9 +193,9 @@ const fetchSessionDetails = async () => {
       const remainingSeconds = seconds % 60;
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
-    
 
-    
+
+
 
     return (
       <Box sx={{ mt: 4, display: "flex", alignItems: "center" }}>
@@ -200,12 +209,11 @@ const fetchSessionDetails = async () => {
           color="primary"
           variant="contained"
           onClick={() => {
-            // fetchAuctionData();
-            // fetchSessionDetails();
             setIsDialogOpen(true);
             setCurrentPrice(auctionData[0]?.finalPrice);
           }}
-          disabled={isCountdownRunning || RemainingTime.initialTime > 0}
+          // Disable the button if the current time is after the auction end time
+          disabled={isCountdownRunning || moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").isBefore(currentTime)}
         >
           Tăng Giá
         </Button>
@@ -238,6 +246,18 @@ const fetchSessionDetails = async () => {
     setIsDialogOpen(true);
   };
 
+  useEffect(() => {
+    const currentTime = moment();
+
+    // Add a conditional check for auctionData before accessing its first element's endTime property
+    if (auctionData && auctionData.length > 0) {
+      const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
+      if (auctionEndTime.isBefore(currentTime)) {
+        handleGoBack(); // Call the API to update the session status and check if the user is the winner
+      }
+    }
+  }, [auctionData]);
+
   const handleDialogClose = async () => {
     await makeApiCall();
     fetchAuctionData();
@@ -255,21 +275,94 @@ const fetchSessionDetails = async () => {
   }
 
 
- const ProductDetailImage1 = styled('img')(({ src, theme }) => ({
+  const ProductDetailImageContainer = styled(Box)({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '10px',
+  });
 
-    src: `url(${src})`,
+  const ProductDetailImage1 = styled('img')(({ theme }) => ({
     width: '750px',
     height: '500px',
     background: Colors.light_gray,
     padding: '10px',
     [theme.breakpoints.down('md')]: {
-        width: '80%',
-        height: '80%',
-        padding: '25px',
+      width: '80%',
+      height: '80%',
+      padding: '25px',
+    },
+  }));
+
+  const ProductDetailThumbnail = styled('img')(({ theme }) => ({
+    width: '100px',
+    height: '80px',
+    objectFit: 'cover',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    transition: 'transform 0.3s ease-in-out',
+    '&:hover': {
+      transform: 'scale(1.1)',
+    },
+    [theme.breakpoints.down('md')]: {
+      width: '80px',
+      height: '60px',
+    },
+  }));
+
+  const renderProductImages = () => {
+    if (!auctionData) {
+      return null;
     }
 
-}));
+    const bigImage = currentBigImage || auctionData[0]?.images?.[0]?.detail;
+    const thumbnailImages = auctionData[0]?.images?.slice(1);
 
+    return (
+      <ProductDetailImageContainer>
+        <ProductDetailImage1 src={bigImage} />
+        <Box sx={{ display: 'flex', gap: '5px' }}>
+          {thumbnailImages.map((image, index) => (
+            <ProductDetailThumbnail
+              key={index}
+              src={image.detail}
+              onClick={() => setCurrentBigImage(image.detail)} // Set the clicked image as the current big image
+            />
+          ))}
+        </Box>
+      </ProductDetailImageContainer>
+    );
+  };
+
+  const renderDescriptions = () => {
+    if (!auctionData || !auctionData[0]?.descriptions) {
+      return null;
+    }
+
+    return auctionData[0]?.descriptions.map((desc, index) => (
+      <TableRow key={index}>
+        <TableCell>{desc.description}</TableCell>
+        <TableCell>{desc.detail}</TableCell>
+      </TableRow>
+    ));
+  };
+
+  const StyledTextField = styled(TextField)(({ theme }) => ({
+    '& textarea': {
+      // Add styles for the textarea element inside the TextField
+      fontFamily: 'Arial, sans-serif', // Adjust the font-family as needed
+      fontSize: '14px', // Adjust the font size as needed
+      color: theme.palette.text.primary, // Use the primary text color from the theme
+    },
+  }));
+
+
+  const StyledScrollbar = styled(Scrollbar)({
+    // Add styles for the Scrollbar component
+    width: '80%',
+    height: '250px', // Set the desired height for the scrollbar container
+    borderRadius: '4px', // Add some border radius to the container
+  });
   const BidDialog = () => {
     const { isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice } = useBidDialog();
 
@@ -295,7 +388,7 @@ const fetchSessionDetails = async () => {
     <>
       <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
         <Product sx={{ mr: 2 }}>
-          <ProductDetailImage1 src={auctionData[0]?.image ?? "loi"} />
+          {renderProductImages()}
         </Product>
 
         <ProductDetailInfoWrapper>
@@ -306,40 +399,44 @@ const fetchSessionDetails = async () => {
           </Box>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
-              <TableContainer sx={{ mr: 2 }} component={Paper} >
+              <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 2 }}>
+                Thông tin chi tiết của sản phẩm:
+              </Typography>
+              <TableContainer component={Paper} sx={{ mr: 2 }}>
                 <Table>
                   <TableBody>
                     <TableRow>
-                      <TableCell>Tên Sản Phẩm:</TableCell>
+                      <TableCell variant="head">Tên Sản Phẩm:</TableCell>
                       <TableCell>{auctionData[0]?.itemName}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Mô tả sản phẩm:</TableCell>
+                      <TableCell variant="head">Mô tả sản phẩm:</TableCell>
                       <TableCell>{auctionData[0]?.description}</TableCell>
                     </TableRow>
-                    <TableRow>
-                      <TableCell>Giá khởi Điểm:</TableCell>
+                    <TableRow sx={{ '&:last-child td': { borderBottom: 0 } }}>
+                      <TableCell variant="head">Giá khởi Điểm:</TableCell>
                       <TableCell>{formatToVND(auctionData[0]?.firstPrice)}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Bước Giá:</TableCell>
+                      <TableCell variant="head">Bước Giá:</TableCell>
                       <TableCell>{formatToVND(auctionData[0]?.stepPrice)}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Giá hiện tại:</TableCell>
+                      <TableCell variant="head">Giá hiện tại:</TableCell>
                       <TableCell>{formatToVND(auctionData[0]?.finalPrice)}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Thời gian bắt đầu:</TableCell>
-                      <TableCell>{auctionData[0]?.beginTime}</TableCell>
+                      <TableCell variant="head">Thời gian bắt đầu:</TableCell>
+                      <TableCell>{formatCreateDate(auctionData[0]?.beginTime)}</TableCell>
                     </TableRow>
+                    {/* Uncomment the following section when you have the auctionTime available */}
                     {/* <TableRow>
-                  <TableCell>Thời gian đấu giá:</TableCell>
-                  <TableCell>{auctionData[0]?.auctionTime}</TableCell>
-                </TableRow> */}
+            <TableCell variant="head">Thời gian đấu giá:</TableCell>
+            <TableCell>{auctionData[0]?.auctionTime}</TableCell>
+          </TableRow> */}
                     <TableRow>
-                      <TableCell>Thời gian Kết thúc:</TableCell>
-                      <TableCell>{auctionData[0]?.endTime}</TableCell>
+                      <TableCell variant="head">Thời gian Kết thúc:</TableCell>
+                      <TableCell>{formatCreateDate(auctionData[0]?.endTime)}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -351,17 +448,18 @@ const fetchSessionDetails = async () => {
               </TableContainer>
             </Grid>
             <Grid item xs={12} sm={6}>
-              <TextField
-                id="multiline-textfield"
-                label="Lịch Sử Tăng Giá"
-                multiline
-                rows={30}
-                variant="outlined"
-                fullWidth
-                value={sessionDetails.map((detail) => `${detail.userName} || ${formatToVND(detail.price)} || ${formatCreateDate(detail.createDate)}`).join('\n')}
-                
-              // You can add any additional props or event handlers as needed
-              />
+              {/* Use the StyledScrollbar component to wrap the TextField */}
+              <StyledScrollbar>
+                <StyledTextField
+                  id="multiline-textfield"
+                  label="Lịch Sử Tăng Giá"
+                  multiline
+                  rows={25}
+                  variant="outlined"
+                  fullWidth
+                  value={sessionDetails.map((detail) => `${detail.userName} || ${formatToVND(detail.price)} || ${formatCreateDate(detail.createDate)}`).join('\n')}
+                />
+              </StyledScrollbar>
             </Grid>
           </Grid>
         </ProductDetailInfoWrapper>
@@ -371,18 +469,38 @@ const fetchSessionDetails = async () => {
       </BidDialogContext.Provider>
 
       {/* popupdialog */}
-      {isAuctionOver && (
+      {winnerData && (
         <Dialog open onClose={() => { }}>
-          <DialogTitle sx={{display: 'flex', alignItems:"center"}}>Cuộc đấu giá đã kết thúc</DialogTitle>
+          <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>
+            {/* {winnerData.winner ? "Xin chúc mừng bạn là người chiến thắng" : "Cuộc đấu giá đã kết thúc"} */}
+            Phiên Đấu Giá Đã Kết thúc
+          </DialogTitle>
           <DialogContent>
-            <Typography  >Rất tiếc, cuộc đấu giá đã kết thúc.<br/> Người chiến thắng sẽ được thông báo bằng email, xin vui lòng thanh toán trong vong 3 ngày sau khi nhận được email </Typography>
+            {winnerData.winner && (
+              <Typography>
+                Người chiến thắng là : {winnerData.winner}
+              </Typography>
+            )}
+            {!winnerData.winner && (
+              <Typography>
+                {/* Display any message you want for non-winners here */}
+              </Typography>
+            )}
           </DialogContent>
           <DialogActions>
-            <Link to="/home" style={{ textDecoration: 'none' }}>
-              <Button color="primary" onClick={handleGoBack}>
-              Quay lại Trang chủ
-              </Button>
-            </Link>
+            {winnerData.winner ? (
+              <Link to="/home" style={{ textDecoration: 'none' }}>
+                <Button color="primary" onClick={handleGoBack}>
+                  Quay lại Trang chủ
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/home" style={{ textDecoration: 'none' }}>
+                <Button color="primary" onClick={handleGoBack}>
+                  Quay lại Trang chủ
+                </Button>
+              </Link>
+            )}
           </DialogActions>
         </Dialog>
       )}
@@ -391,3 +509,6 @@ const fetchSessionDetails = async () => {
 };
 
 export default AuctionForm;
+
+
+
