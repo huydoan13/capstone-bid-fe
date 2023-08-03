@@ -21,18 +21,25 @@ export default function StageSingleProductDesktop({ product, matches }) {
         useDialogModal(FinishProductDetail);
 
     const [showOptions, setShowOptions] = useState(false);
-
+    const [firstImage, setFirstImage] = useState("");
     const handleMouseEnter = () => {
         setShowOptions(true);
     };
     const handleMouseLeave = () => {
         setShowOptions(false);
     };
+
+    useEffect(() => {
+        // Extract the first image URL from the server response
+        if (product.images && product.images.length > 0) {
+            setFirstImage(product.images[0].detail);
+        }
+    }, [product]);
     return (
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 
-                <ProductImage src={product.image} />
+            {firstImage && <ProductImage src={firstImage} />}
                 
                 {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />

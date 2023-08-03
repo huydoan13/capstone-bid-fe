@@ -16,17 +16,14 @@ import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
 
-import FacebookIcon from "@mui/icons-material/Facebook";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import FavoriteIcon from "@mui/icons-material/Favorite";
-
+import moment from "moment";
 import { useEffect, useState } from "react";
 import useDialogModal from "../../hooks/useDialogModal";
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import AuctionForm from "../auction";
 import AuctionCountdown from "../auction/auctionCountdown";
+
 
 
 
@@ -50,7 +47,11 @@ function getTimeRemaining(endTime) {
 
 function formatToVND(price) {
     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
-  }
+}
+
+const formatCreateDate = (createDate) => {
+    return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
+  };
 
 function SlideTransition(props) {
     return <Slide direction="down" {...props} />;
@@ -80,6 +81,11 @@ export default function StageProductDetail({ open, onClose, product }) {
     const [AuctionDetailDialog, showAuctionDetailDialog, closeProductDialog] =
         useDialogModal(AuctionForm);
     const [countdown, setCountdown] = useState(getTimeRemaining(product.beginTime));
+    const [selectedImage, setSelectedImage] = useState(
+        product.images.length > 0 ? product.images[0].detail : null
+    );
+
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown(getTimeRemaining(product.beginTime));
@@ -90,6 +96,13 @@ export default function StageProductDetail({ open, onClose, product }) {
             clearInterval(interval);
         };
     }, [product.beginTime]);
+
+    const SmallImagesWrapper = styled(Box)`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+`;
 
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user);
@@ -140,12 +153,25 @@ export default function StageProductDetail({ open, onClose, product }) {
                 </DialogTitle>
                 <DialogContent>
                     <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
+
                         <Product sx={{ mr: 2 }}>
-                            <ProductDetailImage src={product.image} />
+                            <ProductDetailImage src={selectedImage} alt={`Product Big`} />
+                            <SmallImagesWrapper>
+                                {product.images.map((image, index) => (
+                                    <ProductDetailImage
+                                        key={index}
+                                        src={image.detail}
+                                        alt={`Product ${index}`}
+                                        onClick={() => setSelectedImage(image.detail)}
+                                        style={{ width: '80px', height: '80px', marginRight: '8px' }}
+                                    />
+                                ))}
+                            </SmallImagesWrapper>
                         </Product>
+
                         <ProductDetailInfoWrapper>
 
-                            
+
 
                             {/* <Typography>Thời gian đếm ngược bắt đầu trả giá:</Typography>
                             <Typography margin={"1%"} variant="subtitle">
@@ -164,9 +190,9 @@ export default function StageProductDetail({ open, onClose, product }) {
                             <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)} </Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {product.beginTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {product.auctionTime}</Typography>
-                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {product.endTime}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {formatCreateDate(product.beginTime)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian đấu giá : {formatCreateDate(product.auctionTime)}</Typography>
+                            <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {formatCreateDate(product.endTime)}</Typography>
 
                             <Box
                                 sx={{ mt: 4 }}
@@ -177,24 +203,6 @@ export default function StageProductDetail({ open, onClose, product }) {
                                 <Button color="primary" variant="contained" onClick={handleAuctionButtonClick}>
                                     Đấu Giá Ngay
                                 </Button>
-                            </Box>
-                            <Box
-                                display="flex"
-                                alignItems="center"
-                                sx={{ mt: 4, color: Colors.light }}
-                            >
-                                <FavoriteIcon sx={{ mr: 2 }} />
-                                Add to wishlist
-                            </Box>
-                            <Box
-                                sx={{
-                                    mt: 4,
-                                    color: Colors.dove_gray,
-                                }}
-                            >
-                                <FacebookIcon />
-                                <TwitterIcon sx={{ pl: 2 }} />
-                                <InstagramIcon sx={{ pl: 2 }} />
                             </Box>
                         </ProductDetailInfoWrapper>
                     </ProductDetailWrapper>

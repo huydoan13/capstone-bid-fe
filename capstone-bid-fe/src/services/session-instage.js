@@ -5,7 +5,7 @@ const token = localStorage.getItem('token');
 const StageService = {
     getDataStage: () => {
         return new Promise((resolve, reject) => {
-            const apiUrl = "https://bids-api-testing.azurewebsites.net/api/Sessions/by_in_stage";
+            const apiUrl = "https://bids-online.azurewebsites.net/api/Sessions/by_in_stage";
 
             // Fetch data from the API using Axios
             axios.get(apiUrl,{headers: { Authorization: `Bearer ${token}` },})

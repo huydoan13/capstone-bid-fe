@@ -38,6 +38,8 @@ import SessionRulePage from './pages/SessionRule';
 import FeePage from './pages/FeePage';
 import { StaffCreateNew } from './sections/staff';
 import BookingItemNoSe from './pages/BookingItemNoSe';
+import MyProductPage from './pages/MyProductPage';
+import MySessionPage from './pages/MySessionPage';
 
 // ----------------------------------------------------------------------
 
@@ -58,6 +60,9 @@ export default function Router() {
     { path: 'prepare', element: <PrepareSession />},
     { path: 'instage', element: <InstageSession />},
     { path: 'finish', element: <FinishSession />},
+    { path: 'myproduct', element: <MyProductPage />},
+    { path: 'mysession', element: <MySessionPage />},
+    
     {
       path: '/dashboard',
       element: (

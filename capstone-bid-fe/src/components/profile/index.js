@@ -13,16 +13,42 @@ const ProfilePage = () => {
 
     const [passwordError, setPasswordError] = useState(false);
 
+    const [otpDialogOpen, setOtpDialogOpen] = useState(false);
+    const [otpValue, setOtpValue] = useState('');
+    const [otpError, setOtpError] = useState(false);
+    const [updateRoleMessage, setUpdateRoleMessage] = useState('');
+
 
     const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMessage, setDialogMessage] = useState('');
+    const [dialogOpen2, setDialogOpen2] = useState(false); // Rename the state variable
+    const [dialogMessage2, setDialogMessage2] = useState('');
     const oldPasswordRef = useRef('');
     const newPasswordRef = useRef('');
+    const otpInputRef = useRef('');
 
-    const ChangePasswordApi = `https://bids-api-testing.azurewebsites.net/api/Users/update_password/${jsonUser.Id}`
-    const api = `https://bids-api-testing.azurewebsites.net/api/Users/${jsonUser.Id}`
-    const UpdateRoleApi = `https://bids-api-testing.azurewebsites.net/api/Users/update_role_account/${jsonUser.Id}`
+    const ChangePasswordApi = `https://bids-online.azurewebsites.net/api/Users/update_password/${jsonUser.Id}`
+    const api = `https://bids-online.azurewebsites.net/api/Users/${jsonUser.Id}`
+    const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email/${jsonUser.Email}`
+    const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
 
+
+    const handleOpenOtpDialog = () => {
+        handleOtpSubmit();
+        setOtpDialogOpen(true);
+        setOtpValue('');
+        setOtpError(false);
+    };
+
+    const handleCloseOtpDialog = () => {
+        setOtpDialogOpen(false);
+        setOtpValue('');
+        setOtpError(false);
+    };
+
+    const handleOtpInputChange = (event) => {
+        setOtpError(false);
+    };
 
     const Product = styled(Card)(({ theme }) => ({
 
@@ -40,9 +66,7 @@ const ProfilePage = () => {
         },
     }));
 
-    useEffect(() => {
-        fetchProfileData();
-    }, []);
+
 
     const handleOpenDialog = () => {
         setOpen(true);
@@ -54,9 +78,10 @@ const ProfilePage = () => {
         // setPasswordError(false);
     };
 
-    const handleDialogClose = () => {
+    const handleDialogClose1 = () => {
         setDialogOpen(false);
-    };
+        setUpdateRoleMessage(''); // If needed to clear the updateRoleMessage state
+      };
 
     const isAuctioneer = profileData.role === 'Auctioneer';
 
@@ -84,6 +109,25 @@ const ProfilePage = () => {
 
         return `${year}-${month}-${day}`;
     };
+    const handleOtpSubmit = () => {
+        axios
+            .put(confirm, null, { headers: { Authorization: `Bearer ${token}` } })
+            .then((response) => {
+                // If the API response has no error, proceed to update the user's role
+                setOtpError(false);
+                setUpdateRoleMessage('');
+                // return handleUpgradeToAuctioneer();
+            })
+            .catch((error) => {
+                setOtpError(true);
+                setUpdateRoleMessage('');
+            });
+    };
+
+
+    useEffect(() => {
+        fetchProfileData();
+    }, []);
 
     const fetchProfileData = async () => {
         // try {
@@ -103,18 +147,32 @@ const ProfilePage = () => {
     };
 
     const handleUpgradeToAuctioneer = async () => {
+        const otpValue = otpInputRef.current.value; // Get the OTP value from the ref
+
         try {
             // Make the PUT request to upgrade the user's role to "Auctioneer"
-            await axios.put(UpdateRoleApi, null, { headers: { Authorization: `Bearer ${token}` } }
+            const response = await axios.put(
+                UpdateRoleApi,
+                {
+                    email: jsonUser.Email,
+                    code: otpValue,
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // After the successful API call, update the profileData to reflect the new role
-            // setProfileData((prevData) => ({ ...prevData, role: 'Auctioneer' }));
-            setDialogMessage('Đã cập nhật vai trò thành công, vui lòng làm mới trang.!');
-            setDialogOpen(true);
+            if (response.status === 200) {
+                // After the successful API call, update the profileData to reflect the new role
+                // setProfileData((prevData) => ({ ...prevData, role: 'Auctioneer' }));
+                setUpdateRoleMessage('Xác Thực Email Thành Công');
+                fetchProfileData();
+                setOtpError(false); // Reset the error state if there was a previous error
+            } else {
+                // setUpdateRoleMessage('Error updating role. Please try again.');
+                setOtpError(true); // Set the error state to show the error message
+            }
         } catch (error) {
-            setDialogMessage('Đã sảy ra lỗi, xin vui lòng thử lại!');
-            setDialogOpen(true);
+            // setUpdateRoleMessage('Error updating role. Please try again.');
+            setOtpError(true); // Set the error state to show the error message
         }
     };
 
@@ -222,7 +280,7 @@ const ProfilePage = () => {
                         </DialogActions>
                     </Dialog>
 
-                    <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                    {/* <Dialog open={dialogOpen} onClose={handleDialogClose}>
                         <DialogContent>
                             <p>{dialogMessage}</p>
                         </DialogContent>
@@ -231,7 +289,7 @@ const ProfilePage = () => {
                                 Đóng
                             </Button>
                         </DialogActions>
-                    </Dialog>
+                    </Dialog> */}
 
 
 
@@ -248,18 +306,18 @@ const ProfilePage = () => {
                         <TextField label="Ngày Tạo" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.createDate || ''} />
                     </Grid>
                     <Grid item xs={12}>
-                        <TextField label="Số CCCD" fullWidth value={profileData.cccdNumber || ''} />
+                        <TextField label="Số CCCD" fullWidth value={profileData.cccdnumber || ''} />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <img
-                            src={profileData.cccdFrontImage}
+                            src={profileData.cccdfrontImage}
                             alt="CCCD Front"
                             style={{ width: '100%', height: '250px', border: '1px dashed #ccc', borderRadius: '4px', padding: '4px' }}
                         />
                     </Grid>
                     <Grid item xs={12} sm={6}>
                         <img
-                            src={profileData.cccdBackImage}
+                            src={profileData.cccdbackImage}
                             alt="CCCD Back"
                             style={{ width: '100%', height: '250px', border: '1px dashed #ccc', borderRadius: '4px', padding: '4px' }}
                         />
@@ -270,14 +328,14 @@ const ProfilePage = () => {
                             <DialogActions>
                                 <Grid container spacing={2} justifyContent="center">
                                     <Grid item>
-                                    {!isAuctioneer && (
+                                        {!isAuctioneer && (
                                             <Button
                                                 variant="contained"
                                                 color="info"
-                                                style={{ width: '100%'}}
-                                                onClick={handleUpgradeToAuctioneer}
+                                                style={{ width: '100%' }}
+                                                onClick={handleOpenOtpDialog} // Open the OTP dialog when clicked
                                             >
-                                                Thăng Cấp Thành Người Bán
+                                                Xác Thực Email.
                                             </Button>
                                         )}
 
@@ -298,7 +356,42 @@ const ProfilePage = () => {
                                 </Grid>
                             </DialogActions>
 
-                            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+
+                            <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
+                                <DialogContent>
+                                    <DialogTitle>Xác Thực Email (Vui lòng kiểm tra gmail)</DialogTitle>
+                                    <TextField
+                                        label="OTP"
+                                        fullWidth
+                                        inputRef={otpInputRef}
+                                        onChange={handleOtpInputChange}
+                                        error={otpError}
+                                        helperText={otpError ? 'Kiểm Tra Lại Mã OTP' : ''}
+                                    />
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleCloseOtpDialog} color="secondary">
+                                        Thoát
+                                    </Button>
+                                    <Button onClick={handleUpgradeToAuctioneer} color="primary">
+                                        OK
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+
+                            <Dialog open={!!updateRoleMessage} onClose={handleDialogClose1}>
+                                <DialogContent>
+                                    <p>{updateRoleMessage}</p>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleDialogClose1} color="primary">
+                                        Đóng
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+                            {/* <Dialog open={dialogOpen} onClose={handleDialogClose}>
                                 <DialogContent>
                                     <p>{dialogMessage}</p>
                                 </DialogContent>
@@ -307,7 +400,7 @@ const ProfilePage = () => {
                                         Đóng
                                     </Button>
                                 </DialogActions>
-                            </Dialog>
+                            </Dialog> */}
                         </Box>
                     </Grid>
                 </Grid>
