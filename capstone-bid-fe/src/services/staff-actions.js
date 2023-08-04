@@ -8,6 +8,10 @@ export async function getAllStaff() {
     return axiosInstance.get(url);
 }
 
+export async function getNotificationById(id) {
+    const url = `${BASE_URL}/staffnotificationdetail/${id}`;
+    return axiosInstance.get(url);
+}
 
 export async function createStaff(newStaff) {
     const url = `${BASE_URL}/staffs`;

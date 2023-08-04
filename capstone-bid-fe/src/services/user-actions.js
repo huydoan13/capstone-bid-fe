@@ -8,6 +8,11 @@ export async function getAllUser() {
     return axiosInstance.get(url);
 }
 
+export async function getUserNotificationById(id) {
+  const url = `${BASE_URL}/usernotificationdetail/${id}`;
+  return axiosInstance.get(url);
+}
+
 export async function getUserById(id) {
     const url = `${BASE_URL}/users/${id}`;
     return axiosInstance.get(url);

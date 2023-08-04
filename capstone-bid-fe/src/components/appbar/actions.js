@@ -5,6 +5,7 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import React from "react";
+import NotificationsUserPopover from "../../layouts/dashboard/header/NotificationsUserPopover";
 import LogoutFuncion from "../../services/LogoutFunction";
 import { MyList, ActionIconsContainerMobile, ActionIconsContainerDesktop } from "../../style/appbar";
 import { Colors } from "../../style/theme";
@@ -48,6 +49,7 @@ export default function Actions({ matches }) {
                         {userEmail ? ( // If user is logged in (email exists in local storage)
                             <>
                                 <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+                                    <NotificationsUserPopover />
                                     <Tooltip title="Account settings">
                                         <IconButton
                                             onClick={handleClick}

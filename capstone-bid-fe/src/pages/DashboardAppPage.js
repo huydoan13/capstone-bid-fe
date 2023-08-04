@@ -28,7 +28,7 @@ export default function DashboardAppPage() {
   return (
     <>
       <Helmet>
-        <title> Tổng quan | Minimal UI </title>
+        <title> Tổng quan | BIDS </title>
       </Helmet>
 
       <Container maxWidth="xl">
