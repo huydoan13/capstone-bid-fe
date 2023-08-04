@@ -26,6 +26,7 @@ import { fToNow } from '../../../utils/formatTime';
 // components
 import Iconify from '../../../components/iconify';
 import Scrollbar from '../../../components/scrollbar';
+import { getUserNotificationById } from '../../../services/user-actions';
 
 // ----------------------------------------------------------------------
 
@@ -88,7 +89,7 @@ export default function NotificationsPopover() {
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
   useEffect(() => {
-    getNotificationById(user.Id).then((res) => {
+    getUserNotificationById(user.Id).then((res) => {
       setNotifications(res.data);
       console.log(res.data);
     });
@@ -209,12 +210,12 @@ export default function NotificationsPopover() {
         </Scrollbar> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
-
+{/* 
         <Box sx={{ p: 1 }}>
           <Button fullWidth disableRipple>
             View All
           </Button>
-        </Box>
+        </Box> */}
       </Popover>
     </>
   );
