@@ -51,6 +51,7 @@ const AuctionForm = () => {
   const currentTime = moment();
   const [isWinner, setIsWinner] = useState(false);
   const [winnerData, setWinnerData] = useState(null);
+  const [isIntervalActive, setIsIntervalActive] = useState(true);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
   const token = localStorage.getItem('token');
   const sessionId = localStorage.getItem('sessionId');
@@ -63,18 +64,16 @@ const AuctionForm = () => {
   const NotPayApi = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
   const sessionDetailAPI = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session/${sessionId}`
 
-  useEffect(() => {
-    fetchAuctionData();
-    fetchSessionDetails();
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchAuctionData();
+  //     fetchSessionDetails();
+  //   }, 5000);
 
-    const interval = setInterval(() => {
-      fetchAuctionData();
-      fetchSessionDetails();
-    }, 5000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   useEffect(() => {
     fetchSessionDetails();
@@ -128,6 +127,15 @@ const AuctionForm = () => {
     try {
       const response = await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
       console.log("API response:", response.data);
+      
+      // Check if the user is the winner based on the API response
+      const winnerEmail = response.data[0]?.winner?.toLowerCase(); // Convert to lowercase
+      const userEmail = jsonUser.email.toLowerCase(); // Convert to lowercase
+      if (winnerEmail === userEmail) {
+        setIsWinner(true);
+      } else {
+        setIsWinner(false);
+      }
 
       setWinnerData(response.data); // Store the winner data from the API response
     } catch (error) {
@@ -135,6 +143,7 @@ const AuctionForm = () => {
       // Handle error if needed
     }
   };
+
 
   const formatCreateDate = (createDate) => {
     return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
@@ -247,16 +256,29 @@ const AuctionForm = () => {
   };
 
   useEffect(() => {
-    const currentTime = moment();
-
-    // Add a conditional check for auctionData before accessing its first element's endTime property
-    if (auctionData && auctionData.length > 0) {
+    const checkAuctionEnd = () => {
+      const currentTime = moment();
       const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
       if (auctionEndTime.isBefore(currentTime)) {
         handleGoBack(); // Call the API to update the session status and check if the user is the winner
+        setIsIntervalActive(false); // Disable the interval once the auction ends
       }
+    };
+
+    let interval = null;
+
+    if (isIntervalActive) {
+      interval = setInterval(() => {
+        fetchAuctionData();
+        fetchSessionDetails();
+        checkAuctionEnd(); // Check if the auction has ended on each interval
+      }, 5000);
     }
-  }, [auctionData]);
+
+    return () => {
+      clearInterval(interval); // Clear the interval on cleanup
+    };
+  }, [isIntervalActive, auctionData]);
 
   const handleDialogClose = async () => {
     await makeApiCall();
@@ -469,41 +491,45 @@ const AuctionForm = () => {
       </BidDialogContext.Provider>
 
       {/* popupdialog */}
-      {winnerData && (
-        <Dialog open onClose={() => { }}>
-          <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>
-            {/* {winnerData.winner ? "Xin chúc mừng bạn là người chiến thắng" : "Cuộc đấu giá đã kết thúc"} */}
-            Phiên Đấu Giá Đã Kết thúc
-          </DialogTitle>
-          <DialogContent>
-            {winnerData.winner && (
-              <Typography>
-                Người chiến thắng là : {winnerData.winner}
-              </Typography>
-            )}
-            {!winnerData.winner && (
-              <Typography>
-                {/* Display any message you want for non-winners here */}
-              </Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            {winnerData.winner ? (
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Button color="primary" onClick={handleGoBack}>
-                  Quay lại Trang chủ
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Button color="primary" onClick={handleGoBack}>
-                  Quay lại Trang chủ
-                </Button>
-              </Link>
-            )}
-          </DialogActions>
-        </Dialog>
+      {isAuctionOver && (
+        <>
+          {isWinner ? (
+            <Dialog open onClose={() => { }}>
+              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Xin chúc mừng</DialogTitle>
+              <DialogContent>
+                <Typography  >Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
+              </DialogContent>
+              <DialogActions>
+                <Link to="/home" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Quay lại Trang chủ
+                  </Button>
+                </Link>
+                <Link to="/home" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Thanh Toán Ngay
+                  </Button>
+                </Link>
+              </DialogActions>
+            </Dialog>
+          ) : (
+            <Dialog open onClose={() => { }}>
+              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Cuộc đấu giá đã kết thúc</DialogTitle>
+              <DialogContent>
+                <Typography  >Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Link to="/home" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Quay lại Trang chủ
+                  </Button>
+                </Link>
+              </DialogActions>
+            </Dialog>
+          )}
+        </>
       )}
+
     </>
   );
 };

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
 import axios from 'axios';
-import { Box, TextField, Button, Select, MenuItem, FormControl, InputLabel, Typography, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Box, TextField, Button, Select, MenuItem, FormControl, InputLabel, Typography, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
 import styled from '@emotion/styled';
 
 const AddProductForm = () => {
@@ -17,7 +17,7 @@ const AddProductForm = () => {
   const [firstPrice, setFirstPrice] = useState('');
   const [stepPrice, setStepPrice] = useState('');
   const [image, setProductImage] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   const [selectedCategoryDescriptions, setSelectedCategoryDescriptions] = useState([]);
   const [descriptionValues, setDescriptionValues] = useState({});
 
@@ -136,37 +136,41 @@ const AddProductForm = () => {
           .then(() => {
             console.log('Item descriptions successfully posted.');
 
-          // Now upload the image to the new API endpoint
-          const imageUrls = image.split('\n');
-          
-          // Create an array to store the promises for image uploads
-          const imageUploadPromises = imageUrls.map((imageUrl) => {
-            const imageFormData = {
-              itemId,
-              detailImage: imageUrl,
-            };
-            return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-          });
-          Promise.all(imageUploadPromises)
-            .then(() => {
-              console.log('Image uploaded successfully.');
+            // Now upload the image to the new API endpoint
+            const imageUrls = image.split('\n');
 
-              setSuccessDialogOpen(true);
-              // Reset form fields
-              setItemName('');
-              setDescription('');
-              setCategoryId('');
-              setQuantity('');
-              // setProductImage(null);
-              setFirstPrice('');
-              setStepPrice('');
-            })
-            .catch((error) => {
-              console.error('Error uploading image:', error);
-              setErrorDialogOpen(true);
+            // Create an array to store the promises for image uploads
+            const imageUploadPromises = imageUrls.map((imageUrl) => {
+              const imageFormData = {
+                itemId,
+                detailImage: imageUrl,
+              };
+              return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
             });
+            Promise.all(imageUploadPromises)
+              .then(() => {
+                console.log('Image uploaded successfully.');
+
+                setSuccessDialogOpen(true);
+                // Reset form fields
+                setItemName('');
+                setDescription('');
+                setCategoryId('');
+                setQuantity('');
+                // setProductImage(null);
+                setFirstPrice('');
+                setStepPrice('');
+              })
+              .catch((error) => {
+                console.error('Error uploading image:', error);
+                setErrorDialogOpen(true);
+              })
+              .finally(() => {
+                setLoading(false); // Set loading back to false after the response is received
+              });
+
           })
           .catch((error) => {
             console.error('Error posting item descriptions:', error);
@@ -265,19 +269,19 @@ const AddProductForm = () => {
       </FormControl>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', maxWidth: 'calc(4 * (100% - 10px) / 4)' }}>
-  {selectedCategoryDescriptions.map((description) => (
-    <TextField
-      key={description.name}
-      label={description.name}
-      value={descriptionValues[description.name]}
-      onChange={(event) => handleDescriptionChange(description.name, event)}
-      fullWidth
-      required
-      margin="normal"
-      sx={{ flex: '1 0 calc(25% - 10px)' }} // This will ensure each TextField takes up 25% of the container width minus 10px for the gap.
-    />
-  ))}
-</Box>
+        {selectedCategoryDescriptions.map((description) => (
+          <TextField
+            key={description.name}
+            label={description.name}
+            value={descriptionValues[description.name]}
+            onChange={(event) => handleDescriptionChange(description.name, event)}
+            fullWidth
+            required
+            margin="normal"
+            sx={{ flex: '1 0 calc(25% - 10px)' }} // This will ensure each TextField takes up 25% of the container width minus 10px for the gap.
+          />
+        ))}
+      </Box>
 
       <TextField
         label="Số Lượng"
@@ -294,7 +298,7 @@ const AddProductForm = () => {
         width="100%"             // Optional.
         height="375px"
         options={uploaderOptions}
-        onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
+        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
         onComplete={files => {      // Optional.
           if (files.length === 0) {
             console.log('No files selected.')
@@ -358,7 +362,12 @@ const AddProductForm = () => {
         </DialogActions>
       </Dialog>
 
-
+      {loading && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          {/* Add your loading spinner or animation here */}
+          <CircularProgress color="primary" />
+        </div>
+      )}
       <Button
         variant="contained"
         color="primary"
