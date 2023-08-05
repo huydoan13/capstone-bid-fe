@@ -40,6 +40,7 @@ import { StaffCreateNew } from './sections/staff';
 import BookingItemNoSe from './pages/BookingItemNoSe';
 import MyProductPage from './pages/MyProductPage';
 import MySessionPage from './pages/MySessionPage';
+import MyHistoryPage from './pages/MyHistoryPage';
 
 // ----------------------------------------------------------------------
 
@@ -62,6 +63,7 @@ export default function Router() {
     { path: 'finish', element: <FinishSession />},
     { path: 'myproduct', element: <MyProductPage />},
     { path: 'mysession', element: <MySessionPage />},
+    { path: 'myhistory', element: <MyHistoryPage />},
     
     {
       path: '/dashboard',

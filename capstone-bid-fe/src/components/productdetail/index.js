@@ -14,6 +14,7 @@ import {
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import styled from "@emotion/styled";
 
 import { useEffect, useState } from "react";
@@ -65,7 +66,7 @@ const ProductDetailInfoWrapper = styled(Box)(() => ({
     display: "flex",
     flexDirection: "column",
     marginLeft: '5%',
-    maxWidth: 500,
+    maxWidth: "100%",
     lineHeight: 1.5,
 
 }));
@@ -76,14 +77,16 @@ export default function ProductDetail({ open, onClose, product }) {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(product?.images[0]?.detail);
     const [startIndex, setStartIndex] = useState(0);
+    const Image = "https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDJ8fHxlbnwwfHx8fHw%3D&auto=format&fit=crop&w=500&q=60"
     const [AuctionDetailDialog, showAuctionDetailDialog, closeProductDialog] =
         useDialogModal(AuctionForm);
     const [countdown, setCountdown] = useState(getTimeRemaining(product.beginTime));
+    const [showDescriptions, setShowDescriptions] = useState(false);
 
 
     const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
-const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
-const [dialogMessage, setDialogMessage] = useState("");
+    const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+    const [dialogMessage, setDialogMessage] = useState("");
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown(getTimeRemaining(product.beginTime));
@@ -95,7 +98,6 @@ const [dialogMessage, setDialogMessage] = useState("");
         };
     }, [product.beginTime]);
 
-    console.log(product)
 
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('loginUser');
@@ -106,43 +108,34 @@ const [dialogMessage, setDialogMessage] = useState("");
 
     const joinAuction = () => {
         const requestData = {
-          sessionId: product.sessionId,
-          userId: jsonUser.Id
+            sessionId: product.sessionId,
+            userId: jsonUser.Id
         };
-      
+
         axios.post(apiUrl, requestData, { headers: { Authorization: `Bearer ${token}` } })
-          .then(response => {
-            // Handle the response from the API if needed.
-            // For example, you can show a success message or refresh the page.
-            setIsSuccessDialogOpen(true);
-            setDialogMessage("Đăng kí thành công");
-          })
-          .catch(error => {
-            console.error('Error joining the auction:', error);
-            if (error.response && error.response.status === 400 && error.response.data) {
-              setIsErrorDialogOpen(true);
-              setDialogMessage(error.response.data);
-            } else {
-              setIsErrorDialogOpen(true);
-              setDialogMessage("Đã có lỗi xảy ra");
-            }
-          });
-      };
+            .then(response => {
+                // Handle the response from the API if needed.
+                // For example, you can show a success message or refresh the page.
+                setIsSuccessDialogOpen(true);
+                setDialogMessage("Đăng kí thành công");
+            })
+            .catch(error => {
+                console.error('Error joining the auction:', error);
+                if (error.response && error.response.status === 400 && error.response.data) {
+                    setIsErrorDialogOpen(true);
+                    setDialogMessage(error.response.data);
+                } else {
+                    setIsErrorDialogOpen(true);
+                    setDialogMessage("Đã có lỗi xảy ra");
+                }
+            });
+    };
 
 
     const handleImageClick = (image) => {
         setSelectedImage(image);
     };
 
-    const handleSlideLeft = () => {
-        setStartIndex((prevIndex) => Math.max(prevIndex - 1, 0));
-    };
-
-    const handleSlideRight = () => {
-        setStartIndex((prevIndex) =>
-            Math.min(prevIndex + 1, product.images.length - 3)
-        );
-    };
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -181,7 +174,7 @@ const [dialogMessage, setDialogMessage] = useState("");
     // Function to handle the auction button click
     const handleAuctionButtonClick = () => {
         localStorage.setItem("sessionId", product.sessionId);
-        if (isLoggedIn) {           
+        if (isLoggedIn) {
             joinAuction();
         } else {
             // If the user is not logged in, show the custom dialog.
@@ -190,6 +183,9 @@ const [dialogMessage, setDialogMessage] = useState("");
     };
     const handleDialogClose = () => {
         setDialogOpen(false);
+    };
+    const handleToggleDescriptions = () => {
+        setShowDescriptions(!showDescriptions);
     };
 
     const handleLogin = () => {
@@ -205,16 +201,15 @@ const [dialogMessage, setDialogMessage] = useState("");
                 fullScreen
             >
                 <DialogTitle
-                    sx={{
-                        background: Colors.secondary,
-                    }}
+                    sx={{ ml: 5, p: 2, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
                 >
                     <Box
                         display="flex"
                         alignItems="center"
                         justifyContent={"space-between"}
+
                     >
-                        Chi Tiết Sản Phẩm.
+                        <Typography fontSize={"25px"} >Tên Sản Phẩm : {product.itemName}</Typography>
                         <IconButton onClick={onClose}>
                             <CloseIcon />
                         </IconButton>
@@ -263,27 +258,55 @@ const [dialogMessage, setDialogMessage] = useState("");
                         </Product>
                         <ProductDetailInfoWrapper>
 
-                            <Typography sx={{ lineHeight: 4 }} variant="h4">
+                            {/* <Typography sx={{ lineHeight: 4 }} variant="h4">
                                 Tên Sản Phẩm : {product.itemName}
-                            </Typography>
-
+                            </Typography> */}
                             <Typography fontWeight={"bold"}>Thời gian đếm ngược bắt đầu trả giá:</Typography>
-                            <Typography margin={"1%"} variant="subtitle">
-                                {countdown.days}&nbsp; Ngày &nbsp;:&nbsp;  {countdown.hours}&nbsp; Giờ  &nbsp;: &nbsp; {countdown.minutes}&nbsp; Phút  &nbsp;:&nbsp;  {countdown.seconds}&nbsp; Giây
-                            </Typography>
+                            <Box sx={{ boxShadow: 3 }}>
+                                <Typography margin={'5%'}>
+                                    <Typography margin={"1%"} variant="subtitle">
+                                        {countdown.days}&nbsp; Ngày &nbsp;:&nbsp;  {countdown.hours}&nbsp; Giờ  &nbsp;: &nbsp; {countdown.minutes}&nbsp; Phút  &nbsp;:&nbsp;  {countdown.seconds}&nbsp; Giây
+                                    </Typography>
+                                </Typography>
+                            </Box>
+
+
                             <Typography margin={'1%'} variant="subtitle">Mô tả sản phẩm : {product.description} </Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {formatCreateDate(product.beginTime)}</Typography>
                             <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {formatCreateDate(product.endTime)}</Typography>
-                            <Typography margin={'1%'} fontWeight={"bold"} variant="dashed">Thông tin chi tiết sản phẩm : </Typography>
 
+                            <Typography
+                            margin={"1%"}
+                            fontWeight={"bold"}
+                            variant="dashed"
+                            sx={{ cursor: "pointer" }}
+                            onClick={handleToggleDescriptions} // Toggle the visibility on click
+                        >
+                            Xem thêm <KeyboardArrowDownIcon/>
+                        </Typography>
+                            <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-start",
+                                mt: 2,
+                                flexWrap: "wrap", // Add flex-wrap to handle wrapping descriptions
+                            }}
+                        >
                             {product.descriptions.map((description, index) => (
-                                <Typography key={index} margin={'1%'} variant="subtitle">
-                                    {description.description}: {description.detail}
+                                <Typography
+                                    key={index}
+                                    margin={"1%"}
+                                    variant="subtitle"
+                                    sx={{ display: showDescriptions ? "block" : "none" }} // Show or hide the descriptions based on state
+                                >
+                                    {description.description}: {description.detail}<br/>
                                 </Typography>
                             ))}
+                        </Box>
+                        
                             <Box
                                 sx={{ mt: 4 }}
                                 display="flex"
@@ -319,31 +342,31 @@ const [dialogMessage, setDialogMessage] = useState("");
             </Dialog>
 
             <Dialog open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
-  <DialogTitle>Thành Công</DialogTitle>
-  <DialogContent>
-    <DialogContentText>
-      {dialogMessage}
-    </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setIsSuccessDialogOpen(false)} color="primary">
-      OK
-    </Button>
-  </DialogActions>
-</Dialog>
-<Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
-  <DialogTitle>Lỗi</DialogTitle>
-  <DialogContent>
-    <DialogContentText>
-      {dialogMessage}
-    </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setIsErrorDialogOpen(false)} color="primary">
-      OK
-    </Button>
-  </DialogActions>
-</Dialog>
+                <DialogTitle>Thành Công</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {dialogMessage}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsSuccessDialogOpen(false)} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+                <DialogTitle>Lỗi</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        {dialogMessage}
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsErrorDialogOpen(false)} color="primary">
+                        OK
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

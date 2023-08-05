@@ -71,7 +71,7 @@ export default function AppbarDesktop({ matches }) {
                         <ListItemButton component="a" href="/myproduct">
                             <ListItemText primary="Sản Phẩm Của Tôi" />
                         </ListItemButton>
-                        <ListItemButton component="a" href="/auctionhistory">
+                        <ListItemButton component="a" href="/myhistory">
                             <ListItemText primary="Lịch Sử Đấu Giá" />
                         </ListItemButton>
                     </>
