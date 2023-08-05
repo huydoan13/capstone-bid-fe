@@ -73,11 +73,17 @@ export function getStatusInfo(status) {
   export const getStatusLabel = (status) => {
     switch (status) {
       case 1:
-        return 'Đang chờ duyệt';
+        return 'Chưa bắt đầu';
       case 2:
-        return 'Đang hoạt động';
+        return 'Đang diễn ra';
       case 3:
-        return 'Đã cấm';
+        return 'Chưa thanh toán';
+      case 4:
+        return 'Hoàn thành';
+      case 5:
+        return 'Thất bại';
+      case -1:
+        return 'Đã xóa';
       default:
         return 'Không rõ';
     }
