@@ -130,7 +130,8 @@ const AuctionForm = () => {
       
       // Check if the user is the winner based on the API response
       const winnerEmail = response.data[0]?.winner?.toLowerCase(); // Convert to lowercase
-      const userEmail = jsonUser.email.toLowerCase(); // Convert to lowercase
+      console.log(winnerEmail);
+      const userEmail = jsonUser.Email.toLowerCase(); // Convert to lowercase
       if (winnerEmail === userEmail) {
         setIsWinner(true);
       } else {
