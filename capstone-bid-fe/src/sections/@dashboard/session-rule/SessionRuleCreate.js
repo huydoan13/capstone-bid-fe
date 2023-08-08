@@ -39,28 +39,19 @@ function SessionRuleCreate() {
   const [sessionRuleData, setSessionRuleData] = useState({
     name: '',
     freeTime: {
-      ticks: 0,
-      days: 0,
-      hours: 0,
-      milliseconds: 0,
-      minutes: 0,
-      seconds: 0,
+      hour: 0,
+      minute: 0,
+      second: 0,
     },
     delayTime: {
-      ticks: 0,
-      days: 0,
-      hours: 0,
-      milliseconds: 0,
-      minutes: 0,
-      seconds: 0,
+      hour: 0,
+      minute: 0,
+      second: 0,
     },
     delayFreeTime: {
-      ticks: 0,
-      days: 0,
-      hours: 0,
-      milliseconds: 0,
-      minutes: 0,
-      seconds: 0,
+      hour: 0,
+      minute: 0,
+      second: 0,
     },
   });
 
@@ -107,7 +98,7 @@ function SessionRuleCreate() {
       navigate('/dashboard/session-rule');
       toast.success('Tạo luật đấu giá thành công', {
         position: toast.POSITION.TOP_RIGHT,
-        autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        autoClose: 3000, // Notification will automatically close after 3 second (3000 milliseconds)
       });
       // } else {
       //   setErrMsg('Phien dau gia da ton tai');
@@ -121,6 +112,7 @@ function SessionRuleCreate() {
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
+    
     setSessionRuleData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -158,14 +150,14 @@ function SessionRuleCreate() {
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Thời gian đấu giá tự do (Giờ)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.freeTime.hours}
+                  // name="freeTime.minute"
+                  value={sessionRuleData.freeTime.hour}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       freeTime: {
                         ...sessionRuleData.freeTime,
-                        hours: parseInt(event.target.value, 10),
+                        hour: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -177,14 +169,14 @@ function SessionRuleCreate() {
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Thời gian đấu giá tự do (Phút)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.freeTime.minutes}
+                  // name="freeTime.minute"
+                  value={sessionRuleData.freeTime.minute}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       freeTime: {
                         ...sessionRuleData.freeTime,
-                        minutes: parseInt(event.target.value, 10),
+                        minute: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -196,14 +188,14 @@ function SessionRuleCreate() {
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Thời gian đấu giá tự do (Giây)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.freeTime.seconds}
+                  // name="freeTime.minute"
+                  value={sessionRuleData.freeTime.second}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       freeTime: {
                         ...sessionRuleData.freeTime,
-                        seconds: parseInt(event.target.value, 10),
+                        second: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -217,14 +209,14 @@ function SessionRuleCreate() {
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Đếm ngược đấu giá (Giờ)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.delayTime.hours}
+                  // name="freeTime.minute"
+                  value={sessionRuleData.delayTime.hour}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayTime: {
                         ...sessionRuleData.delayTime,
-                        hours: parseInt(event.target.value, 10),
+                        hour: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -237,13 +229,13 @@ function SessionRuleCreate() {
                 <TextField
                   label="Đếm ngược đấu giá (Phút)"
                   // name="freeTime.minutes"
-                  value={sessionRuleData.delayTime.minutes}
+                  value={sessionRuleData.delayTime.minute}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayTime: {
                         ...sessionRuleData.delayTime,
-                        minutes: parseInt(event.target.value, 10),
+                        minute: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -255,14 +247,14 @@ function SessionRuleCreate() {
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Đếm ngược đấu giá (Giây)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.delayTime.seconds}
+                  // name="freeTime.minute"
+                  value={sessionRuleData.delayTime.second}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayTime: {
                         ...sessionRuleData.delayTime,
-                        seconds: parseInt(event.target.value, 10),
+                        second: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -275,15 +267,15 @@ function SessionRuleCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (hours)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.delayFreeTime.hours}
+                  label="Delay Time (hour)"
+                  // name="freeTime.minute"
+                  value={sessionRuleData.delayFreeTime.hour}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayFreeTime: {
                         ...sessionRuleData.delayFreeTime,
-                        hours: parseInt(event.target.value, 10),
+                        hour: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -294,15 +286,15 @@ function SessionRuleCreate() {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (minutes)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.delayFreeTime.minutes}
+                  label="Delay Time (minute)"
+                  // name="freeTime.minute"
+                  value={sessionRuleData.delayFreeTime.minute}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayFreeTime: {
                         ...sessionRuleData.delayFreeTime,
-                        minutes: parseInt(event.target.value, 10),
+                        minute: parseInt(event.target.value, 10),
                       },
                     })
                   }
@@ -313,15 +305,15 @@ function SessionRuleCreate() {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (seconds)"
-                  // name="freeTime.minutes"
-                  value={sessionRuleData.delayFreeTime.seconds}
+                  label="Delay Time (second)"
+                  // name="freeTime.minute"
+                  value={sessionRuleData.delayFreeTime.second}
                   onChange={(event) =>
                     setSessionRuleData({
                       ...sessionRuleData,
                       delayFreeTime: {
                         ...sessionRuleData.delayFreeTime,
-                        seconds: parseInt(event.target.value, 10),
+                        second: parseInt(event.target.value, 10),
                       },
                     })
                   }
