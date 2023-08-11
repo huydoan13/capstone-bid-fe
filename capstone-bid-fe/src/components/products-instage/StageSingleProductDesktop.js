@@ -22,11 +22,25 @@ export default function StageSingleProductDesktop({ product, matches }) {
 
     const [showOptions, setShowOptions] = useState(false);
     const [firstImage, setFirstImage] = useState("");
-
-
+    const user = localStorage.getItem('loginUser');
+    const jsonUser = JSON.parse(user);
+    const [isDialogOpen, setDialogOpen] = useState(false);
+    const isLoggedIn = !!jsonUser && !!jsonUser.Email;
     const handleAuctionButtonClick = () => {
-        window.location.href = "/auction";
+        localStorage.setItem("sessionId", product.sessionId);
+        console.log(product.sessionId)
+        if (isLoggedIn) {
+            // If the user is logged in, show the auction details dialog.
+            window.location.href = "/auction";
+        } else {
+            // If the user is not logged in, show the custom dialog.
+            setDialogOpen(true);
+        }
     };
+
+    // const handleAuctionButtonClick = () => {
+    //     window.location.href = "/auction";
+    // };
 
     useEffect (() => {
         // Extract the first image URL from the server response

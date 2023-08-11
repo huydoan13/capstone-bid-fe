@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
@@ -24,7 +24,8 @@ const MySessionForm = () => {
     const jsonUser = JSON.parse(user);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const isNotPaySelected = selectedOption === 'notpay';
+    const isNotPaySelected = selectedOption === 'notpay' || 'success' || 'fail';
+    const isSuccessSelected = selectedOption === 'success';
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     function SlideTransition(props) {
@@ -33,11 +34,11 @@ const MySessionForm = () => {
 
 
 
-    const apiNotStart = `https://bids-online.azurewebsites.net/api/Sessions/by_not_start_user/${jsonUser.Id}`;
-    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user/${jsonUser.Id}`;
-    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user/${jsonUser.Id}`;
-    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user/${jsonUser.Id}`;
-    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user/${jsonUser.Id}`;
+    const apiNotStart = `https://bids-online.azurewebsites.net/api/Sessions/by_not_start_user?id=${jsonUser.Id}`;
+    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user?id=${jsonUser.Id}`;
+    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
+    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user?id=${jsonUser.Id}`;
+    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user?id=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -46,6 +47,7 @@ const MySessionForm = () => {
     useEffect(() => {
         setCurrentPage(1); // Reset current page when items change
     }, [items]);
+
 
 
     const handleOpenPopup = (item) => {
@@ -236,59 +238,94 @@ const MySessionForm = () => {
                     </List>
                 </Paper>
                 <Paper elevation={5} sx={{ height: '100%', width: isScreenMd ? '100%' : '100%', ml: isScreenMd ? 0 : '1%', mt: '20px' }}>
-                <Box mt={3} mx={3}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <strong style={{ flex: 1 }}>Tên sản phẩm:</strong>
-                        <strong style={{ flex: 1 }}>{selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm:'}</strong>
-                        <strong style={{ flex: 1 }}>{selectedOption === 'notpay' ? 'Giá Cuối Cùng' : 'Bước Giá:'}</strong>
-                        <strong style={{ flex: 1 }}>Thể Loại:</strong>
-                        <strong style={{ flex: 1 }}>Ngày Tạo:</strong>
-                    </div>
-                    <hr style={{ margin: '8px 0' }} /> {/* Add a break line */}
-                    {loading ? (
-                        // Show loading spinner or modal while waiting for response
-                        <div style={{ textAlign: 'center', marginTop: '20px' }}>Đang Tải...</div>
-                    ) : currentItems.length === 0 ? (
-                        // Display "Không Có Sản Phẩm" message when currentItems is empty
-                        <div style={{ textAlign: 'center', marginTop: '20px' }}>Không Có Sản Phẩm</div>
-                    ) : (
-                        // Render the list of products when currentItems is not empty
-                        currentItems.map((item) => (
-                            <div
-                                key={item.itemId}
-                                style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                            >
-                                <div style={{ flex: 1 }}>{item.itemName}</div>
-                                <div style={{ flex: 1 }}>
-                                    {selectedOption === 'notpay'
-                                        ? (item.winner || '-')
-                                        : (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    {selectedOption === 'notpay'
-                                        ? (item.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
-                                        : (item.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
-                                </div>
-                                <div style={{ flex: 1 }}>{item.categoryName}</div>
-                                <div style={{ flex: 1 }}>{formatCreateDate(item.createDate)}</div>
-                                <div>
-                                    <IconButton onClick={() => handleOpenPopup(item)}>
-                                        <MoreOutlinedIcon />
-                                    </IconButton>
-                                </div>
-                            </div>
-                        ))
-                    )}
-                    <Pagination
-                        count={Math.ceil(items.length / itemsPerPage)}
-                        page={currentPage}
-                        onChange={handlePageChange}
-                        color="primary"
-                        size="large"
-                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
-                    />
-                </Box>
-            </Paper>
+                    <Box mt={3} mx={3}>
+                        <TableContainer>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Tên sản phẩm</TableCell>
+                                        <TableCell>
+                                            {selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
+                                        </TableCell>
+                                        <TableCell>
+                                            {selectedOption === 'notpay' ? 'Giá Cuối Cùng' : 'Bước Giá'}
+                                        </TableCell>
+                                        <TableCell>Thể Loại</TableCell>
+                                        <TableCell>Ngày Tạo</TableCell>
+                                        <TableCell> </TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {loading ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center">
+                                                Đang Tải...
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : currentItems.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} align="center">
+                                                Không Có Sản Phẩm
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        (selectedOption === 'waiting' || selectedOption === 'instate') ?
+                                            currentItems.map((item) => (
+                                                <TableRow key={item.itemId}>
+                                                    <TableCell>{item.itemName}</TableCell>
+                                                    <TableCell>
+                                                        {selectedOption === 'notpay'
+                                                            ? (item.winner || '-')
+                                                            : (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {selectedOption === 'notpay'
+                                                            ? (item.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
+                                                            : (item.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
+                                                    </TableCell>
+                                                    <TableCell>{item.categoryName}</TableCell>
+                                                    <TableCell>{formatCreateDate(item.createDate)}</TableCell>
+                                                    <TableCell>
+                                                        <IconButton onClick={() => handleOpenPopup(item)}>
+                                                            <MoreOutlinedIcon />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )) : (
+                                                // Other options (notpay, success, fail):
+                                                currentItems.map((item) => (
+                                                    <TableRow key={item.itemId}>
+                                                        <TableCell>{item?.sessionResponseCompletes?.itemName}</TableCell>
+                                                        <TableCell>
+                                                            {(item.winner || '-')}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {(item.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
+                                                        </TableCell>
+                                                        <TableCell>{item?.sessionResponseCompletes?.categoryName}</TableCell>
+                                                        <TableCell>{formatCreateDate(item.createDate)}</TableCell>
+                                                        <TableCell>
+                                                            <IconButton onClick={() => handleOpenPopup(item)}>
+                                                                <MoreOutlinedIcon />
+                                                            </IconButton>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <Pagination
+                            count={Math.ceil(items.length / itemsPerPage)}
+                            page={currentPage}
+                            onChange={handlePageChange}
+                            color="primary"
+                            size="large"
+                            sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                        />
+                    </Box>
+                </Paper>
             </Box>
 
             <Dialog
@@ -315,39 +352,61 @@ const MySessionForm = () => {
                 {selectedItem && (
                     <>
                         <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
-                            <ImageProduct sx={{ mr: 4 }}>
-                                <ProductImageBig
-                                    src={selectedItem.images?.[selectedImageIndex]?.detail || ''}
-                                    alt={`Big Image`}
-                                />
-                                <ProductImageSmallWrapper>
-                                    {selectedItem.images?.map((image, index) => (
-                                        <ProductImageSmall
-                                            key={index}
-                                            src={image.detail}
-                                            alt={`Image ${index + 1}`}
-                                            onClick={() => handleImageClick(index)}
-                                        />
-                                    ))}
-                                </ProductImageSmallWrapper>
-                            </ImageProduct>
+
+                            {isNotPaySelected ? (
+                                <ImageProduct sx={{ mr: 4 }}>
+                                    <ProductImageBig
+                                        src={selectedItem?.sessionResponseCompletes?.images?.[selectedImageIndex]?.detail || ''}
+                                        alt={`Big Image`}
+                                    />
+                                    <ProductImageSmallWrapper>
+                                        {selectedItem?.sessionResponseCompletes?.images?.map((images, index) => (
+                                            <ProductImageSmall
+                                                key={index}
+                                                src={images.detail}
+                                                alt={`Image ${index + 1}`}
+                                                onClick={() => handleImageClick(index)}
+                                            />
+                                        ))}
+                                    </ProductImageSmallWrapper>
+                                </ImageProduct>
+                            ) : (
+
+                                <ImageProduct sx={{ mr: 4 }}>
+                                    <ProductImageBig
+                                        src={selectedItem.images?.[selectedImageIndex]?.detail || ''}
+                                        alt={`Big Image`}
+                                    />
+                                    <ProductImageSmallWrapper>
+                                        {selectedItem.images?.map((image, index) => (
+                                            <ProductImageSmall
+                                                key={index}
+                                                src={image.detail}
+                                                alt={`Image ${index + 1}`}
+                                                onClick={() => handleImageClick(index)}
+                                            />
+                                        ))}
+                                    </ProductImageSmallWrapper>
+                                </ImageProduct>
+                            )}
                             <ProductDetailInfoWrapper>
                                 <Table>
                                     <TableBody>
-                                        <TableRow>
-                                            <TableCell>
-                                                <TableLabel>Tên sản phẩm:</TableLabel>
-                                            </TableCell>
-                                            <TableCell>{selectedItem.itemName}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>
-                                                <TableLabel>Mô Tả sản phẩm:</TableLabel>
-                                            </TableCell>
-                                            <TableCell>{selectedItem.descriptionDetail}</TableCell>
-                                        </TableRow>
+
                                         {isNotPaySelected ? (
                                             <>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Tên sản phẩm:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.itemName}</TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Mô Tả sản phẩm:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.description}</TableCell>
+                                                </TableRow>
                                                 <TableRow>
                                                     <TableCell>
                                                         <TableLabel>Người Thắng Cuộc:</TableLabel>
@@ -361,18 +420,42 @@ const MySessionForm = () => {
                                                         <TableLabel>Giá Cuối Cùng:</TableLabel>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {selectedItem.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                        {selectedItem?.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
                                                     </TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Thể Loại:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.categoryName}</TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Ngày Tạo:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
                                                 </TableRow>
                                             </>
                                         ) : (
                                             <>
                                                 <TableRow>
                                                     <TableCell>
+                                                        <TableLabel>Tên sản phẩm:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem.itemName}</TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Mô Tả sản phẩm:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem?.description}</TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
                                                         <TableLabel>Giá Khởi điểm:</TableLabel>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {selectedItem?.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                        {selectedItem.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
                                                     </TableCell>
                                                 </TableRow>
                                                 <TableRow>
@@ -380,23 +463,24 @@ const MySessionForm = () => {
                                                         <TableLabel>Bước Giá:</TableLabel>
                                                     </TableCell>
                                                     <TableCell>
-                                                        {selectedItem.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                        {selectedItem?.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
                                                     </TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Thể Loại:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{selectedItem?.categoryName}</TableCell>
+                                                </TableRow>
+                                                <TableRow>
+                                                    <TableCell>
+                                                        <TableLabel>Ngày Tạo:</TableLabel>
+                                                    </TableCell>
+                                                    <TableCell>{formatCreateDate(selectedItem?.createDate)}</TableCell>
                                                 </TableRow>
                                             </>
                                         )}
-                                        <TableRow>
-                                            <TableCell>
-                                                <TableLabel>Thể Loại:</TableLabel>
-                                            </TableCell>
-                                            <TableCell>{selectedItem.categoryName}</TableCell>
-                                        </TableRow>
-                                        <TableRow>
-                                            <TableCell>
-                                                <TableLabel>Ngày Tạo:</TableLabel>
-                                            </TableCell>
-                                            <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
-                                        </TableRow>
+
                                     </TableBody>
                                 </Table>
                                 {showButtonInDialog && (

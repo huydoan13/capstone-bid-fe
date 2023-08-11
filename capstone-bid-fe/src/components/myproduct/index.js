@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
@@ -32,10 +32,10 @@ const MyProductForm = () => {
 
 
 
-    const apiUrlWaiting = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_watting/${jsonUser.Id}`;
-    const apiUrlApproved = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_accepted/${jsonUser.Id}`;
-    const apiUrlWaitingSession = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_waiting_create_session/${jsonUser.Id}`;
-    const apiUrlCancelled = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_denied/${jsonUser.Id}`;
+    const apiUrlWaiting = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_watting?id=${jsonUser.Id}`;
+    const apiUrlApproved = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_accepted?id=${jsonUser.Id}`;
+    const apiUrlWaitingSession = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_waiting_create_session?id=${jsonUser.Id}`;
+    const apiUrlCancelled = `https://bids-online.azurewebsites.net/api/BookingItems/by_user_denied?id=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -227,53 +227,61 @@ const MyProductForm = () => {
                     </List>
                 </Paper>
                 <Paper elevation={5} sx={{ height: '100%', width: isScreenMd ? '100%' : '100%', ml: isScreenMd ? 0 : '1%', mt: '20px' }}>
-                    <Box mt={3} mx={3}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <strong style={{ flex: 1 }}>Tên sản phẩm:</strong>
-                            <strong style={{ flex: 1 }}>Giá Khởi điểm:</strong>
-                            <strong style={{ flex: 1 }}>Bước Giá:</strong>
-                            <strong style={{ flex: 1 }}>Thể Loại:</strong>
-                            <strong style={{ flex: 1 }}>Ngày Tạo:</strong>
-                        </div>
-                        <hr style={{ margin: '8px 0' }} /> {/* Add a break line */}
-                        {loading ? (
-                            // Show loading spinner or modal while waiting for response
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>Đang Tải...</div>
-                        ) : currentItems.length === 0 ? (
-                            // Display "Không Có Sản Phẩm" message when currentItems is empty
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>Không Có Sản Phẩm</div>
-                        ) : (
-                            // Render the list of products when currentItems is not empty
-                            currentItems.map((item) => (
-                                <div
-                                    key={item.itemId}
-                                    style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                                >
-                                    <div style={{ flex: 1 }}>{item.itemName}</div>
-                                    <div style={{ flex: 1 }}>
-                                        {item.firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                                    </div>
-                                    <div style={{ flex: 1 }}>{item.stepPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
-                                    <div style={{ flex: 1 }}>{item.categoryName}</div>
-                                    <div style={{ flex: 1 }}>{formatCreateDate(item.createDate)}</div>
-                                    <div>
-                                        <IconButton onClick={() => handleOpenPopup(item)}>
-                                            <MoreOutlinedIcon />
-                                        </IconButton>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                        <Pagination
-                            count={Math.ceil(items.length / itemsPerPage)}
-                            page={currentPage}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="large"
-                            sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
-                        />
-                    </Box>
-                </Paper>
+            <Box mt={3} mx={3}>
+                <TableContainer>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Tên sản phẩm</TableCell>
+                                <TableCell>Giá Khởi điểm</TableCell>
+                                <TableCell>Bước Giá</TableCell>
+                                <TableCell>Thể Loại</TableCell>
+                                <TableCell>Ngày Tạo</TableCell>
+                                <TableCell> </TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {loading ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} align="center">
+                                        Đang Tải...
+                                    </TableCell>
+                                </TableRow>
+                            ) : currentItems.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} align="center">
+                                        Không Có Sản Phẩm
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                currentItems.map((item) => (
+                                    <TableRow key={item.itemId}>
+                                        <TableCell>{item.itemName}</TableCell>
+                                        <TableCell>{item.firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                                        <TableCell>{item.stepPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                                        <TableCell>{item.categoryName}</TableCell>
+                                        <TableCell>{formatCreateDate(item.createDate)}</TableCell>
+                                        <TableCell>
+                                            <IconButton onClick={() => handleOpenPopup(item)}>
+                                                <MoreOutlinedIcon />
+                                            </IconButton>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <Pagination
+                    count={Math.ceil(items.length / itemsPerPage)}
+                    page={currentPage}
+                    onChange={handlePageChange}
+                    color="primary"
+                    size="large"
+                    sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                />
+            </Box>
+        </Paper>
             </Box>
 
             <Dialog
