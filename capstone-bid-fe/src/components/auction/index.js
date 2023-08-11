@@ -108,13 +108,15 @@ const AuctionForm = () => {
     try {
       const response = await axios.get(api, { headers: { Authorization: `Bearer ${token}` } });
       setAuctionData(response.data);
-
-      // Calculate the remaining time until the endTime in seconds
-      const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
-      if (remainingTime <= auctionData[0]?.freeTime) {
-        setCurrentDelayTime(response.data[0]?.delayFreeTime);
-      } else {
-        setCurrentDelayTime(response.data[0]?.delayTime);
+  
+      if (response.data.length > 0) {
+        const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
+  
+        if (remainingTime <= response.data[0]?.freeTime) {
+          setCurrentDelayTime(response.data[0]?.delayFreeTime);
+        } else {
+          setCurrentDelayTime(response.data[0]?.delayTime);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -278,16 +280,18 @@ const AuctionForm = () => {
 
   useEffect(() => {
     const checkAuctionEnd = () => {
-      const currentTime = moment();
-      const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
-      if (auctionEndTime.isBefore(currentTime)) {
-        handleGoBack(); // Call the API to update the session status and check if the user is the winner
-        setIsIntervalActive(false); // Disable the interval once the auction ends
+      if (auctionData && auctionData[0]) { // Check if auctionData is not null and has at least one element
+        const currentTime = moment();
+        const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
+        if (auctionEndTime.isBefore(currentTime)) {
+          handleGoBack(); // Call the API to update the session status and check if the user is the winner
+          setIsIntervalActive(false); // Disable the interval once the auction ends
+        }
       }
     };
-
+  
     let interval = null;
-
+  
     if (isIntervalActive) {
       interval = setInterval(() => {
         fetchAuctionData();
@@ -295,7 +299,7 @@ const AuctionForm = () => {
         checkAuctionEnd(); // Check if the auction has ended on each interval
       }, 5000);
     }
-
+  
     return () => {
       clearInterval(interval); // Clear the interval on cleanup
     };
