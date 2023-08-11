@@ -52,34 +52,6 @@ const SignUpForm = () => {
     console.log(`File uploading: ${progress}% complete.`)
   }
 
-  const isValidImageURL = async (url) => {
-    try {
-      const response = await axios.get(url, {
-        responseType: 'blob',
-      });
-
-      const image = new Image();
-      image.src = URL.createObjectURL(response.data);
-
-      return new Promise((resolve, reject) => {
-        image.onload = () => {
-          URL.revokeObjectURL(image.src);
-
-          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-          const isTypeAllowed = allowedTypes.includes(image.type);
-          const isSizeValid = response.headers['content-length'] <= MAX_FILE_SIZE;
-
-          resolve(isTypeAllowed && isSizeValid);
-        };
-
-        image.onerror = () => {
-          reject(new Error('Failed to load the image.'));
-        };
-      });
-    } catch (error) {
-      return false; // Return false if there was an error fetching the image
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,20 +80,6 @@ const SignUpForm = () => {
       return;
     }
 
-    if (!isValidImageURL(avatar)) {
-      setError('Hình ảnh đại diện không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
-
-    if (!isValidImageURL(cccdfrontImage)) {
-      setError('Hình ảnh mặt trước CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
-
-    if (!isValidImageURL(cccdbackImage)) {
-      setError('Hình ảnh mặt sau CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
@@ -304,8 +262,20 @@ const SignUpForm = () => {
         sx={{ width: '100%' }}
         id="cccdnumber"
       />
-      <h2>Ảnh Đại Diện</h2>
-      <input type="file" accept="image/*" onChange={(e) => onFileSelected(e, setAvatar)} />
+       <h2>Ảnh Đại Diện</h2>
+      <UploadDropzone uploader={uploader}       // Required.
+        width="600px"             // Optional.
+        height="375px"            // Optional.
+        onUpdate={files => {      // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.')
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map(f => f.fileUrl).join("\n"));
+            const avatarimg = files.map(f => f.fileUrl).join("\n");
+            setAvatar(avatarimg);
+          }
+        }} />
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
