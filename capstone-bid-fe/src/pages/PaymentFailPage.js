@@ -9,12 +9,12 @@ import Footer from '../components/footer';
 import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
-import StageProducts from '../components/products-instage/Stage-product';
 import Cart from '../components/cart';
+import PaymentFailForm from '../components/payment-fail-form';
 
 
 
-function HomePage() {
+function PaymentFailPage() {
 
     return (
         <Container
@@ -25,10 +25,7 @@ function HomePage() {
         >
             <UIProvider>
                 <Appbar />
-                <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography background variant="h4">Tài Sản Đang Được đấu giá</Typography>
-                </Box>
-                <StageProducts />
+                <PaymentFailForm />
                 <Cart/>
                 <Footer />
                 <AppDrawer />
@@ -39,4 +36,4 @@ function HomePage() {
     );
 }
 
-export default HomePage;
+export default PaymentFailPage;

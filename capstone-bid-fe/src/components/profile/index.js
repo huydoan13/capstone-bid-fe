@@ -28,8 +28,8 @@ const ProfilePage = () => {
     const otpInputRef = useRef('');
 
     const ChangePasswordApi = `https://bids-online.azurewebsites.net/api/Users/update_password/${jsonUser.Id}`
-    const api = `https://bids-online.azurewebsites.net/api/Users/${jsonUser.Id}`
-    const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email/${jsonUser.Email}`
+    const api = `https://bids-online.azurewebsites.net/api/Users/by_id?id=${jsonUser.Id}`
+    const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${jsonUser.Email}`
     const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
 
 

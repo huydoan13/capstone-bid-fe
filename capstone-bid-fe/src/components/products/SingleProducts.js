@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import FavoriteIcon from "@mui/icons-material/Favorite"
 import ShareIcon from "@mui/icons-material/Share"
 import FitScreenIcon from "@mui/icons-material/FitScreen"
+import styled from "@emotion/styled";
 import useDialogModal from "../../hooks/useDialogModal";
 import { Product, ProductActionButton, ProductActionsWrapper, ProductAddToCart, ProductFavButton, ProductImage } from "../../style/Products";
 import ProductMeta from "./ProductMeta";
 import ProductDetail from "../productdetail";
+
+import { Colors } from "../../style/theme";
 
 export default function SingleProducts({ product, matches }) {
     const [ProductDetailDialog, showProductDetailDialog, closeProductDialog] =
@@ -21,6 +24,22 @@ export default function SingleProducts({ product, matches }) {
     const handleMouseLeave = () => {
         setShowOptions(false);
     };
+
+    const HomeProductImage = styled('img')(({ src, theme }) => ({
+
+        src: `url(${src})`,
+        width: '350px',
+        height: '350px',
+        background: Colors.light_gray,
+        padding: '1%',
+        [theme.breakpoints.down('md')]: {
+    
+            width: '100%',
+            height: '300px',
+            padding: '2%',
+        }
+    
+    }));
     useEffect(() => {
         // Extract the first image URL from the server response
         if (product.images && product.images.length > 0) {
@@ -31,7 +50,7 @@ export default function SingleProducts({ product, matches }) {
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
                 
-            {firstImage && <ProductImage src={firstImage} />}
+            {firstImage && <HomeProductImage src={firstImage} />}
                 <ProductMeta product={product} matches={matches} />
                 <ProductActionsWrapper>
                     <Stack direction={matches ? "row" : "column"}>

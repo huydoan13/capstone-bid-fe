@@ -41,6 +41,10 @@ import BookingItemNoSe from './pages/BookingItemNoSe';
 import MyProductPage from './pages/MyProductPage';
 import MySessionPage from './pages/MySessionPage';
 import MyHistoryPage from './pages/MyHistoryPage';
+import ShoppingCartPage from './pages/ShoppingCartPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailPage from './pages/PaymentFailPage';
+import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 
 // ----------------------------------------------------------------------
 
@@ -64,6 +68,10 @@ export default function Router() {
     { path: 'myproduct', element: <MyProductPage />},
     { path: 'mysession', element: <MySessionPage />},
     { path: 'myhistory', element: <MyHistoryPage />},
+    { path: 'shoppingcart', element: <ShoppingCartPage />},
+    { path: 'payment-join-success', element: <PaymentSuccessJoinPage /> },
+    { path: 'payment-success/:sessionId', element: <PaymentSuccessPage /> },
+    { path: 'payment-fail', element: <PaymentFailPage />},
     
     {
       path: '/dashboard',

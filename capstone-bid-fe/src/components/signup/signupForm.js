@@ -26,8 +26,31 @@ const SignUpForm = () => {
 
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  const uploader = Uploader({ apiKey: "public_12a1yW8CfSB17vqBf8dhYpVr4Brk" });
 
+
+  const onFileSelected = async (event, setImageState) => {
+    const [file] = event.target.files;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress({ progress });
+        },
+      });
+
+      alert(`File uploaded: ${response.data.fileUrl}`);
+      setImageState(response.data.fileUrl);
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+  const onProgress = ({ progress }) => {
+    console.log(`File uploading: ${progress}% complete.`)
+  }
 
   const isValidImageURL = async (url) => {
     try {
@@ -282,19 +305,7 @@ const SignUpForm = () => {
         id="cccdnumber"
       />
       <h2>Ảnh Đại Diện</h2>
-      <UploadDropzone uploader={uploader}       // Required.
-        width="600px"             // Optional.
-        height="375px"            // Optional.
-        onUpdate={files => {      // Optional.
-          if (files.length === 0) {
-            console.log('No files selected.')
-          } else {
-            console.log('Files uploaded:');
-            console.log(files.map(f => f.fileUrl).join("\n"));
-            const avatarimg = files.map(f => f.fileUrl).join("\n");
-            setAvatar(avatarimg);
-          }
-        }} />
+      <input type="file" accept="image/*" onChange={(e) => onFileSelected(e, setAvatar)} />
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.

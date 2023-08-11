@@ -22,10 +22,10 @@ export const Bannerimage = styled('img')(({src,theme}) => ({
     src:`url(${src})`,
     width: '500px',
     [theme.breakpoints.down('md')]: {
-        width: '350px',
+        width: '100%',
     },
     [theme.breakpoints.down('sm')]: {
-        width: '320px',
+        width: '100%',
         height: '300px'
     }
     
