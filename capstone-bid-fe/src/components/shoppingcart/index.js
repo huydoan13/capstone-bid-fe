@@ -87,13 +87,6 @@ const ShoppingCartForm = () => {
                 <Table sx={{ maxWidth: '100%' }} aria-label="spanning table">
                     <TableHead>
                         <TableRow>
-                            <TableCell align="center" colSpan={3}>
-                                Thông tin chi tiết
-                            </TableCell>
-                            <TableCell align="right">Giá</TableCell>
-                            <TableCell > </TableCell>
-                        </TableRow>
-                        <TableRow>
                             {/* Checkbox column */}
                             <TableCell align="center">Hình ảnh</TableCell>
                             <TableCell>Tên Sản Phẩm</TableCell>
