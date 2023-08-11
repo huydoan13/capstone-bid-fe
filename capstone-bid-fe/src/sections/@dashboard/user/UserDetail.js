@@ -34,6 +34,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getUserById, getStatusLabel, getRoleLabel } from '../../../services/user-actions';
 import { banUser } from '../../../services/staff-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 const UserDetail = () => {
   const { userId } = useParams();
@@ -54,7 +55,6 @@ const UserDetail = () => {
     boxShadow: 24,
     p: 5,
     display: 'flex',
-
   };
 
   const imageContainerStyle = {
@@ -133,12 +133,28 @@ const UserDetail = () => {
   };
 
   useEffect(() => {
-    getUserById(userId).then((res) => {
-      setUserDetail(res.data);
-      console.log(res.data);
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/users/by_id', {
+        params: { id: userId },
+      });
+      console.log(response);
+      setUserDetail(response.data);
       setLoading(false);
-    });
+      }
+      catch (error) {
+        console.log(error);
+      }
+    })();
   }, [userId]);
+
+  // useEffect(() => {
+  //   getUserById(userId).then((res) => {
+  //     setUserDetail(res.data);
+  //     console.log(res.data);
+  //     setLoading(false);
+  //   });
+  // }, [userId]);
 
   if (loading) {
     return <div>Loading...</div>;

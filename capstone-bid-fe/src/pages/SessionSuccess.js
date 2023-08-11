@@ -34,7 +34,7 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -329,49 +329,13 @@ export default function SessionSuccess() {
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
-                            anchorEl={anchorEl}
-                            // open={Boolean(open)}
-                            // anchorEl={open}
-                            onClose={handleCloseMenu}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                            PaperProps={{
-                              sx: {
-                                p: 1,
-                                width: 140,
-                                '& .MuiMenuItem-root': {
-                                  px: 1,
-                                  typography: 'body2',
-                                  borderRadius: 0.75,
-                                },
-                              },
-                            }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.sessionId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
-                              sx={{ color: 'error.main' }}
+                          <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                            <Button
                             >
-                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>

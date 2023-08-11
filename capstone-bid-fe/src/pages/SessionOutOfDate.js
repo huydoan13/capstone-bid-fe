@@ -33,7 +33,7 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -282,7 +282,7 @@ export default function SessionOutOfDate() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finailPrice, status } = row;
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } = row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -302,9 +302,9 @@ export default function SessionOutOfDate() {
 
                         <TableCell align="left">{sessionName}</TableCell>
                         <TableCell align="left">{feeName}</TableCell>
-                        <TableCell align="left">{finailPrice}</TableCell>
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        <TableCell align="left">{auctionTime}</TableCell>
+                        <TableCell align="left">{formatDate(endTime)}</TableCell>
+                        <TableCell align="left">{finalPrice}</TableCell>
                         {/* <TableCell align="left">{address}</TableCell> */}
                         {/* <TableCell align="left">{phone}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
@@ -313,51 +313,14 @@ export default function SessionOutOfDate() {
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
-                            <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
-                            anchorEl={anchorEl}
-                            // open={Boolean(open)}
-                            // anchorEl={open}
-                            onClose={handleCloseMenu}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                            PaperProps={{
-                              sx: {
-                                p: 1,
-                                width: 140,
-                                '& .MuiMenuItem-root': {
-                                  px: 1,
-                                  typography: 'body2',
-                                  borderRadius: 0.75,
-                                },
-                              },
-                            }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
-                              sx={{ color: 'error.main' }}
+                          <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                            <Button
                             >
-                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
+                          </Link>
                         </TableCell>
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
                     );
                   })}

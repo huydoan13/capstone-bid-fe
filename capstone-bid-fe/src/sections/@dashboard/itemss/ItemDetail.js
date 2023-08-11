@@ -31,6 +31,7 @@ import {
 import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getItemById } from '../../../services/item-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 const ItemDetail = () => {
   const { itemId } = useParams();
@@ -100,11 +101,19 @@ const ItemDetail = () => {
   };
 
   useEffect(() => {
-    getItemById(itemId).then((res) => {
-      setItemDetail(res.data);
-      console.log(res.data);
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/items/by_id', {
+        params: { id: itemId },
+      });
+      console.log(response);
+      setItemDetail(response.data);
       setLoading(false);
-    });
+      }
+      catch (error) {
+        console.log(error);
+      }
+    })();
   }, [itemId]);
 
   if (loading) {

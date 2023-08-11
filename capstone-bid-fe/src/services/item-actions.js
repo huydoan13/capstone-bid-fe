@@ -9,12 +9,12 @@ export async function getAllItems() {
 }
 
 export async function getItemById(id) {
-    const url = `${BASE_URL}/items/${id}`;
+    const url = `${BASE_URL}/items?id=${id}`;
     return axiosInstance.get(url);
 }
 
 export async function deleteItems(id) {
-    const url = `${BASE_URL}/items/${id}`;
+    const url = `${BASE_URL}/items?id=${id}`;
     try {
         axiosInstance.delete(url, { data: { id } });
         console.log(`Deleted Items: ${id}`);

@@ -267,7 +267,7 @@ function SessionRuleCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (hour)"
+                  label="Thời gian trì hoãn (giờ)"
                   // name="freeTime.minute"
                   value={sessionRuleData.delayFreeTime.hour}
                   onChange={(event) =>
@@ -286,7 +286,7 @@ function SessionRuleCreate() {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (minute)"
+                  label="Thời gian trì hoãn (phút)"
                   // name="freeTime.minute"
                   value={sessionRuleData.delayFreeTime.minute}
                   onChange={(event) =>
@@ -305,7 +305,7 @@ function SessionRuleCreate() {
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Delay Time (second)"
+                  label="Thời gian trì hoãn (giây)"
                   // name="freeTime.minute"
                   value={sessionRuleData.delayFreeTime.second}
                   onChange={(event) =>
