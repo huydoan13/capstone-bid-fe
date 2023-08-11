@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import { Avatar, Badge, Box, Divider, IconButton, ListItemButton, ListItemIcon, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
@@ -5,10 +6,8 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
-import React from "react";
-import NotificationsUserPopover from "../../layouts/dashboard/header/NotificationsUserPopover";
-import React, { useEffect, useState } from "react";
 import axios from "axios";
+import NotificationsUserPopover from "../../layouts/dashboard/header/NotificationsUserPopover";
 import LogoutFuncion from "../../services/LogoutFunction";
 import { MyList, ActionIconsContainerMobile, ActionIconsContainerDesktop } from "../../style/appbar";
 import { Colors } from "../../style/theme";
