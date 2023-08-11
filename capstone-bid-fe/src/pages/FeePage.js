@@ -479,7 +479,7 @@ export default function FeePage() {
                         />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Phí đặt cọc" defaultValue={feeDetail.depositFee?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} onChange={(e) => setFeeDetail({...feeDetail, depositFee: parseFloat(e.target.value)})} />
+                        <TextField label="Phí đặt cọc" defaultValue={`${(feeDetail.depositFee * 100).toFixed(2)}%`} onChange={(e) => setFeeDetail({...feeDetail, depositFee: parseFloat(e.target.value)})} />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Phí hoa hồng" defaultValue={`${(feeDetail.surcharge * 100).toFixed(2)}%`} onChange={(e) => setFeeDetail({...feeDetail, surcharge: parseFloat(e.target.value)})} />

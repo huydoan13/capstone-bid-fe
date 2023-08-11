@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
@@ -31,18 +31,12 @@ const MyHistoryForm = () => {
 
 
 
-    function SlideTransition(props) {
-        return <Slide direction="down" {...props} />;
-    }
-
-
-
     const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
     const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
-    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user/${jsonUser.Id}`;
-    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user/${jsonUser.Id}`;
-    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user/${jsonUser.Id}`;
-    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user/${jsonUser.Id}`;
+    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user?id=${jsonUser.Id}`;
+    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
+    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user?id=${jsonUser.Id}`;
+    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user?id=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -54,7 +48,7 @@ const MyHistoryForm = () => {
 
     console.log(items[0]?.sessionId);
 
-    const handleOpenPopup = (item) => {
+    const handleOpenPopup = (sessionId) => {
         // Fetch the item details using the API
 
         let apiUrl;
@@ -62,11 +56,11 @@ const MyHistoryForm = () => {
         if (selectedOption === 'instate') {
             apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
         } else if (selectedOption === 'notpay') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
         } else if (selectedOption === 'success') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
         } else if (selectedOption === 'fail') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
         }
 
         axios
@@ -107,10 +101,6 @@ const MyHistoryForm = () => {
             });
     };
 
-    const ProductImageSmallWrapper = styled(Box)({
-        display: "flex",
-        gap: "8px", // Add some space between small images
-    });
 
     const formatCreateDate = (createDate) => {
         return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
@@ -126,34 +116,7 @@ const MyHistoryForm = () => {
     const endIndex = startIndex + itemsPerPage;
     const currentItems = items.slice(startIndex, endIndex);
 
-    const handleImageClick = (index) => {
-        setSelectedImageIndex(index);
-    };
 
-
-    const ProductDetailWrapper = styled(Box)(({ theme }) => ({
-        display: "flex",
-        padding: theme.spacing(4),
-    }));
-
-
-    const TableLabel = styled(Typography)({
-        fontWeight: 'bold',
-    });
-
-
-    const ImageProduct = styled(Box)(({ theme }) => ({
-        width: '50%',
-        height: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'column',
-        [theme.breakpoints.down('md')]: {
-            width: '100%',
-            position: 'relative'
-        },
-    }));
     const Product = styled(Box)(({ theme }) => ({
         display: 'flex',
         flexDirection: 'column',
@@ -175,6 +138,9 @@ const MyHistoryForm = () => {
             position: 'sticky',
             top: 0,
             background: '#f9f9f9',
+        },
+        [theme.breakpoints.down('md')]: {
+            width: '100%',
         },
     });
 
@@ -216,59 +182,75 @@ const MyHistoryForm = () => {
                         </ListOptionItem>
                     </List>
                 </Paper>
-                <Paper elevation={5} sx={{ height: '100%', width: isScreenMd ? '100%' : '100%', ml: isScreenMd ? 0 : '1%', mt: '20px' }}>
-                    <Box mt={3} mx={3}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <strong style={{ flex: 1 }}>Tên sản phẩm:</strong>
-                            <strong style={{ flex: 1 }}>{selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm:'}</strong>
-                            <strong style={{ flex: 1 }}>{selectedOption === 'notpay' ? 'Giá Cuối Cùng' : 'Bước Giá:'}</strong>
-                            <strong style={{ flex: 1 }}>Thể Loại:</strong>
-                            <strong style={{ flex: 1 }}>Ngày Tạo:</strong>
-                        </div>
-                        <hr style={{ margin: '8px 0' }} /> {/* Add a break line */}
-                        {loading ? (
-                            // Show loading spinner or modal while waiting for response
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>Đang Tải...</div>
-                        ) : currentItems.length === 0 ? (
-                            // Display "Không Có Sản Phẩm" message when currentItems is empty
-                            <div style={{ textAlign: 'center', marginTop: '20px' }}>Không Có Sản Phẩm</div>
-                        ) : (
-                            // Render the list of products when currentItems is not empty
-                            currentItems.map((item) => (
-                                <div
-                                    key={item.itemId}
-                                    style={{ marginBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                                >
-                                    <div style={{ flex: 1 }}>{item.itemName}</div>
-                                    <div style={{ flex: 1 }}>
-                                        {selectedOption === 'notpay'
-                                            ? (item.winner || '-')
-                                            : (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
-                                    </div>
-                                    <div style={{ flex: 1 }}>
-                                        {selectedOption === 'notpay'
-                                            ? (item.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
-                                            : (item.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
-                                    </div>
-                                    <div style={{ flex: 1 }}>{item.categoryName}</div>
-                                    <div style={{ flex: 1 }}>{formatCreateDate(item.createDate)}</div>
-                                    <div>
-                                        <IconButton onClick={() => handleOpenPopup(item)}>
-                                            <MoreOutlinedIcon />
-                                        </IconButton>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                        <Pagination
-                            count={Math.ceil(items.length / itemsPerPage)}
-                            page={currentPage}
-                            onChange={handlePageChange}
-                            color="primary"
-                            size="large"
-                            sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
-                        />
-                    </Box>
+                <Paper  sx={{width:'100%'}}>
+                    <TableContainer sx={{width:'100%'}}>
+                        <Table stickyHeader aria-label="simple table">
+                            <TableHead >
+                                <TableRow>
+                                    <TableCell>Tên sản phẩm</TableCell>
+                                    <TableCell>
+                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success'
+                                            ? 'Người Thắng Cuộc'
+                                            : 'Giá Khởi điểm'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success'
+                                            ? 'Giá Cuối Cùng'
+                                            : 'Giá Hiện Tại'}
+                                    </TableCell>
+                                    <TableCell>Thể Loại</TableCell>
+                                    <TableCell>Ngày Tạo</TableCell>
+
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center">
+                                            Đang Tải...
+                                        </TableCell>
+                                    </TableRow>
+                                ) : currentItems.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={6} align="center">
+                                            Không Có Sản Phẩm
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    currentItems.map((item) => (
+                                        <TableRow key={item.itemId}>
+                                            <TableCell>{selectedOption === 'instate' ? item.itemName : item?.sessionResponseCompletes?.itemName}</TableCell>
+                                            <TableCell>
+                                                {selectedOption === 'instate'
+                                                    ? (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
+                                                    : (item.winner || '-')}
+                                            </TableCell>
+                                            <TableCell>
+                                                {selectedOption === 'instate'
+                                                    ? (item.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
+                                                    : (item.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
+                                            </TableCell>
+                                            <TableCell>{selectedOption === 'instate' ? item.categoryName : item?.sessionResponseCompletes?.categoryName}</TableCell>
+                                            <TableCell>{formatCreateDate(item.createDate)}</TableCell>
+                                            <TableCell>
+                                                <IconButton onClick={() => handleOpenPopup(selectedOption === 'instate' ? item : item.sessionResponseCompletes.sessionId)}>
+                                                    <MoreOutlinedIcon />
+                                                </IconButton>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <Pagination
+                        count={Math.ceil(items.length / itemsPerPage)}
+                        page={currentPage}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="large"
+                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                    />
                 </Paper>
             </Box>
 
@@ -297,7 +279,7 @@ const MyHistoryForm = () => {
                 <DialogContent>
                     {/* Loop through the data and display each item */}
                     <MyTableContainer>
-                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                        <Table aria-label="simple table">
                             <TableHead>
                                 <TableRow>
                                     <TableCell align="center">Người Đấu Giá:</TableCell>

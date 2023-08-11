@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
-import axios from 'axios';
+
 import { Box, TextField, Button, Select, MenuItem, FormControl, InputLabel, Typography, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress } from '@mui/material';
 import styled from '@emotion/styled';
+import axios from 'axios';
 
 const AddProductForm = () => {
   const [itemName, setItemName] = useState('');
@@ -28,7 +29,7 @@ const AddProductForm = () => {
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user)
 
-  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  const uploader = Uploader({ apiKey: "public_12a1yW8CfSB17vqBf8dhYpVr4Brk" });
   const uploaderOptions = {
     multi: true,
 
@@ -364,18 +365,24 @@ const AddProductForm = () => {
 
       {loading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          {/* Add your loading spinner or animation here */}
+
           <CircularProgress color="primary" />
         </div>
       )}
+
       <Button
         variant="contained"
         color="primary"
         size="large"
         type="submit"
         sx={{ display: 'block', mx: 'auto', mt: 4 }}
+        disabled={loading} // Disable the button when loading is true
       >
-        Thêm Sản Phẩm
+        {loading ? ( // Render the loading spinner when loading is true
+          <CircularProgress color="inherit" size={24} />
+        ) : (
+          "Thêm Sản Phẩm" // Show the original button label when not loading
+        )}
       </Button>
 
     </Box>

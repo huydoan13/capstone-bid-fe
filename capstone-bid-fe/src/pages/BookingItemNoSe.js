@@ -51,6 +51,7 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import SessionCreate from '../sections/@dashboard/session/SessionCreate';
+import axiosInstance from '../services/axios-instance';
 
 // ----------------------------------------------------------------------
 
@@ -170,12 +171,29 @@ export default function BookingItemNoSe() {
   });
 
   // lay du lieu tat ca user
+
   useEffect(() => {
-    getBookingItemNoSesssion(user.Email).then((response) => {
-      setBookingItem(response.data);
-      console.log(response.data);
-    });
+    (async () => {
+      try {
+        const response = await axiosInstance.get(
+          'https://bids-online.azurewebsites.net/api/bookingitems/by_staff_to_create_session',
+          { params: { email: user.Email } }
+        );
+        console.log(response);
+        setBookingItem(response.data);
+      } catch (error) {
+        console.log('Failed to fetch: ', error);
+      }
+    })();
   }, []);
+
+  // useEffect(() => {
+  //   getBookingItemNoSesssion(user.Email).then((response) => {
+  //     console.log(response);
+  //     if(response)
+  //     setBookingItem(response.data);
+  //   });
+  // }, []);
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -372,7 +390,9 @@ export default function BookingItemNoSe() {
                             <div>Không có hình</div>
                           )}
                         </TableCell>
-                        <TableCell align="left">{firstPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        <TableCell align="left">
+                          {firstPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{stepPrice}</TableCell>
                         <TableCell align="left">{deposit}</TableCell> */}
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
@@ -385,16 +405,16 @@ export default function BookingItemNoSe() {
                         </TableCell>
 
                         <TableCell align="right">
-                        <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
-                          <Button
+                          <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
+                            <Button
                             // color="secondary"
                             // onClick={() => {
                             //   handleOpenModalWithItem(row.itemId);
                             // }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
+                            >
+                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
+                              Chi tiết
+                            </Button>
                           </Link>
                           {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, itemId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
@@ -511,7 +531,7 @@ export default function BookingItemNoSe() {
                         <TextField label="Số lượng" defaultValue={bookingItemDetail.quantity} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                      <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
+                        <a href={bookingItemDetail.image} target="_blank" rel="noopener noreferrer">
                           <CardMedia
                             component="img"
                             image={bookingItemDetail.image}
@@ -521,10 +541,22 @@ export default function BookingItemNoSe() {
                         </a>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Giá khởi điểm" defaultValue={bookingItemDetail.firstPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Giá khởi điểm"
+                          defaultValue={bookingItemDetail.firstPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField label="Bước nhảy" defaultValue={bookingItemDetail.stepPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          label="Bước nhảy"
+                          defaultValue={bookingItemDetail.stepPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField label="Phí đặt cọc" defaultValue={bookingItemDetail.deposit ? 'Có' : 'Không'} />

@@ -10,8 +10,13 @@ export async function getAllSessions() {
 }
 
 export async function getSessionsById(id) {
-    const url = `${BASE_URL}/sessions/${id}`;
-    return axiosInstance.get(url);
+    const url = `${BASE_URL}/sessions/by_id?id=${id}`;
+    try {
+      axiosInstance.get(url, { data: {id} });
+    }
+    catch (error) {
+      console.log(error);
+    }
 }
 
 export async function getSessionsSuccess() {
@@ -25,7 +30,7 @@ export async function getSessionsNotPay() {
 }
 
 export async function getSessionsOutOfDate() {
-    const url = `${BASE_URL}/sessions/by_out_of_date`;
+    const url = `${BASE_URL}/sessions/by_fail`;
     return axiosInstance.get(url);
 }
 

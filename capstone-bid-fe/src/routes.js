@@ -48,6 +48,10 @@ import UserBanDetail from './sections/@dashboard/user/UserBanDetail';
 import FeeCreate from './sections/@dashboard/fee/FeeCreate';
 import SessionRuleCreate from './sections/@dashboard/session-rule/SessionRuleCreate';
 import SessionDetail from './sections/@dashboard/session/SessionDetail';
+import ShoppingCartPage from './pages/ShoppingCartPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import PaymentFailPage from './pages/PaymentFailPage';
+import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 
 // ----------------------------------------------------------------------
 
@@ -71,6 +75,10 @@ export default function Router() {
     { path: 'myproduct', element: <MyProductPage />},
     { path: 'mysession', element: <MySessionPage />},
     { path: 'myhistory', element: <MyHistoryPage />},
+    { path: 'shoppingcart', element: <ShoppingCartPage />},
+    { path: 'payment-join-success', element: <PaymentSuccessJoinPage /> },
+    { path: 'payment-success/:sessionId', element: <PaymentSuccessPage /> },
+    { path: 'payment-fail', element: <PaymentFailPage />},
     
     {
       path: '/dashboard',

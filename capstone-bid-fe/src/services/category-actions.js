@@ -38,7 +38,7 @@ export async function updateCategory(upCategory) {
 }
 
 export async function deleteCategory(id) {
-    const url = `${BASE_URL}/categorys/${id}`;
+    const url = `${BASE_URL}/categorys?id=${id}`;
     try {
         axiosInstance.delete(url, { data: { id } });
         console.log(`Deleted Categorys: ${id}`);

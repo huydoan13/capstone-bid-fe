@@ -442,8 +442,8 @@ export default function CaterogyPage() {
                     <Grid item md={12} xs={12}>
                       <InputLabel id="demo-simple-select-label">Status</InputLabel>
                       <Select onChange={(e) => setUpCategory({...upCategory, status: e.target.value === 'true' })} value={upCategory.status} label="status" name="status" size="small">
-                        <MenuItem value="true">True</MenuItem>
-                        <MenuItem value="false">False</MenuItem>
+                        <MenuItem value="true">Đang hoạt động</MenuItem>
+                        <MenuItem value="false">Ngưng hoạt động</MenuItem>
                       </Select>
                     </Grid>
                     <Box
@@ -460,7 +460,7 @@ export default function CaterogyPage() {
                         color="primary"
                         variant="contained"
                       >
-                        Update
+                        Cập nhật
                       </Button>
                     </Box>
                     <Box
@@ -471,7 +471,7 @@ export default function CaterogyPage() {
                       }}
                     >
                       <Button onClick={handleCloseModal} color="grey" variant="contained">
-                        Cancel
+                        Hủy
                       </Button>
                     </Box>
                   </Grid>

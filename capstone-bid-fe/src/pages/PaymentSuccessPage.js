@@ -11,10 +11,11 @@ import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
 import StageProducts from '../components/products-instage/Stage-product';
 import Cart from '../components/cart';
+import PaymentSuccessForm from '../components/payment-success-form';
 
 
 
-function HomePage() {
+function PaymentSuccessPage() {
 
     return (
         <Container
@@ -25,10 +26,7 @@ function HomePage() {
         >
             <UIProvider>
                 <Appbar />
-                <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography background variant="h4">Tài Sản Đang Được đấu giá</Typography>
-                </Box>
-                <StageProducts />
+                <PaymentSuccessForm />
                 <Cart/>
                 <Footer />
                 <AppDrawer />
@@ -39,4 +37,4 @@ function HomePage() {
     );
 }
 
-export default HomePage;
+export default PaymentSuccessPage;

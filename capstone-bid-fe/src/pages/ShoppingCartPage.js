@@ -1,6 +1,6 @@
 import { Box, Button, Container, Pagination, Typography } from '@mui/material';
 import React from 'react'
-import theme from '../theme';
+
 import Appbar from '../components/appbar';
 import Banner from '../components/banner';
 import Promotions from '../components/promotions';
@@ -9,12 +9,13 @@ import Footer from '../components/footer';
 import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
-import StageProducts from '../components/products-instage/Stage-product';
+
 import Cart from '../components/cart';
+import ShoppingCartForm from '../components/shoppingcart';
 
 
 
-function HomePage() {
+function ShoppingCartPage() {
 
     return (
         <Container
@@ -26,9 +27,9 @@ function HomePage() {
             <UIProvider>
                 <Appbar />
                 <Box display={"flex"} justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography background variant="h4">Tài Sản Đang Được đấu giá</Typography>
+                    <Typography variant="h4">Giỏ Hàng Của Tôi</Typography>
                 </Box>
-                <StageProducts />
+                <ShoppingCartForm />
                 <Cart/>
                 <Footer />
                 <AppDrawer />
@@ -39,4 +40,4 @@ function HomePage() {
     );
 }
 
-export default HomePage;
+export default ShoppingCartPage;
