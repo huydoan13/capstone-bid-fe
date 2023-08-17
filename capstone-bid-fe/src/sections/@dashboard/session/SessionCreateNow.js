@@ -21,10 +21,10 @@ import { toast } from 'react-toastify';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getAllSessionRule } from '../../../services/session-rule-actions';
-import { createSession } from '../../../services/session-actions';
+import { createSession, createSessionNow } from '../../../services/session-actions';
 import axiosInstance from '../../../services/axios-instance';
 
-function SessionCreate() {
+function SessionCreateNow() {
   const errorStyle = {
     color: 'red',
   };
@@ -83,28 +83,28 @@ function SessionCreate() {
   };
 
   const handleCancelButton = () => {
-    navigate('/dashboard/booking-items');
+    navigate('/dashboard/booking-item-now');
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     try {
-      const localBeginTime = sessionData.beginTime.local().format('YYYY-MM-DDTHH:mm:ss');
-      // const localEndTime = sessionData.endTime.local().format('YYYY-MM-DDTHH:mm:ss');
+      // const localBeginTime = sessionData.beginTime.local().format('YYYY-MM-DDTHH:mm:ss');
+    //   const localEndTime = sessionData.endTime.local().format('YYYY-MM-DDTHH:mm:ss');
 
       const formattedSessionData = {
         ...sessionData,
-        beginTime: localBeginTime,
+        // beginTime: localBeginTime,
         // endTime: localEndTime,
       };
-      const response = await createSession(formattedSessionData, itemId);
+      const response = await createSessionNow(formattedSessionData, itemId);
       // setSessionName('');
       // setSessionRuleId('');
       // setBeginTime('');
       // setEndTime('');
       // if (response.status === 200) {
-      navigate('/dashboard/booking-items');
+      navigate('/dashboard/booking-item-now');
       toast.success('Tạo phiên đấu giá thành công', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
@@ -168,7 +168,7 @@ function SessionCreate() {
                 </FormControl>
               </Grid>
             </Grid>
-            <Grid container spacing={2}>
+            {/* <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <LocalizationProvider fullWidth dateAdapter={AdapterMoment}>
                   <DateTimePicker
@@ -182,7 +182,7 @@ function SessionCreate() {
                   />
                 </LocalizationProvider>
               </Grid>
-              {/* <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}>
                 <LocalizationProvider fullWidth dateAdapter={AdapterMoment}>
                   <DateTimePicker
                     label="Thời gian kết thúc"
@@ -194,8 +194,8 @@ function SessionCreate() {
                     renderInput={(params) => <TextField {...params} />}
                   />
                 </LocalizationProvider>
-              </Grid> */}
-            </Grid>
+              </Grid>
+            </Grid> */}
             {/* <LocalizationProvider dateAdapter={AdapterMoment}>
               <DateTimePicker
                 label="Begin Time"
@@ -235,4 +235,4 @@ function SessionCreate() {
   );
 }
 
-export default SessionCreate;
+export default SessionCreateNow;

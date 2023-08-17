@@ -52,6 +52,8 @@ import ShoppingCartPage from './pages/ShoppingCartPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
+import BookingItemNow from './pages/BookingItemNow';
+import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 
 // ----------------------------------------------------------------------
 
@@ -163,6 +165,7 @@ export default function Router() {
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
         { path: 'session-create/:itemId', element: <SessionCreate /> },
+        { path: 'session-create-now/:itemId', element: <SessionCreateNow /> },
         { path: 'items', element: <ItemPage /> },
         { path: 'item-detail/:itemId', element: <ItemDetail /> },
         { path: 'booking-item-detail/:bookingItemId', element: <BookingItemDetail /> },
@@ -182,6 +185,16 @@ export default function Router() {
             <Suspense>
               <RolesAuthRoute roles={['Staff']}>
                 <BookingItemNoSe />
+              </RolesAuthRoute>
+            </Suspense>
+          ),
+        },
+        {
+          path: 'booking-item-now',
+          element: (
+            <Suspense>
+              <RolesAuthRoute roles={['Staff']}>
+                <BookingItemNow />
               </RolesAuthRoute>
             </Suspense>
           ),
