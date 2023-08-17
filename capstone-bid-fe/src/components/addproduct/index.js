@@ -30,7 +30,8 @@ const AddProductForm = () => {
   const [quantity, setQuantity] = useState('');
   const [firstPrice, setFirstPrice] = useState('');
   const [stepPrice, setStepPrice] = useState('');
-  const [auctionTime, setAuctionTime] = useState('');
+  const [auctionHour, setAuctionHour] = useState('');
+  const [auctionMinute, setAuctionMinute] = useState('');
   const [typeOfSession, setTypeOfSession] = useState('');
   const [image, setProductImage] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -121,7 +122,8 @@ const AddProductForm = () => {
       description,
       categoryId,
       quantity,
-      auctionTime,
+      auctionHour,
+      auctionMinute,
       typeOfSession,
       image,
       firstPrice,
@@ -175,7 +177,8 @@ const AddProductForm = () => {
                 setDescription('');
                 setCategoryId('');
                 setQuantity('');
-                setAuctionTime('');
+                setAuctionHour('');
+                setAuctionMinute('');
                 setTypeOfSession('');
                 // setProductImage(null);
                 setFirstPrice('');
@@ -315,9 +318,18 @@ const AddProductForm = () => {
       />
 
       <TextField
-        label="Thời gian đấu giá"
-        value={auctionTime}
-        onChange={(event) => setAuctionTime(event.target.value)}
+        label="Thời gian đấu giá (giờ)"
+        value={auctionHour}
+        onChange={(event) => setAuctionHour(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        type="number"
+      />
+      <TextField
+        label="Thời gian đấu giá (phút)"
+        value={auctionMinute}
+        onChange={(event) => setAuctionMinute(event.target.value)}
         fullWidth
         required
         margin="normal"
