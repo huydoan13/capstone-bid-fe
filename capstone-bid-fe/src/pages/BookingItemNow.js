@@ -405,7 +405,7 @@ export default function BookingItemNow() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Link to={`/dashboard/booking-item-detail/${row.bookingItemId}`}>
+                          <Link to={`/dashboard/booking-item-detail-now/${row.bookingItemId}`}>
                             <Button
                             // color="secondary"
                             // onClick={() => {

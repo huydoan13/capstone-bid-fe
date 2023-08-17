@@ -54,6 +54,7 @@ import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import BookingItemNow from './pages/BookingItemNow';
 import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
+import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
 
 // ----------------------------------------------------------------------
 
@@ -169,6 +170,7 @@ export default function Router() {
         { path: 'items', element: <ItemPage /> },
         { path: 'item-detail/:itemId', element: <ItemDetail /> },
         { path: 'booking-item-detail/:bookingItemId', element: <BookingItemDetail /> },
+        { path: 'booking-item-detail-now/:bookingItemId', element: <BookingItemDetailNow /> },
         {
           path: 'booking-items',
           element: (
