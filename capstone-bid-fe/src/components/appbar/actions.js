@@ -138,7 +138,7 @@ export default function Actions({ matches }) {
                                     transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                                     anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
                                 >
-                                    {role === "Auctioneer" ? (
+                                    {role === "User" ? (
                                         <>
                                             <MenuItem onClick={handleClose} sx={{ display: "flex", alignItems: "center" }}>
                                                 <Avatar />
