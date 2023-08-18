@@ -280,7 +280,7 @@ function renderContent(notification) {
     <Typography variant="subtitle2">
       {notification.typeName}
       <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
-        &nbsp; {noCase(notification.message)}
+        &nbsp; {notification.message}
       </Typography>
     </Typography>
   );
