@@ -76,12 +76,10 @@ export default function LoginForm() {
       switch (decoded.Role) {
           case 'Admin':
             return navigate('/dashboard/app', { replace: true });
-          case 'Auctioneer':
+          case 'User':
             return navigate('/home', { replace: true });
           case 'Staff':
             return navigate('/dashboard/app', { replace: true });
-          case 'Bidder':
-            return navigate('/home', { replace: true });
           default:
             return null;
       }

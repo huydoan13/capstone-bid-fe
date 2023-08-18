@@ -63,7 +63,7 @@ export default function AppbarDesktop({ matches }) {
                     </MenuItem>
                 </Menu>
                 {/* Continue with other list items */}
-                {role === "Auctioneer" ? (
+                {role === "User" ? (
                     <>
                         <ListItemButton component="a" href="/addproduct">
                             <ListItemText primary="Thêm Sản Phẩm Đấu Giá" />
