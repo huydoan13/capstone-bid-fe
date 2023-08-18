@@ -75,6 +75,8 @@ export function getStatusInfo(status) {
       return { text: 'Không hoạt động', color: '#FF0000' };
     case 'NotCreateSessionYet':
       return { text: 'Chưa có phiên', color: '#FF0000' };
+    case 'SessionWaitting':
+      return { text: 'Chờ bắt đầu', color: '#FA8D24' };
     default:
       return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
   }
@@ -92,6 +94,8 @@ export const getStatusLabel = (status) => {
       return 'Không hoạt động';
     case 'NotCreateSessionYet':
       return 'Chưa có Phiên';
+    case 'SessionWaitting':
+      return 'Chờ bắt đầu';
     default:
       return '';
   }

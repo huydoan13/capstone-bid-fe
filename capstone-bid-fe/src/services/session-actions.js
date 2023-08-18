@@ -45,14 +45,32 @@ export async function deleteSession(id) {
 }
 
 export async function createSession(session, itemId) {
-    const url = `${BASE_URL}/sessions`;
+    const url = `${BASE_URL}/sessions/add_session`;
     console.log(session);
     const data = {
         sessionName: session.sessionName,
         itemId,
         sessionRuleId: session.sessionRuleId,
         beginTime: session.beginTime,
-        endTime: session.endTime,
+        // endTime: session.endTime,
+    }
+    
+    try {
+        axiosInstance.post(url, data);
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export async function createSessionNow(session, itemId) {
+    const url = `${BASE_URL}/sessions/add_begin_now_session`;
+    console.log(session);
+    const data = {
+        sessionName: session.sessionName,
+        itemId,
+        sessionRuleId: session.sessionRuleId,
+        // beginTime: session.beginTime,
+        // endTime: session.endTime,
     }
     
     try {
