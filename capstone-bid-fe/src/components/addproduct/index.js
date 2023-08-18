@@ -262,17 +262,6 @@ const AddProductForm = () => {
         margin="normal"
       />
 
-      <TextField
-        label="Mô Tả Sản Phẩm"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-        multiline
-        rows={4}
-      />
-
       <FormControl fullWidth required margin="normal">
         <InputLabel>Thể Loại Sản Phẩm</InputLabel>
         <Select value={categoryId} onChange={handleCategoryChange} label="Category">
@@ -316,6 +305,18 @@ const AddProductForm = () => {
         margin="normal"
         type="number"
       />
+      <FormControl fullWidth required margin="normal">
+        <InputLabel id="demo-simple-select-label">Loại Phiên đấu giá</InputLabel>
+        <Select
+          value={typeOfSession}
+          onChange={(event) => setTypeOfSession(event.target.value)}
+          label="status"
+          name="status"
+        >
+          <MenuItem value="5">Đấu giá ngay</MenuItem>
+          <MenuItem value="1">Đấu giá sau</MenuItem>
+        </Select>
+      </FormControl>
 
       <TextField
         label="Thời gian đấu giá (giờ)"
@@ -335,40 +336,6 @@ const AddProductForm = () => {
         margin="normal"
         type="number"
       />
-
-      <FormControl fullWidth required margin="normal">
-        <InputLabel id="demo-simple-select-label">Loại Phiên đấu giá</InputLabel>
-        <Select
-          value={typeOfSession}
-          onChange={(event) => setTypeOfSession(event.target.value)}
-          label="status"
-          name="status"
-        >
-          <MenuItem value="5">Đấu giá ngay</MenuItem>
-          <MenuItem value="1">Đấu giá sau</MenuItem>
-        </Select>
-      </FormControl>
-
-      <description>Hình Ảnh Sản Phẩm</description>
-      <UploadDropzone
-        uploader={uploader} // Required.
-        width="100%" // Optional.
-        height="375px"
-        options={uploaderOptions}
-        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
-        onComplete={(files) => {
-          // Optional.
-          if (files.length === 0) {
-            console.log('No files selected.');
-          } else {
-            console.log('Files uploaded:');
-            console.log(files.map((f) => f.fileUrl).join('\n'));
-            const img = files.map((f) => f.fileUrl).join('\n');
-            setProductImage(img);
-          }
-        }}
-      />
-
       <TextField
         label="Giá Ban Đầu (VND)"
         value={firstPrice}
@@ -397,6 +364,37 @@ const AddProductForm = () => {
             <InputAdornment position="start">{parseFloat(stepPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
           ) : null,
         }}
+      />
+
+      <description>Hình Ảnh Sản Phẩm</description>
+      <UploadDropzone
+        uploader={uploader} // Required.
+        width="100%" // Optional.
+        height="375px"
+        options={uploaderOptions}
+        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
+        onComplete={(files) => {
+          // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.');
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map((f) => f.fileUrl).join('\n'));
+            const img = files.map((f) => f.fileUrl).join('\n');
+            setProductImage(img);
+          }
+        }}
+      />
+
+      <TextField
+        label="Mô Tả Sản Phẩm"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        multiline
+        rows={4}
       />
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
