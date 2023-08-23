@@ -33,6 +33,9 @@ import BookingItemsPage from './pages/BookingItems';
 import AllBookingItemPage from './pages/AllBookingItem';
 import SessionNotPayPage from './pages/SessionNotPay';
 import SessionOutOfDatePage from './pages/SessionOutOfDate';
+import SessionInStagePage from './pages/SessionInStage';
+import SessionErrorItemPage from './pages/SessionErrorItem';
+import SessionReceivedPage from './pages/SessionReceived';
 import SessionCreate from './sections/@dashboard/session/SessionCreate';
 import SessionSuccessPage from './pages/SessionSuccess';
 import SessionRulePage from './pages/SessionRule';
@@ -55,6 +58,8 @@ import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import BookingItemNow from './pages/BookingItemNow';
 import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
+import SessionNotStart from './pages/SessionNotStart';
+import SessionHistory from './sections/@dashboard/session/SessionHistory';
 
 // ----------------------------------------------------------------------
 
@@ -162,9 +167,14 @@ export default function Router() {
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'session-detail/:sessionId', element: <SessionDetail /> },
+        { path: 'session-history/:sessionId', element: <SessionHistory /> },
         { path: 'session-success', element: <SessionSuccessPage /> },
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
+        { path: 'session-instage', element: <SessionInStagePage /> },
+        { path: 'session-not-start', element: <SessionNotStart /> },
+        { path: 'session-error-item', element: <SessionErrorItemPage /> },
+        { path: 'session-received', element: <SessionReceivedPage /> },
         { path: 'session-create/:itemId', element: <SessionCreate /> },
         { path: 'session-create-now/:itemId', element: <SessionCreateNow /> },
         { path: 'items', element: <ItemPage /> },

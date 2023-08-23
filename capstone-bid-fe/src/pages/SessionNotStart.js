@@ -1,7 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
 import moment from 'moment';
-import { makeStyles } from '@mui/styles';
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from 'react';
 // @mui
@@ -34,7 +33,7 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -43,9 +42,8 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
+import { getSessionsNotStart, getStatusInfo } from '../services/session-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
-import axiosInstance from '../services/axios-instance';
 // mock
 // import USERLIST from '../_mock/user';
 
@@ -88,12 +86,12 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.sessionName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.userName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function SessionNotPay() {
+export default function SessionNotStart() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -119,19 +117,8 @@ export default function SessionNotPay() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
-  const formatAuctionTime = (date) => moment(date, 'HH:mm:ss.SSSSSSS').format('hh:mm:ss');
 
   const navigate = useNavigate();
-
-  const useStyles = makeStyles((theme) => ({
-    cardMedia: {
-      width: '800px', // Điều chỉnh chiều rộng tùy ý
-      height: '300px', // Điều chỉnh chiều cao tùy ý
-      objectFit: 'contain', // Chỉnh vừa kích thước hình ảnh trong kích thước của phần tử
-    },
-  }));
-
-  const classes = useStyles();
 
   const styleModal = {
     position: 'absolute',
@@ -146,22 +133,11 @@ export default function SessionNotPay() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/sessions/by_havent_pay');
-        console.log(response);
-        setSession(response.data);
-      } catch (error) {
-        console.log('Failed to fetch: ', error);
-      }
-    })();
+    getSessionsNotStart().then((response) => {
+      setSession(response.data);
+      console.log(response.data);
+    });
   }, []);
-  // useEffect(() => {
-  //   getSessionsNotPay().then((response) => {
-  //     setSession(response.data);
-  //     console.log(response.data);
-  //   });
-  // }, []);
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -276,18 +252,17 @@ export default function SessionNotPay() {
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá chưa thanh toán | BIDS </title>
+        <title> Phiên đấu giá đang diễn ra | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá chưa thanh toán
+            Phiên đấu giá đang diễn ra
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
           </Button> */}
-          {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
@@ -308,7 +283,7 @@ export default function SessionNotPay() {
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
-                      row.sessionResponseCompletes;
+                      row;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -329,12 +304,12 @@ export default function SessionNotPay() {
                         <TableCell align="left">{sessionName}</TableCell>
                         <TableCell align="left">{feeName}</TableCell>
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
-                        {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
                         <TableCell align="left">
                           {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                         </TableCell>
-                        {/* <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell> */}
+                        {/* <TableCell align="left">{address}</TableCell> */}
+                        {/* <TableCell align="left">{phone}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip
@@ -372,7 +347,7 @@ export default function SessionNotPay() {
                             }}
                           >
                             <MenuItem>
-                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                              <Link to={`/dashboard/session-detail/${row.sessionId}`}>
                                 <Button>
                                   {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
                                   Chi tiết
@@ -380,12 +355,10 @@ export default function SessionNotPay() {
                               </Link>
                             </MenuItem>
                             <MenuItem>
-                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
-                                <Button>
-                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
-                                  Lịch sử đấu giá
-                                </Button>
-                              </Link>
+                              <Button>
+                                {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                Lịch sử đấu giá
+                              </Button>
                             </MenuItem>
                           </Popover>
                         </TableCell>
@@ -445,41 +418,19 @@ export default function SessionNotPay() {
             <Box sx={styleModal}>
               <form>
                 <Card>
-                  <CardHeader title="Thông tin chi tiết phiên đấu giá" />
+                  <CardHeader title="Thông tin chi tiết tài khoản" />
                   <CardContent>
                     <Grid container spacing={3}>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
                       </Grid> */}
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Phiên đấu giá" defaultValue={upSession.sessionName} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Phân khúc" defaultValue={upSession.feeName} />
+                      <Grid item md={6} xs={12}>
+                        <TextField label="Họ và tên" defaultValue={upSession.userName} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Tên sản phẩm" defaultValue={upSession.itemName} />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Loại sản phẩm" defaultValue={upSession.categoryName} />
+                        <TextField label="Số CCCD" defaultValue={upSession.cccdnumber} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Miêu tả sản phẩm" defaultValue={upSession.description} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
-                        <Typography variant="subtitle1" gutterBottom>
-                          Hình ảnh sản phẩm
-                        </Typography>
-                        <a href={upSession.image} target="_blank" rel="noopener noreferrer">
-                          <CardMedia
-                            component="img"
-                            image={upSession.image}
-                            alt="Hinh anh san pham"
-                            className={classes.cardMedia}
-                          />
-                        </a>
-                      </Grid>
-                      {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
                           Mặt trước CCCD
                         </Typography>
@@ -490,33 +441,19 @@ export default function SessionNotPay() {
                           Mặt sau CCCD
                         </Typography>
                         <CardMedia component="img" image={upSession.cccdbackImage} alt="CCCD Back Image" />
-                      </Grid> */}
-                      <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian bắt đầu" defaultValue={formatDate(upSession.beginTime)} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Email" defaultValue={upSession.email} />
+                      </Grid>
+                      <Grid item md={12} xs={12}>
+                        <TextField fullWidth label="Địa chỉ" defaultValue={upSession.address} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
+                        <TextField label="Số điện thoại" defaultValue={upSession.phone} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField
-                          multiline
-                          label="Thời gian đấu giá"
-                          defaultValue={formatAuctionTime(upSession.auctionTime)}
-                        />
-                      </Grid>
-                      <Grid item md={6} xs={12}>
-                        <TextField
-                          multiline
-                          label="Giá cuối cùng"
-                          defaultValue={upSession.finalPrice?.toLocaleString('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                          })}
-                        />
-                      </Grid>
-                      {/* <Grid item md={6} xs={12}>
                         <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
-                      </Grid> */}
+                      </Grid>
                       <Grid item md={6} xs={12}>
                         <Button
                           onClick={() => {

@@ -118,7 +118,7 @@ export default function SessionSuccess() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
-  const formatAuctionTime = (date) => moment(date, "HH:mm:ss.SSSSSSS").format('hh:mm:ss');
+  const formatAuctionTime = (date) => moment(date, 'HH:mm:ss.SSSSSSS').format('hh:mm:ss');
 
   const navigate = useNavigate();
 
@@ -329,13 +329,50 @@ export default function SessionSuccess() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
-                            <Button
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
-                          </Link>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => handleOpenMenu(event, sessionId)}
+                          >
+                            <Iconify icon={'eva:more-vertical-fill'} />
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 150,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem>
+                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                            <MenuItem>
+                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Lịch sử đấu giá
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -416,7 +453,12 @@ export default function SessionSuccess() {
                         <Typography variant="subtitle1" gutterBottom>
                           Hình ảnh sản phẩm
                         </Typography>
-                        <CardMedia component="img" image={upSession.image} alt="Item Image" className={classes.cardMedia} />
+                        <CardMedia
+                          component="img"
+                          image={upSession.image}
+                          alt="Item Image"
+                          className={classes.cardMedia}
+                        />
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
@@ -437,7 +479,11 @@ export default function SessionSuccess() {
                         <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
+                        <TextField
+                          multiline
+                          label="Thời gian đấu giá"
+                          defaultValue={formatAuctionTime(upSession.auctionTime)}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />

@@ -40,6 +40,10 @@ const navConfig = [
       { title: 'Thành Công', path: '/dashboard/session-success', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
       { title: 'Chưa Thanh Toán', path: '/dashboard/session-not-pay', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
       { title: 'Quá Hạn', path: '/dashboard/session-out-of-date', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
+      { title: 'Đang diễn ra', path: '/dashboard/session-instage', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
+      { title: 'Chưa bắt đầu', path: '/dashboard/session-not-start', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
+      { title: 'Đã nhận', path: '/dashboard/session-received', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
+      { title: 'Sản phẩm lỗi', path: '/dashboard/session-error-item', icon: <Icon icon="mingcute:auction-fill" width="30" height="30" />, },
     ]
   },
   {
@@ -66,7 +70,7 @@ const navConfig = [
     role: ['Admin'],
   },
   {
-    title: 'Luật đấu giá',
+    title: 'Cấu hình thời gian đấu giá',
     path: '/dashboard/session-rule',
     icon: <Icon icon="octicon:law-16" width="30" height="30" />,
     role: ['Admin'],

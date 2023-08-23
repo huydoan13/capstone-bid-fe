@@ -34,7 +34,7 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -43,9 +43,8 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
+import { getSessionsNotPay, getSessionsErrorItem, getStatusInfo } from '../services/session-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
-import axiosInstance from '../services/axios-instance';
 // mock
 // import USERLIST from '../_mock/user';
 
@@ -93,7 +92,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-export default function SessionNotPay() {
+export default function SessionSuccess() {
   // const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -146,22 +145,11 @@ export default function SessionNotPay() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    (async () => {
-      try {
-        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/sessions/by_havent_pay');
-        console.log(response);
-        setSession(response.data);
-      } catch (error) {
-        console.log('Failed to fetch: ', error);
-      }
-    })();
+    getSessionsErrorItem().then((response) => {
+      setSession(response.data);
+      console.log(response.data);
+    });
   }, []);
-  // useEffect(() => {
-  //   getSessionsNotPay().then((response) => {
-  //     setSession(response.data);
-  //     console.log(response.data);
-  //   });
-  // }, []);
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -276,13 +264,13 @@ export default function SessionNotPay() {
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá chưa thanh toán | BIDS </title>
+        <title> Phiên đấu giá sản phẩm lỗi | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá chưa thanh toán
+            Phiên đấu giá sản phẩm lỗi
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -331,10 +319,7 @@ export default function SessionNotPay() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">
-                          {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                        </TableCell>
-                        {/* <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell> */}
+                        <TableCell align="left">{finalPrice}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip
@@ -389,6 +374,7 @@ export default function SessionNotPay() {
                             </MenuItem>
                           </Popover>
                         </TableCell>
+                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
                     );
                   })}
@@ -464,20 +450,15 @@ export default function SessionNotPay() {
                         <TextField multiline label="Loại sản phẩm" defaultValue={upSession.categoryName} />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField fullWidth multiline label="Miêu tả sản phẩm" defaultValue={upSession.description} />
-                      </Grid>
-                      <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
                           Hình ảnh sản phẩm
                         </Typography>
-                        <a href={upSession.image} target="_blank" rel="noopener noreferrer">
-                          <CardMedia
-                            component="img"
-                            image={upSession.image}
-                            alt="Hinh anh san pham"
-                            className={classes.cardMedia}
-                          />
-                        </a>
+                        <CardMedia
+                          component="img"
+                          image={upSession.image}
+                          alt="Item Image"
+                          className={classes.cardMedia}
+                        />
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
@@ -505,14 +486,7 @@ export default function SessionNotPay() {
                         />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField
-                          multiline
-                          label="Giá cuối cùng"
-                          defaultValue={upSession.finalPrice?.toLocaleString('vi-VN', {
-                            style: 'currency',
-                            currency: 'VND',
-                          })}
-                        />
+                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />
                       </Grid>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />
