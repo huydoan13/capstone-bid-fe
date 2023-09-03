@@ -44,8 +44,9 @@ const AddProductForm = () => {
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
+  const [calculatedStepPrice, setCalculatedStepPrice] = useState('');
 
-  const uploader = Uploader({ apiKey: 'public_12a1yW8CfSB17vqBf8dhYpVr4Brk' });
+  const uploader = Uploader({ apiKey: 'public_kW15bfw7HM9PmAu3eqEkeP4eD6aN' });
   const uploaderOptions = {
     multi: true,
 
@@ -82,6 +83,17 @@ const AddProductForm = () => {
     }
   }, [categoryId, categories]);
 
+  useEffect(() => {
+    // Calculate the step price based on firstPrice
+    if (firstPrice) {
+      const lowerBound = 0.05 * parseFloat(firstPrice);
+      const upperBound = 0.1 * parseFloat(firstPrice);
+      setCalculatedStepPrice(`${lowerBound.toLocaleString('vi-VN')} ₫ - ${upperBound.toLocaleString('vi-VN')} ₫`);
+    } else {
+      setCalculatedStepPrice('');
+    }
+  }, [firstPrice]);
+
   const handleCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
     setCategoryId(selectedCategoryId);
@@ -112,9 +124,10 @@ const AddProductForm = () => {
       [descriptionName]: newValue,
     }));
   };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-
+    setLoading(true);
     // Perform further processing or API call with the form data
     const formData = {
       userId: jsonUser.Id,
@@ -128,6 +141,7 @@ const AddProductForm = () => {
       image,
       firstPrice,
       stepPrice,
+
     };
 
     // api = `api/${userId}`
@@ -183,13 +197,14 @@ const AddProductForm = () => {
                 // setProductImage(null);
                 setFirstPrice('');
                 setStepPrice('');
+                setLoading(false);
               })
               .catch((error) => {
                 console.error('Error uploading image:', error);
                 setErrorDialogOpen(true);
               })
               .finally(() => {
-                setLoading(false); // Set loading back to false after the response is received
+                // Set loading back to false after the response is received
               });
           })
           .catch((error) => {
@@ -218,6 +233,7 @@ const AddProductForm = () => {
             error = setError(errorMessage);
             // Now you can save the errorMessage to your frontend state to display it on the UI
             // this.setState({ errorMessage });
+            setLoading(false);
           } else {
             // Other error handling for different status codes
           }
@@ -385,7 +401,7 @@ const AddProductForm = () => {
       />
 
       <TextField
-        label="Bước Giá(5-10% giá ban đầu) (VND)"
+        label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
         value={stepPrice}
         onChange={(event) => setStepPrice(event.target.value)}
         fullWidth
@@ -422,11 +438,11 @@ const AddProductForm = () => {
         </DialogActions>
       </Dialog>
 
-      {loading && (
+      {/* {loading && (
         <div style={{ textAlign: 'center', marginTop: '20px' }}>
           <CircularProgress color="primary" />
         </div>
-      )}
+      )} */}
 
       <Button
         variant="contained"
@@ -434,13 +450,14 @@ const AddProductForm = () => {
         size="large"
         type="submit"
         sx={{ display: 'block', mx: 'auto', mt: 4 }}
-        disabled={loading} // Disable the button when loading is true
+        disabled={loading}
       >
-        {loading ? ( // Render the loading spinner when loading is true
+        {loading ? (
           <CircularProgress color="inherit" size={24} />
         ) : (
-          'Thêm Sản Phẩm' // Show the original button label when not loading
+          'Thêm Sản Phẩm'
         )}
+
       </Button>
     </Box>
   );

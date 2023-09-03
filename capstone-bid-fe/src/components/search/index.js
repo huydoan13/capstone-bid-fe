@@ -34,8 +34,8 @@ export default function SearchBox() {
         <SearchField
           color="secondary"
           variant="standard"
-          fullwidth
-          placeholder="search..."
+          fullWidth
+          placeholder="Tìm Kiếm..."
         />
         <IconButton>
                   <SearchIcon sx={{ fontSize: { xs: '2rem', md: "3rem" } }} color="white" />

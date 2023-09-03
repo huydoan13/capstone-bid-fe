@@ -32,11 +32,6 @@ import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import AuctionForm from "../auction";
 
-
-
-
-
-
 function getTimeRemaining(endTime) {
     const total = Date.parse(endTime) - Date.now();
     const remainingTime = total > 0 ? total : 0;
@@ -86,7 +81,9 @@ export default function ProductDetail({ open, onClose, product }) {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     const [isDialogOpen, setDialogOpen] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(product?.images[0]?.detail);
+    const [selectedImage, setSelectedImage] = useState(
+        product.images.length > 0 ? product.images[0].detail : "/assets/images/covers/auction-hammer.jpg"
+      );
     const Image = "https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDJ8fHxlbnwwfHx8fHw%3D&auto=format&fit=crop&w=500&q=60"
     const [AuctionDetailDialog, showAuctionDetailDialog, closeProductDialog] =
         useDialogModal(AuctionForm);
@@ -101,6 +98,17 @@ export default function ProductDetail({ open, onClose, product }) {
 
     const [selectedItem, setSelectedItem] = useState(null);
     const navigate = useNavigate();
+
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('loginUser');
+    const jsonUser = JSON.parse(user);
+    const isLoggedIn = !!jsonUser && !!jsonUser.Email;
+
+    const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning';
+    const autoApi = 'https://bids-online.azurewebsites.net/api/Sessions/session_status_to_in_stage';
+    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=http://localhost:3000/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
+    
+    const [link, setPaymentlink] = useState();
 
 
     const closeDialog = () => {
@@ -117,25 +125,16 @@ export default function ProductDetail({ open, onClose, product }) {
         };
     }, [product.beginTime]);
 
-
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('loginUser');
-    const jsonUser = JSON.parse(user);
-    const isLoggedIn = !!jsonUser && !!jsonUser.Email;
-    const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning';
-    const autoApi = 'https://bids-online.azurewebsites.net/api/Sessions/session_status_to_in_stage';
-
-
-    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-join-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
-    const [link, setPaymentlink] = useState();
-
-
     const closeJonningDialog = () => {
 
         setSelectedItem(product);
         setFeeDialogOpen(true); // Set the selected item first
         handlePayment();
         setIsErrorDialogOpen(false)
+    };
+    
+    const handleImageClick = (image) => {
+        setSelectedImage(image);
     };
 
     const joinAuction = () => {
@@ -191,11 +190,7 @@ export default function ProductDetail({ open, onClose, product }) {
             }
         }
     };
-    const handleImageClick = (image) => {
-        setSelectedImage(image);
-    };
-
-
+    
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown(getTimeRemaining(product.beginTime));
@@ -599,7 +594,7 @@ export default function ProductDetail({ open, onClose, product }) {
                 </DialogActions>
             </Dialog>
             <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
-                <DialogTitle>Lỗi</DialogTitle>
+                <DialogTitle>Thông Báo</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {dialogMessage}

@@ -89,7 +89,7 @@ export default function StageProductDetail({ open, onClose, product }) {
         useDialogModal(AuctionForm);
     const [countdown, setCountdown] = useState(getTimeRemaining(product.beginTime));
     const [selectedImage, setSelectedImage] = useState(
-        product.images.length > 0 ? product.images[0].detail : null
+        product.images.length > 0 ? product.images[0].detail : "/assets/images/covers/auction-hammer.jpg"
     );
     const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
     const [feeDialogOpen, setFeeDialogOpen] = useState(false);

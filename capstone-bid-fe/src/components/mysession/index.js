@@ -245,10 +245,11 @@ const MySessionForm = () => {
                                     <TableRow>
                                         <TableCell>Tên sản phẩm</TableCell>
                                         <TableCell>
-                                            {selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
+                                        {(selectedOption === 'notpay'  || selectedOption === 'success' ||  selectedOption === 'fail') ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
+                                            {/* {selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'} */}
                                         </TableCell>
                                         <TableCell>
-                                            {selectedOption === 'notpay' ? 'Giá Cuối Cùng' : 'Bước Giá'}
+                                            {(selectedOption === 'notpay'  || selectedOption === 'success' ||  selectedOption === 'fail') ? 'Giá Cuối Cùng' : 'Bước Giá'}
                                         </TableCell>
                                         <TableCell>Thể Loại</TableCell>
                                         <TableCell>Ngày Tạo</TableCell>
