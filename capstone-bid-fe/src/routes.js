@@ -55,11 +55,13 @@ import ShoppingCartPage from './pages/ShoppingCartPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
+import TransactionHistoryPage from './pages/TransactionHistoryPage';
 import BookingItemNow from './pages/BookingItemNow';
 import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
 import SessionNotStart from './pages/SessionNotStart';
 import SessionHistory from './sections/@dashboard/session/SessionHistory';
+
 
 // ----------------------------------------------------------------------
 
@@ -85,8 +87,9 @@ export default function Router() {
     { path: 'myhistory', element: <MyHistoryPage />},
     { path: 'shoppingcart', element: <ShoppingCartPage />},
     { path: 'payment-join-success', element: <PaymentSuccessJoinPage /> },
-    { path: 'payment-success/:sessionId', element: <PaymentSuccessPage /> },
+    { path: 'payment-success', element: <PaymentSuccessPage /> },
     { path: 'payment-fail', element: <PaymentFailPage />},
+    { path: 'payment-history', element: <TransactionHistoryPage />},
     
     {
       path: '/dashboard',

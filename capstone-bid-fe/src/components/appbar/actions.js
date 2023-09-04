@@ -5,6 +5,7 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import HistoryIcon from '@mui/icons-material/History';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import axios from "axios";
 import NotificationsUserPopover from "../../layouts/dashboard/header/NotificationsUserPopover";
@@ -144,7 +145,7 @@ export default function Actions({ matches }) {
                                                 <Avatar />
                                                 <Link to="/profile" style={{ textDecoration: "none", color: "inherit" }}>
 
-                                                    <Typography sx={{ marginLeft: 1 }}>Hồ Sơ Cá Nhân</Typography>
+                                                    <Typography sx={{ marginLeft: 1 }}>{jsonUser.Email}</Typography>
                                                 </Link>
                                             </MenuItem>
                                             <Divider />
@@ -157,11 +158,14 @@ export default function Actions({ matches }) {
                                             </MenuItem>
 
                                             <MenuItem onClick={handleClose}>
-                                                <ListItemIcon>
-                                                    <AlternateEmailIcon fontSize="small" />
-                                                </ListItemIcon>
-                                                {jsonUser.Email}
+                                                <HistoryIcon />
+                                                <Link to="/payment-history" style={{ textDecoration: "none", color: "inherit" }}>
+
+                                                    <Typography sx={{ marginLeft: 1 }}>Lịch Sử Giao Dịch</Typography>
+                                                </Link>
                                             </MenuItem>
+
+                                            
                                             <MenuItem onClick={handleClose}>
                                                 <ListItemIcon>
                                                     <Settings fontSize="small" />

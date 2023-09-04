@@ -29,7 +29,7 @@ const ShoppingCartForm = () => {
 
     const api = `https://bids-online.azurewebsites.net/api/Sessions/by_user_for_payment?id=${jsonUser.Id}`;
 
-    const paymentAPI =  `https://bids-online.azurewebsites.net/api/Login/payment_complete?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success/${selectedItem?.sessionId}&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
+    const paymentAPI =  `https://bids-online.azurewebsites.net/api/Login/payment_complete?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
     useEffect(() => {
         axios.get(api, { headers: { Authorization: `Bearer ${token}` } })
             .then(response => {

@@ -108,10 +108,10 @@ const AuctionForm = () => {
     try {
       const response = await axios.get(api, { headers: { Authorization: `Bearer ${token}` } });
       setAuctionData(response.data);
-  
+
       if (response.data.length > 0) {
         const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
-  
+
         if (remainingTime <= response.data[0]?.freeTime) {
           setCurrentDelayTime(response.data[0]?.delayFreeTime);
         } else {
@@ -180,11 +180,11 @@ const AuctionForm = () => {
             localStorage.setItem('countdownTime', updatedTime.toString());
             return updatedTime;
           }
-  
+
           const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
-  
+
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
-            
+
             window.localStorage.removeItem('currentDelayTime');
             window.localStorage.removeItem('countdownTime');
             const delayFreeTime = auctionData[0]?.delayFreeTime;
@@ -195,12 +195,12 @@ const AuctionForm = () => {
               return convertTimeToSeconds(delayFreeTime);
             }
           }
-  
+
           setIsCountdownRunning(false);
           return 0;
         });
       }, 1000);
-  
+
       return () => clearInterval(interval);
     }, [endTime, auctionData, shouldResetCountdown]);
 
@@ -289,9 +289,9 @@ const AuctionForm = () => {
         }
       }
     };
-  
+
     let interval = null;
-  
+
     if (isIntervalActive) {
       interval = setInterval(() => {
         fetchAuctionData();
@@ -299,7 +299,7 @@ const AuctionForm = () => {
         checkAuctionEnd(); // Check if the auction has ended on each interval
       }, 5000);
     }
-  
+
     return () => {
       clearInterval(interval); // Clear the interval on cleanup
     };
@@ -311,16 +311,16 @@ const AuctionForm = () => {
     fetchSessionDetails();
     setIsDialogOpen(false);
     setIsCountdownRunning(true);
-  
+
     if (currentDelayTime) {
       localStorage.setItem('countdownTime', convertTimeToSeconds(currentDelayTime).toString());
     }
-  
+
     setShouldResetCountdown(false); // Reset the flag after countdown reset
   };
 
   if (!auctionData) {
-    return <div>Trang này hiện giờ không khả dụng</div>;
+    return <Typography>Trang này hiện giờ không khả dụng</Typography>;
   }
 
 
@@ -360,8 +360,13 @@ const AuctionForm = () => {
   }));
 
   const renderProductImages = () => {
-    if (!auctionData) {
-      return null;
+    if (!auctionData || !auctionData[0] || !auctionData[0].images || auctionData[0].images.length === 0) {
+      // Render the default image when there are no product images
+      return (
+        <ProductDetailImageContainer>
+          <ProductDetailImage1 src="/assets/images/covers/auction-hammer.jpg" />
+        </ProductDetailImageContainer>
+      );
     }
 
     // Use the selected thumbnail index or default to 0 (first image) if not selected
@@ -387,7 +392,6 @@ const AuctionForm = () => {
       </ProductDetailImageContainer>
     );
   };
-
 
 
   const BidDialog = () => {
@@ -450,7 +454,15 @@ const AuctionForm = () => {
               justifyContent: "space-between",
             }}>
               <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Phí Tham Gia Đấu Giá:  </Typography>
-              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.participationFee * auctionData[0]?.firstPrice)} </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle">
+                {formatToVND(
+                  Math.min(
+                    Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                    200000
+                  )
+                )}
+                {/* {formatToVND(auctionData[0]?.participationFee * auctionData[0]?.firstPrice)} */}
+              </Typography>
             </Typography>
             <Typography sx={{
               display: "flex",

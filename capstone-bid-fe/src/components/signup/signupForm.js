@@ -37,7 +37,7 @@ const SignUpForm = () => {
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_12a1yW8CfSB17vqBf8dhYpVr4Brk" });
+  const uploader = Uploader({ apiKey: "public_kW15bfw7HM9PmAu3eqEkeP4eD6aN" });
 
   const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
   const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`

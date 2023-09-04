@@ -16,12 +16,16 @@ import {
 } from "../../style/Products";
 import StageProductDetail from "../productdetail/stage-product-detail";
 
+const defaultImageSource = "/assets/images/covers/auction-hammer.jpg";
+
 export default function StageSingleProductDesktop({ product, matches }) {
     const [ProductDetailDialog, showProductDetailDialog, closeProductDialog] =
         useDialogModal(StageProductDetail);
 
     const [showOptions, setShowOptions] = useState(false);
     const [firstImage, setFirstImage] = useState("");
+    const firstImageURL = product.images && product.images.length > 0 ? product.images[0].detail : null;
+    const imageSource = firstImageURL || defaultImageSource;
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user);
     const [isDialogOpen, setDialogOpen] = useState(false);
@@ -42,9 +46,11 @@ export default function StageSingleProductDesktop({ product, matches }) {
     //     window.location.href = "/auction";
     // };
 
-    useEffect (() => {
+    useEffect(() => {
         // Extract the first image URL from the server response
         if (product.images && product.images.length > 0) {
+            console.log("Product Images:", product.images);
+            console.log("First Image URL:", product.images[0].detail);
             setFirstImage(product.images[0].detail);
         }
     }, [product]);
@@ -61,14 +67,14 @@ export default function StageSingleProductDesktop({ product, matches }) {
         <>
             <Product onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 
-                {firstImage && <ProductImage src={firstImage} />}
+            <ProductImage src={imageSource} />
 
                 {/* <ProductFavButton isfav={0}>
                     <FavoriteIcon />
                 </ProductFavButton> */}
                 {(showOptions || matches) && (
-                    <ProductAddToCart show={showOptions} onClick={() => handleAuctionButtonClick()} variant="contained">
-                        Đấu Giá Ngay
+                    <ProductAddToCart show={showOptions} onClick={() => showProductDetailDialog()} variant="contained">
+                        Thông tin sản phẩm
                     </ProductAddToCart>
                 )}
                 <ProductActionsWrapper show={showOptions || matches}>
