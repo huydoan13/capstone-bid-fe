@@ -8,6 +8,16 @@ export async function getAllStaff() {
   return axiosInstance.get(url);
 }
 
+export async function getStaffById(id) {
+  const url = `${BASE_URL}/staffs/by_id?id=${id}`;
+  try {
+    axiosInstance.get(url, { data: { id } });
+  } catch (error) {
+    console.log(error);
+  }
+  return axiosInstance.get(url);
+}
+
 export async function getNotificationById(id) {
   const url = `${BASE_URL}/staffnotificationdetail/by_id`;
   try {

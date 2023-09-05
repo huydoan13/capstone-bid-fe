@@ -82,6 +82,12 @@ const navConfig = [
     role: ['Admin'],
   },
   {
+    title: 'Quản lý thanh toán',
+    path: '/dashboard/payment-manage',
+    icon: <Icon icon="fluent-mdl2:product-variant" width="30" height="30" />,
+    role: ['Admin', 'Staff'],
+  },
+  {
     title: 'Sản phẩm đấu giá',
     path: '/dashboard/items',
     icon: <Icon icon="fluent-mdl2:product-variant" width="30" height="30" />,

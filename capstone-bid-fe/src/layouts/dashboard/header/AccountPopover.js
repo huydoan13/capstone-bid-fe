@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { alpha } from '@mui/material/styles';
 import { Box, Divider, Typography, Stack, MenuItem, Avatar, IconButton, Popover } from '@mui/material';
 // mocks_
+import { useNavigate } from 'react-router-dom';
 import LogoutFuncion from '../../../services/LogoutFunction';
 import account from '../../../_mock/account';
 
@@ -29,6 +30,13 @@ export default function AccountPopover() {
   const [open, setOpen] = useState(null);
   const logout = LogoutFuncion();
   const user = JSON.parse(localStorage.getItem('loginUser'));
+
+  const navigate = useNavigate(); // Initialize history
+  
+  const handleProfileClick = () => {
+    handleClose(); // Close the popover
+    navigate('/staff-profile'); // Navigate to the Profile Page
+  };
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -92,7 +100,7 @@ export default function AccountPopover() {
 
         <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
+            <MenuItem key={option.label} onClick={option.label === 'Hồ sơ' ? handleProfileClick : handleClose}>
               {option.label}
             </MenuItem>
           ))}

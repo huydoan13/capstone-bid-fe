@@ -323,27 +323,7 @@ export default function UserPage() {
                         </TableCell>
 
                         <TableCell align="right">
-                        <Link to={`/dashboard/user-detail/${row.userId}`}>
-                          <Button
-                            // color="secondary"
-                            // onClick={() => {
-                            //   handleOpenModalWithItem(row.itemId);
-                            // }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-                          </Link>
-                          {/* <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.userId);
-                            }}
-                          >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button> */}
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
                           <Popover
@@ -357,7 +337,7 @@ export default function UserPage() {
                             PaperProps={{
                               sx: {
                                 p: 1,
-                                width: 140,
+                                width: 150,
                                 '& .MuiMenuItem-root': {
                                   px: 1,
                                   typography: 'body2',
@@ -366,25 +346,23 @@ export default function UserPage() {
                               },
                             }}
                           >
-                            <MenuItem
-                              onClick={() => {
-                                handleOpenModalWithUser(row.userId);
-                              }}
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 2 }} />
-                              Xem chi tiết
+                            <MenuItem>
+                              <Link to={`/dashboard/user-detail/${row.userId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
                             </MenuItem>
-
-                            <MenuItem
-                              onClick={() => {
-                                handleDeleteButton(row.userId);
-                              }}
-                              sx={{ color: 'error.main' }}
-                            >
-                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
+                            <MenuItem>
+                            <Link to={`/dashboard/payment-user-detail/${row.userId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Thanh toán
+                                </Button>
+                              </Link>
                             </MenuItem>
-                          </Popover> */}
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>

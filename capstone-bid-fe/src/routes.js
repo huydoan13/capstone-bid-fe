@@ -61,6 +61,9 @@ import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
 import SessionNotStart from './pages/SessionNotStart';
 import SessionHistory from './sections/@dashboard/session/SessionHistory';
+import PaymentManage from './pages/PaymentManage';
+import PaymentUserDetail from './sections/@dashboard/user/PaymentUserDetail';
+import StaffProfile from './sections/staff/StaffProfile';
 
 
 // ----------------------------------------------------------------------
@@ -110,9 +113,12 @@ export default function Router() {
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },
+        { path: 'payment-manage', element: <PaymentManage /> },
+        { path: 'payment-user-detail/:userId', element: <PaymentUserDetail /> },
         { path: 'user-detail/:userId', element: <UserDetail /> },
         { path: 'user-waiting-detail/:userId', element: <UserWaitingDetail /> },
         { path: 'user-ban-detail/:userId', element: <UserBanDetail /> },
+        { path: 'staff-profile', element: <StaffProfile /> },
         // { path: 'products', element: <ProductsPage /> },
         // { path: 'blog', element: <BlogPage /> },
         {
