@@ -447,7 +447,7 @@ const AddProductForm = () => {
       <Button
         variant="contained"
         color="primary"
-        size="large"
+        fullWidth
         type="submit"
         sx={{ display: 'block', mx: 'auto', mt: 4 }}
         disabled={loading}

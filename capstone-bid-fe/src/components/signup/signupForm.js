@@ -1,10 +1,13 @@
 import React, { useRef, useState } from 'react';
-import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox } from '@mui/material';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
 import { format } from 'date-fns'
 import axios from 'axios';
+import EmailIcon from '@mui/icons-material/Email';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const SignUpForm = () => {
   const [userName, setUsername] = useState('');
@@ -28,9 +31,10 @@ const SignUpForm = () => {
   const jsonUser = JSON.parse(user)
   const [dialogOpen, setDialogOpen] = useState(false);
   const [updateRoleMessage, setUpdateRoleMessage] = useState('');
-
+  const [checkboxError, setCheckboxError] = useState(false);
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
@@ -48,7 +52,17 @@ const SignUpForm = () => {
   };
 
   const handleOpenOtpDialog = () => {
-    handleOtpSubmit();
+
+    if (!email) {
+      setError('Địa chỉ Email không được bỏ trống');
+      // You can set an error message if email is empty
+      setErrorDialogOpen(true);
+      return;
+    }
+
+    // If email is not empty, proceed to send OTP
+    setError(''); // Clear any previous error message
+    handleOtpSubmit(); // Call the function to send OTP
     setOtpDialogOpen(true);
     setOtpValue('');
     setOtpError(false);
@@ -103,7 +117,7 @@ const SignUpForm = () => {
 
   const handleUpgradeToAuctioneer = async () => {
     const otpValue = otpInputRef.current.value;
-  
+
     try {
       const response = await axios.put(
         UpdateRoleApi,
@@ -113,11 +127,17 @@ const SignUpForm = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.status === 200) {
-        setRoleUpgradeSuccess(true);
-        setUpdateRoleMessage('Xác Thực Email Thành Công');
-        setOtpError(false);
+        if (response.data === true) {
+          setRoleUpgradeSuccess(true);
+          setUpdateRoleMessage('Xác Thực Email Thành Công');
+          setOtpError(false);
+        } else if (response.data === false) {
+          setRoleUpgradeSuccess(false);
+          // setUpdateRoleMessage('Xác Thực Email Thành Công');
+          setOtpError(true);
+        }
       } else {
         setRoleUpgradeSuccess(false);
         setOtpError(true);
@@ -154,7 +174,11 @@ const SignUpForm = () => {
       setError('Vui lòng tải lên đủ 3 hình ảnh (Ảnh đại diện, Mặt trước CCCD, Mặt sau CCCD).');
       return;
     }
-
+    if (!isCheckboxChecked) {
+      setCheckboxError(true); // Set checkbox error when not checked
+      return;
+    }
+    setIsLoading(true);
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
@@ -175,11 +199,13 @@ const SignUpForm = () => {
         })
         .then(data => {
           console.log(data);
+          setIsLoading(false);
           setSuccessDialogOpen(true);
         })
         .catch(err => {
 
           if (err.response.status === 400) {
+            setIsLoading(false);
             const errorMessage = err.response.data; // Assuming the error message is in the response data
             console.log('Error:', errorMessage);
             err = setError(errorMessage);
@@ -241,6 +267,7 @@ const SignUpForm = () => {
 
   const handleErrorDialogClose = () => {
     setErrorDialogOpen(false);
+    setCheckboxError(false);
   };
 
 
@@ -285,6 +312,7 @@ const SignUpForm = () => {
         color="primary"
         sx={{ marginTop: '10px', width: '100%' }}
         onClick={handleOpenOtpDialog}
+        endIcon={<EmailIcon />}
       >
         Xác Thực Email
       </Button>
@@ -371,9 +399,9 @@ const SignUpForm = () => {
             const avatarimg = files.map(f => f.fileUrl).join("\n");
             setAvatar(avatarimg);
           }
-        }} 
-        
-        />
+        }}
+
+      />
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -387,7 +415,7 @@ const SignUpForm = () => {
             const frontimg = files.map(f => f.fileUrl).join("\n");
             setFrontImage(frontimg);
           }
-        }}disabled={!roleUpgradeSuccess} />
+        }} disabled={!roleUpgradeSuccess} />
       <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -401,14 +429,27 @@ const SignUpForm = () => {
             const backimg = files.map(f => f.fileUrl).join("\n");
             setBackImage(backimg);
           }
-        }} 
-        />
+        }}
+      />
       {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
           {err}
         </Typography>
       )}
 
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={isCheckboxChecked}
+            onChange={(e) => {
+              setIsCheckboxChecked(e.target.checked);
+              setCheckboxError(false); // Clear checkbox error when checked
+            }}
+          />
+        }
+        label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá), Chính sách bảo mật thông tin khách hàng, Cơ chế giải quyết tranh chấp, Quy chế hoạt động tại website đấu giá trực tuyến lacvietauction.vn."
+      />
 
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
         <DialogContent>
@@ -456,17 +497,24 @@ const SignUpForm = () => {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
+      <Dialog open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">{err}</Typography>
+          <Typography variant="body1">{checkboxError ? 'Bạn cần chấp nhận điều khoản và điều kiện.' : err}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
-      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }} disabled={!roleUpgradeSuccess}>
-        Đăng Kí
+      <Button
+        endIcon={<PersonAddIcon />}
+        type="submit"
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: '20px' }}
+        disabled={!roleUpgradeSuccess || isLoading} // Disable when loading
+      >
+        {isLoading ? <CircularProgress size={24} /> : 'Đăng Kí'}
       </Button>
     </Box>
   );

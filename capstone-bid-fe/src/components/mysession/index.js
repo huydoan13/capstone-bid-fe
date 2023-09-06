@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
@@ -24,7 +24,7 @@ const MySessionForm = () => {
     const jsonUser = JSON.parse(user);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const isNotPaySelected = selectedOption === 'notpay' || 'success' || 'fail';
+    const isNotPaySelected = selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail';
     const isSuccessSelected = selectedOption === 'success';
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
@@ -39,6 +39,8 @@ const MySessionForm = () => {
     const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
     const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user?id=${jsonUser.Id}`;
     const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user?id=${jsonUser.Id}`;
+    const apiReceived = `https://bids-online.azurewebsites.net/api/Sessions/by_received_user?id=${jsonUser.Id}`;
+    const apiError = `https://bids-online.azurewebsites.net/api/Sessions/by_error_item_user?id=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -73,6 +75,10 @@ const MySessionForm = () => {
             apiUrl = apiComplete;
         } else if (selectedOption === 'fail') {
             apiUrl = apiFail;
+        } else if (selectedOption === 'received') {
+            apiUrl = apiReceived;
+        } else if (selectedOption === 'error') {
+            apiUrl = apiError;
         }
 
         axios
@@ -150,7 +156,7 @@ const MySessionForm = () => {
     }));
 
     const ProductDetailInfoWrapper = styled(Paper)(() => ({
-        elevation: "5",
+        width: '50%',
         display: "flex",
         flexDirection: "column",
         maxWidth: "100%",
@@ -235,6 +241,12 @@ const MySessionForm = () => {
                         <ListOptionItem button selected={selectedOption === 'fail'} onClick={() => setSelectedOption('fail')}>
                             <ListItemText primary="Phiên Đấu giá thất bại" />
                         </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'apiReceived'} onClick={() => setSelectedOption('received')}>
+                            <ListItemText primary="Phiên Đấu giá đã nhận hàng" />
+                        </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'error'} onClick={() => setSelectedOption('error')}>
+                            <ListItemText primary="Phiên Đấu giá đã Hoàn Trả" />
+                        </ListOptionItem>
                     </List>
                 </Paper>
                 <Paper elevation={5} sx={{ height: '100%', width: isScreenMd ? '100%' : '100%', ml: isScreenMd ? 0 : '1%', mt: '20px' }}>
@@ -245,11 +257,11 @@ const MySessionForm = () => {
                                     <TableRow>
                                         <TableCell>Tên sản phẩm</TableCell>
                                         <TableCell>
-                                        {(selectedOption === 'notpay'  || selectedOption === 'success' ||  selectedOption === 'fail') ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
+                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail') ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
                                             {/* {selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'} */}
                                         </TableCell>
                                         <TableCell>
-                                            {(selectedOption === 'notpay'  || selectedOption === 'success' ||  selectedOption === 'fail') ? 'Giá Cuối Cùng' : 'Bước Giá'}
+                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail') ? 'Giá Cuối Cùng' : 'Bước Giá'}
                                         </TableCell>
                                         <TableCell>Thể Loại</TableCell>
                                         <TableCell>Ngày Tạo</TableCell>
@@ -272,8 +284,14 @@ const MySessionForm = () => {
                                     ) : (
                                         (selectedOption === 'waiting' || selectedOption === 'instate') ?
                                             currentItems.map((item) => (
-                                                <TableRow key={item.itemId}>
-                                                    <TableCell>{item.itemName}</TableCell>
+                                                <TableRow key={item.itemId} style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                                                    <TableCell>
+                                                        {item.images && item.images.length > 0 ? (
+                                                            <img src={item.images[0].detail} alt="" style={{ width: '250px', height: '150px' }} />
+                                                        ) : (
+                                                            'No Image'
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>
                                                         {selectedOption === 'notpay'
                                                             ? (item.winner || '-')
@@ -390,56 +408,108 @@ const MySessionForm = () => {
                                     </ProductImageSmallWrapper>
                                 </ImageProduct>
                             )}
-                            <ProductDetailInfoWrapper>
-                                <Table>
-                                    <TableBody>
 
-                                        {isNotPaySelected ? (
-                                            <>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Tên sản phẩm:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.itemName}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Mô Tả sản phẩm:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.description}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Người Thắng Cuộc:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {selectedItem.winner || '-'}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Giá Cuối Cùng:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {selectedItem?.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Thể Loại:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem?.sessionResponseCompletes?.categoryName}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Ngày Tạo:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
-                                                </TableRow>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <TableRow>
+
+
+                            {isNotPaySelected ? (
+                                <>
+                                    {/* <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Tên sản phẩm:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>{selectedItem?.sessionResponseCompletes?.itemName}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Mô Tả sản phẩm:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>{selectedItem?.sessionResponseCompletes?.description}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Người Thắng Cuộc:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>
+                                            {selectedItem.winner || '-'}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Giá Cuối Cùng:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>
+                                            {selectedItem?.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Thể Loại:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>{selectedItem?.sessionResponseCompletes?.categoryName}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>
+                                            <TableLabel>Ngày Tạo:</TableLabel>
+                                        </TableCell>
+                                        <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
+                                    </TableRow> */}
+                                    <ProductDetailInfoWrapper>
+                                        <Stack
+                                            sx={{
+                                                boxShadow: 12,
+                                                padding: 2,
+
+                                            }}
+                                        >
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Tên sản phẩm:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.itemName} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Mô Tả sản phẩm:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.description} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Người Thắng Cuộc:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.winner || '-'} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Giá Cuối Cùng:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Thể Loại:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.categoryName} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Ngày Tạo:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(selectedItem?.createDate)} </Typography>
+                                            </Typography>
+                                        </Stack>
+                                    </ProductDetailInfoWrapper>
+                                </>
+                            ) : (
+                                <>
+                                    <ProductDetailInfoWrapper>
+                                        {/* <TableRow>
                                                     <TableCell>
                                                         <TableLabel>Tên sản phẩm:</TableLabel>
                                                     </TableCell>
@@ -451,6 +521,7 @@ const MySessionForm = () => {
                                                     </TableCell>
                                                     <TableCell>{selectedItem?.description}</TableCell>
                                                 </TableRow>
+                                                
                                                 <TableRow>
                                                     <TableCell>
                                                         <TableLabel>Giá Khởi điểm:</TableLabel>
@@ -478,20 +549,93 @@ const MySessionForm = () => {
                                                         <TableLabel>Ngày Tạo:</TableLabel>
                                                     </TableCell>
                                                     <TableCell>{formatCreateDate(selectedItem?.createDate)}</TableCell>
-                                                </TableRow>
-                                            </>
-                                        )}
+                                                </TableRow> */}
+                                        <Stack
+                                            sx={{
+                                                boxShadow: 12,
+                                                padding: 2,
 
-                                    </TableBody>
-                                </Table>
-                                {showButtonInDialog && (
-                                    <DialogActions>
-                                        <Button onClick={() => console.log('Button clicked!')} variant="contained" color="primary">
-                                            Đấu Giá Lại
-                                        </Button>
-                                    </DialogActions>
-                                )}
-                            </ProductDetailInfoWrapper>
+                                            }}
+                                        >
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Tên sản phẩm:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.itemName} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Mô Tả sản phẩm:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.description} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Giá Khởi điểm:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Bước Giá:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Thể Loại:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.categoryName} </Typography>
+                                            </Typography>
+                                            <Typography sx={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                            }}>
+                                                <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Ngày Tạo:</Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(selectedItem?.createDate)} </Typography>
+                                            </Typography>
+                                            {
+                                                selectedItem?.descriptions.map((description, index) => (
+                                                    <Typography
+                                                        key={index}
+                                                        margin={"1%"}
+                                                        sx={{
+                                                            display: "flex", // Show or hide the descriptions based on state
+                                                            justifyContent: "space-between",
+                                                        }}
+                                                    >
+                                                        <Typography color={"#696969"} variant="subtitle">
+                                                            {description.description} :
+                                                        </Typography>
+                                                        <Typography
+                                                            color={"#B41712"}
+                                                            variant="subtitle"
+                                                            sx={{ marginLeft: "auto" }}
+                                                        >
+                                                            {description.detail}
+                                                        </Typography>
+                                                    </Typography>
+                                                ))
+                                            }
+                                        </Stack>
+                                    </ProductDetailInfoWrapper>
+                                </>
+                            )}
+
+
+                            {showButtonInDialog && (
+                                <DialogActions>
+                                    <Button onClick={() => console.log('Button clicked!')} variant="contained" color="primary">
+                                        Đấu Giá Lại
+                                    </Button>
+                                </DialogActions>
+                            )}
+
                         </ProductDetailWrapper>
 
                     </>

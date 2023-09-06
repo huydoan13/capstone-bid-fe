@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
@@ -165,7 +165,7 @@ const MyProductForm = () => {
     }));
 
     const ProductDetailInfoWrapper = styled(Paper)(() => ({
-        elevation: "5",
+        width:"50%",
         display: "flex",
         flexDirection: "column",
         maxWidth: "100%",
@@ -327,8 +327,9 @@ const MyProductForm = () => {
 
                             {/* Small Images */}
 
-                            <ProductDetailInfoWrapper>
-                                <Table>
+                            
+                                <ProductDetailInfoWrapper>
+                                {/* <Table>
                                     <TableBody>
                                         <TableRow>
                                             <TableCell>
@@ -371,8 +372,83 @@ const MyProductForm = () => {
                                             <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
                                         </TableRow>
                                     </TableBody>
-                                </Table>
+                                </Table> */}
+                                <Stack
+                                sx={{
+                                    boxShadow: 12,
+                                    padding: 2,
+
+                                }}
+                            >
+                                <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Tên sản phẩm:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.itemName} </Typography>
+                                        </Typography>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Mô Tả sản phẩm:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.descriptionDetail} </Typography>
+                                        </Typography>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Giá Khởi điểm:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'} </Typography>
+                                        </Typography>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Bước Giá:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'} </Typography>
+                                        </Typography>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Thể Loại:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.categoryName} </Typography>
+                                        </Typography>
+                                        <Typography sx={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                        }}>
+                                            <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Ngày Tạo:</Typography>
+                                            <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(selectedItem?.createDate)} </Typography>
+                                        </Typography>
+                                        {
+                                            selectedItem?.descriptions.map((description, index) => (
+                                                <Typography
+                                                    key={index}
+                                                    margin={"1%"}
+                                                    sx={{
+                                                        display: "flex", // Show or hide the descriptions based on state
+                                                        justifyContent: "space-between",
+                                                    }}
+                                                >
+                                                    <Typography color={"#696969"} variant="subtitle">
+                                                        {description.description} :
+                                                    </Typography>
+                                                    <Typography
+                                                        color={"#B41712"}
+                                                        variant="subtitle"
+                                                        sx={{ marginLeft: "auto" }}
+                                                    >
+                                                        {description.detail}
+                                                    </Typography>
+                                                </Typography>
+                                            ))
+                                        }
+                                        </Stack>
                             </ProductDetailInfoWrapper>
+                            
+                            
                         </ProductDetailWrapper>
                     </>
                 )}

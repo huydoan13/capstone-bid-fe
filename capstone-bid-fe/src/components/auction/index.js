@@ -32,6 +32,7 @@ import AuctionCountdown from './auctionCountdown';
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import Scrollbar from '../scrollbar/Scrollbar';
+import startConnection from './signalr';
 
 const BidDialogContext = createContext();
 
@@ -84,11 +85,26 @@ const AuctionForm = () => {
 
   useEffect(() => {
     fetchSessionDetails();
+
   }, []);
 
   useEffect(() => {
     localStorage.setItem('currentDelayTime', currentDelayTime);
   }, [currentDelayTime]);
+
+  useEffect(() => {
+    const connection = startConnection((data) => {
+      setAuctionData(data);
+    });
+
+    // Fetch initial data
+    fetchAuctionData();
+    fetchSessionDetails();
+
+    return () => {
+      connection.stop();
+    };
+  }, []);
 
   function formatToVND(price) {
     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
@@ -185,8 +201,8 @@ const AuctionForm = () => {
 
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
 
-            window.localStorage.removeItem('currentDelayTime');
-            window.localStorage.removeItem('countdownTime');
+            // window.localStorage.removeItem('currentDelayTime');
+            // window.localStorage.removeItem('countdownTime');
             const delayFreeTime = auctionData[0]?.delayFreeTime;
             if (delayFreeTime) {
               setCurrentDelayTime(delayFreeTime);
@@ -208,6 +224,7 @@ const AuctionForm = () => {
       const remainingTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
       if (remainingTime <= 0) {
         setIsAuctionOver(true);
+        handleGoBack();
         setIsCountdownRunning(false);
       }
     }, [auctionData]);
@@ -290,19 +307,19 @@ const AuctionForm = () => {
       }
     };
 
-    let interval = null;
+    // let interval = null;
 
-    if (isIntervalActive) {
-      interval = setInterval(() => {
-        fetchAuctionData();
-        fetchSessionDetails();
-        checkAuctionEnd(); // Check if the auction has ended on each interval
-      }, 5000);
-    }
+    // if (isIntervalActive) {
+    //   interval = setInterval(() => {
+    //     fetchAuctionData();
+    //     fetchSessionDetails();
+    //     checkAuctionEnd(); 
+    //   }, 5000);
+    // }
 
-    return () => {
-      clearInterval(interval); // Clear the interval on cleanup
-    };
+    // return () => {
+    //   clearInterval(interval); 
+    // };
   }, [isIntervalActive, auctionData]);
 
   const handleDialogClose = async () => {
