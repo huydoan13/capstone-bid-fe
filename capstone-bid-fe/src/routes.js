@@ -46,6 +46,7 @@ import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import TransactionHistoryPage from './pages/TransactionHistoryPage';
+import Test from './pages/test';
 
 
 // ----------------------------------------------------------------------
@@ -75,6 +76,7 @@ export default function Router() {
     { path: 'payment-success', element: <PaymentSuccessPage /> },
     { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: <TransactionHistoryPage />},
+    { path: 'test', element: <Test />},
     
     {
       path: '/dashboard',

@@ -6,6 +6,8 @@ import { format } from 'date-fns'
 import axios from 'axios';
 import EmailIcon from '@mui/icons-material/Email';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -270,6 +272,16 @@ const SignUpForm = () => {
     setCheckboxError(false);
   };
 
+  const styles = {
+    errorIcon: {
+      fontSize: '150px',
+      color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+    TaskAltIcon:{
+      fontSize: '150px',
+      color: '#C3E1AE'
+    }
+  };
 
   return (
     <Box
@@ -453,7 +465,10 @@ const SignUpForm = () => {
 
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
         <DialogContent>
-          <DialogTitle>Xác Thực Email (Vui lòng kiểm tra gmail)</DialogTitle>
+        
+        <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+          <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
+          <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Hãy nhập mã OTP đã được gửi về địa chỉ email mà bạn đã đăng kí </Typography>
           <TextField
             label="OTP"
             fullWidth
@@ -487,9 +502,10 @@ const SignUpForm = () => {
 
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
-        <DialogTitle>Thành Công</DialogTitle>
+      <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+        <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí tài Khoản.</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">Tạo Tài Khoản thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
+          <Typography align='center' variant="subtitle2">Tài Khoản của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSuccessDialogClose}>OK</Button>

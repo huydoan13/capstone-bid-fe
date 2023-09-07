@@ -47,7 +47,7 @@ export default function Cart() {
                     <Avatar src={session.images[0].detail} sx={{ width: 50, height: 50, mr: 2, ml: 2 }} />
                 )}
 
-                <Box display="flex" flexDirection={"column"}>
+                <Box display="flex" flexDirection={"column"} >
                     <Typography variant="h6">{session.itemName}</Typography>
                     {!matches && <Typography variant="subtitle2">{session.description}</Typography>}
                 </Box>
@@ -79,7 +79,7 @@ export default function Cart() {
                 alignItems="center"
             >
                 <Typography variant="h3" color={Colors.black}>Sản Phẩm Chưa Thanh Toán </Typography>
-                <Typography variant="body1" color={Colors.muted}>Xin vui lòng thanh toán trong vòng 3 ngày nếu không bạn sẽ mất tiền cọc theo quy định của chúng tôi </Typography>
+                <Typography variant="body1" align="center" color={Colors.muted}>Xin vui lòng thanh toán trong vòng 3 ngày nếu không bạn sẽ mất tiền cọc theo quy định của chúng tôi. </Typography>
                 <Paper elevation={0}
                     sx={{
                         mt: 2,

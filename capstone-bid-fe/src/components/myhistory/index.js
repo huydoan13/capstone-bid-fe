@@ -182,8 +182,8 @@ const MyHistoryForm = () => {
                         </ListOptionItem>
                     </List>
                 </Paper>
-                <Paper  sx={{width:'100%'}}>
-                    <TableContainer sx={{width:'100%'}}>
+                <Paper sx={{ width: '100%' }}>
+                    <TableContainer sx={{ width: '100%' }}>
                         <Table stickyHeader aria-label="simple table">
                             <TableHead >
                                 <TableRow>
@@ -218,8 +218,17 @@ const MyHistoryForm = () => {
                                     </TableRow>
                                 ) : (
                                     currentItems.map((item) => (
-                                        <TableRow key={item.itemId}>
-                                            <TableCell>{selectedOption === 'instate' ? item.itemName : item?.sessionResponseCompletes?.itemName}</TableCell>
+                                        <TableRow key={item.itemId} style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                                            <TableCell>{selectedOption === 'instate' ? item.images && item.images.length > 0 ? (
+                                                <img src={item.images[0].detail} alt="" style={{ width: '250px', height: '150px' }} />
+                                            ) : (
+                                                'No Image'
+                                            ) :
+                                                item?.sessionResponseCompletes?.images && item?.sessionResponseCompletes?.images.length > 0 ? (
+                                                    <img src={item?.sessionResponseCompletes?.images[0].detail} alt="" style={{ width: '250px', height: '150px' }} />
+                                                ) : (
+                                                    'No Image'
+                                                )}</TableCell>
                                             <TableCell>
                                                 {selectedOption === 'instate'
                                                     ? (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from "@mui/material/styles";
 import axios from 'axios';
 import moment from 'moment';
-
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -33,6 +33,7 @@ import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import Scrollbar from '../scrollbar/Scrollbar';
 import startConnection from './signalr';
+import { Notify } from './sampleSignalr';
 
 const BidDialogContext = createContext();
 
@@ -66,6 +67,8 @@ const AuctionForm = () => {
   const [showDescriptions, setShowDescriptions] = useState(false);
   const [shouldResetCountdown, setShouldResetCountdown] = useState(false);
 
+  const [connection, setConnection] = useState(null);
+  const [inputText, setInputText] = useState("");
 
   const api = `https://bids-online.azurewebsites.net/api/Sessions/by_id?id=${sessionId}`
   const IncreaseApi = `https://bids-online.azurewebsites.net/api/SessionDetails/increase_price`
@@ -92,19 +95,52 @@ const AuctionForm = () => {
     localStorage.setItem('currentDelayTime', currentDelayTime);
   }, [currentDelayTime]);
 
+  // useEffect(() => {
+  //   const connection = startConnection((data) => {
+  //     setAuctionData(data);
+  //   });
+
+  //   // Fetch initial data
+  //   fetchAuctionData();
+  //   fetchSessionDetails();
+
+  //   return () => {
+  //     connection.stop();
+  //   };
+  // }, []);
+
+
+  // Real time
+
   useEffect(() => {
-    const connection = startConnection((data) => {
-      setAuctionData(data);
-    });
+    const connect = new HubConnectionBuilder()
+      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
+      .withAutomaticReconnect()
+      .build();
 
-    // Fetch initial data
-    fetchAuctionData();
-    fetchSessionDetails();
-
-    return () => {
-      connection.stop();
-    };
+    setConnection(connect);
   }, []);
+
+  useEffect(() => {
+    if (connection) {
+      connection
+        .start()
+        .then(() => {
+          connection.on("ReceiveMessage", (message) => {          
+            fetchAuctionData();
+            fetchSessionDetails();
+          });
+        })
+        .catch((error) => console.log(error));
+    }
+  }, [connection]);
+
+  const sendMessage = async () => {
+    if (connection) await connection.send("SendMessage", inputText);
+    setInputText("");
+  };
+
+  // end realtime
 
   function formatToVND(price) {
     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
@@ -128,7 +164,7 @@ const AuctionForm = () => {
       if (response.data.length > 0) {
         const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
 
-        if (remainingTime <= response.data[0]?.freeTime) {
+        if (remainingTime <= convertTimeToSeconds(response.data[0]?.freeTime)) {
           setCurrentDelayTime(response.data[0]?.delayFreeTime);
         } else {
           setCurrentDelayTime(response.data[0]?.delayTime);
@@ -197,7 +233,7 @@ const AuctionForm = () => {
             return updatedTime;
           }
 
-          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
+          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
 
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
 
@@ -224,7 +260,6 @@ const AuctionForm = () => {
       const remainingTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
       if (remainingTime <= 0) {
         setIsAuctionOver(true);
-        handleGoBack();
         setIsCountdownRunning(false);
       }
     }, [auctionData]);
@@ -307,23 +342,22 @@ const AuctionForm = () => {
       }
     };
 
-    // let interval = null;
+    let interval = null;
 
-    // if (isIntervalActive) {
-    //   interval = setInterval(() => {
-    //     fetchAuctionData();
-    //     fetchSessionDetails();
-    //     checkAuctionEnd(); 
-    //   }, 5000);
-    // }
+    if (isIntervalActive) {
+      interval = setInterval(() => {
+        checkAuctionEnd();
+      }, 1000);
+    }
 
-    // return () => {
-    //   clearInterval(interval); 
-    // };
+    return () => {
+      clearInterval(interval);
+    };
   }, [isIntervalActive, auctionData]);
 
   const handleDialogClose = async () => {
     await makeApiCall();
+    sendMessage();
     fetchAuctionData();
     fetchSessionDetails();
     setIsDialogOpen(false);
@@ -434,6 +468,7 @@ const AuctionForm = () => {
 
   return (
     <>
+    {/* <Notify/> */}
       <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
         <Product sx={{ mr: 2 }}>
           {renderProductImages()}

@@ -24,7 +24,7 @@ const MySessionForm = () => {
     const jsonUser = JSON.parse(user);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
-    const isNotPaySelected = selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail';
+    const isNotPaySelected = selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail' || selectedOption === 'received' || selectedOption === 'error';
     const isSuccessSelected = selectedOption === 'success';
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
@@ -257,11 +257,11 @@ const MySessionForm = () => {
                                     <TableRow>
                                         <TableCell>Tên sản phẩm</TableCell>
                                         <TableCell>
-                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail') ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
+                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'received' || selectedOption === 'error' || selectedOption === 'fail') ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'}
                                             {/* {selectedOption === 'notpay' ? 'Người Thắng Cuộc' : 'Giá Khởi điểm'} */}
                                         </TableCell>
                                         <TableCell>
-                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'fail') ? 'Giá Cuối Cùng' : 'Bước Giá'}
+                                            {(selectedOption === 'notpay' || selectedOption === 'success' || selectedOption === 'received' || selectedOption === 'error' || selectedOption === 'fail') ? 'Giá Cuối Cùng' : 'Bước Giá'}
                                         </TableCell>
                                         <TableCell>Thể Loại</TableCell>
                                         <TableCell>Ngày Tạo</TableCell>
@@ -313,8 +313,16 @@ const MySessionForm = () => {
                                             )) : (
                                                 // Other options (notpay, success, fail):
                                                 currentItems.map((item) => (
-                                                    <TableRow key={item.itemId}>
-                                                        <TableCell>{item?.sessionResponseCompletes?.itemName}</TableCell>
+                                                    <TableRow key={item.itemId} style={{ boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)' }}>
+                                                        {/* <TableCell>{item?.sessionResponseCompletes?.itemName}</TableCell> */}
+                                                        <TableCell>
+                                                            {item?.sessionResponseCompletes?.images && item?.sessionResponseCompletes?.images.length > 0 ? (
+                                                                <img src={item?.sessionResponseCompletes?.images[0].detail} alt="" style={{ width: '250px', height: '150px' }} />
+                                                            ) : (
+                                                                'No Image'
+                                                            )}
+                                                        </TableCell>
+
                                                         <TableCell>
                                                             {(item.winner || '-')}
                                                         </TableCell>
@@ -466,14 +474,14 @@ const MySessionForm = () => {
                                                 justifyContent: "space-between",
                                             }}>
                                                 <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Tên sản phẩm:</Typography>
-                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem.itemName} </Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.sessionResponseCompletes?.itemName} </Typography>
                                             </Typography>
                                             <Typography sx={{
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                             }}>
                                                 <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Mô Tả sản phẩm:</Typography>
-                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.description} </Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.sessionResponseCompletes?.description} </Typography>
                                             </Typography>
                                             <Typography sx={{
                                                 display: "flex",
@@ -494,7 +502,7 @@ const MySessionForm = () => {
                                                 justifyContent: "space-between",
                                             }}>
                                                 <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Thể Loại:</Typography>
-                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.categoryName} </Typography>
+                                                <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {selectedItem?.sessionResponseCompletes?.categoryName} </Typography>
                                             </Typography>
                                             <Typography sx={{
                                                 display: "flex",
@@ -503,6 +511,29 @@ const MySessionForm = () => {
                                                 <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Ngày Tạo:</Typography>
                                                 <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(selectedItem?.createDate)} </Typography>
                                             </Typography>
+                                            {
+                                                selectedItem?.sessionResponseCompletes?.descriptions.map((description, index) => (
+                                                    <Typography
+                                                        key={index}
+                                                        margin={"1%"}
+                                                        sx={{
+                                                            display: "flex", // Show or hide the descriptions based on state
+                                                            justifyContent: "space-between",
+                                                        }}
+                                                    >
+                                                        <Typography color={"#696969"} variant="subtitle">
+                                                            {description.description} :
+                                                        </Typography>
+                                                        <Typography
+                                                            color={"#B41712"}
+                                                            variant="subtitle"
+                                                            sx={{ marginLeft: "auto" }}
+                                                        >
+                                                            {description.detail}
+                                                        </Typography>
+                                                    </Typography>
+                                                ))
+                                            }
                                         </Stack>
                                     </ProductDetailInfoWrapper>
                                 </>
