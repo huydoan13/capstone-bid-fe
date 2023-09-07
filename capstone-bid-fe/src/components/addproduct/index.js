@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Uploader } from 'uploader';
 import { UploadDropzone } from 'react-uploader';
-
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import {
   Box,
   TextField,
@@ -253,6 +254,16 @@ const AddProductForm = () => {
     setErrorDialogOpen(false);
   };
 
+  const styles = {
+    TaskAltIcon:{
+      fontSize: '150px',
+      color: '#C3E1AE'
+    },
+    errorIcon: {
+      fontSize: '150px',
+      color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+  };
   return (
     <Box
       component="form"
@@ -416,11 +427,10 @@ const AddProductForm = () => {
       />
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
-        <DialogTitle>Thành Công</DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">
-            Tạo sản phẩm thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm của bạn.{' '}
-          </Typography>
+      <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+      <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí sản phẩm thành công.</DialogTitle>
+      <DialogContent>
+          <Typography align='center' variant="subtitle2">Sản phẩm của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm  của bạn. </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSuccessDialogClose}>OK</Button>
@@ -429,9 +439,10 @@ const AddProductForm = () => {
 
       {/* Error Dialog */}
       <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
-        <DialogTitle>Error</DialogTitle>
+      <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+      <DialogTitle variant='h3' align='center' >Đã có lỗi xảy ra </DialogTitle>
         <DialogContent>
-          <Typography variant="body1">{error}</Typography>
+          <Typography Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>{error}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
