@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer } from '@mui/material';
+import axios, { CancelToken } from 'axios';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer, Stack, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
 import MoreOutlinedIcon from '@mui/icons-material/MoreOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useTheme } from '@mui/styles';
 import { Colors } from "../../style/theme";
 
@@ -23,13 +25,20 @@ const MyHistoryForm = () => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user);
+    const [open, setOpen] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [apiData, setApiData] = useState({});
+    const [apiData, setApiData] = useState([]);
     const isNotPaySelected = selectedOption === 'notpay';
+    const [dialogCurrentPage, setDialogCurrentPage] = useState(1);
+    const dialogItemsPerPage = 7;
+    const [maxWidth, setMaxWidth] = React.useState('sm');
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
-
-
+    const maxPrice = Math.max(...apiData.map((item) => item.price || 0));
+    const [selectedReason, setSelectedReason] = useState(''); // State to store the selected reason
+    const [sessionIdToError, setSessionIdToError] = useState(null); // State to store the session ID for the PUT request
+    const [cancelToken, setCancelToken] = useState(null);
 
     const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
     const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
@@ -37,6 +46,9 @@ const MyHistoryForm = () => {
     const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
     const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user?id=${jsonUser.Id}`;
     const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user?id=${jsonUser.Id}`;
+    const apiWinner = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_by_winner?userId=${jsonUser.Id}`;
+    const apiRecieve = `https://bids-online.azurewebsites.net/api/Sessions/by_received_by_winner?userId=${jsonUser.Id}`;
+    const apiError = `https://bids-online.azurewebsites.net/api/Sessions/by_error_item_by_winner?userId=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -45,22 +57,121 @@ const MyHistoryForm = () => {
     useEffect(() => {
         setCurrentPage(1); // Reset current page when items change
     }, [items]);
+    useEffect(() => {
+        setDialogCurrentPage(1); // Reset current page when items change
+    }, [apiData]);
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+    };
+    const handleSuccessClickOpen = () => {
+        setSuccessOpen(true);
+    };
+
+    const handleSuccessClose = () => {
+        setOpen(false);
+        setIsPopupOpen(false);
+        setSuccessOpen(false);
+    };
+    const handleReasonChange = (event) => {
+        setSelectedReason(event.target.value);
+    };
 
     console.log(items[0]?.sessionId);
 
-    const handleOpenPopup = (sessionId) => {
-        // Fetch the item details using the API
+    const handleRecieve = () => {
+
+        console.log(sessionIdToError);
+        if (!sessionIdToError) {
+            alert('Session ID is missing.'); // You can replace this with a more user-friendly error message
+            return;
+        }
+
+        // Create the PUT request URL
+        const apiUrl = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_received`;
+
+        // Create the request body
+        const requestBody = {
+            sessionID: sessionIdToError,
+        };
+
+        // Send the PUT request
+        axios
+            .put(apiUrl, requestBody)
+            .then((response) => {
+                // Handle the response (success or failure)
+                // You can add your logic here, e.g., show a success message
+                console.log('PUT request successful:', response);
+                loadItems(option);
+                setSuccessOpen(true);
+
+            })
+            .catch((error) => {
+                // Handle the error
+                console.error('Error making PUT request:', error);
+                // You can display an error message here
+            });
+    };
+    const handleConfirmReturn = () => {
+        // Check if a reason has been selected
+        if (!selectedReason) {
+            alert('Vui lòng chọn lý do trả lại tài sản.'); // You can replace this with a more user-friendly error message
+            return;
+        }
+        console.log(sessionIdToError);
+        if (!sessionIdToError) {
+            alert('Session ID is missing.'); // You can replace this with a more user-friendly error message
+            return;
+        }
+        const apiUrl = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_error_item?reason=${selectedReason}`;
+        const requestBody = {
+            sessionID: sessionIdToError,
+        };
+        axios
+            .put(apiUrl, requestBody)
+            .then((response) => {
+                console.log('PUT request successful:', response);
+                // Close the dialog
+                loadItems(option);
+                setOpen(false);
+                setIsPopupOpen(false);
+            })
+            .catch((error) => {
+                // Handle the error
+                console.error('Error making PUT request:', error);
+            });
+    };
+    const handleOpenDialog = (sessionId) => {
+        setSessionIdToError(sessionId);
+        setOpen(true);
+    };
+    const handleCloseDialog = () => {
+        setOpen(false);
+        setSelectedReason('');
+    };
+    const handleOpenPopup = (sessionId, page) => {
 
         let apiUrl;
+        setSessionIdToError(sessionId);
 
         if (selectedOption === 'instate') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
         } else if (selectedOption === 'notpay') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
         } else if (selectedOption === 'success') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
         } else if (selectedOption === 'fail') {
-            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${sessionId}&userId=${jsonUser.Id}`;
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
+        } else if (selectedOption === 'pay-success') {
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
+        } else if (selectedOption === 'received') {
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
+        } else if (selectedOption === 'error') {
+            apiUrl = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`;
         }
 
         axios
@@ -72,15 +183,17 @@ const MyHistoryForm = () => {
             })
             .catch((error) => console.error('Error fetching item details:', error));
     };
-
-    // Function to close the popup dialog
     const handleClosePopup = () => {
         setIsPopupOpen(false);
     };
-
-
     const loadItems = (selectedOption) => {
         setLoading(true);
+
+        if (cancelToken) {
+            cancelToken.cancel('Operation canceled by the user.');
+        }
+        const source = CancelToken.source();
+        setCancelToken(source);
         let apiUrl;
         if (selectedOption === 'instate') {
             apiUrl = apiInState;
@@ -90,33 +203,45 @@ const MyHistoryForm = () => {
             apiUrl = apiComplete;
         } else if (selectedOption === 'fail') {
             apiUrl = apiFail;
+        } else if (selectedOption === 'pay-success') {
+            apiUrl = apiWinner;
+        } else if (selectedOption === 'received') {
+            apiUrl = apiRecieve;
+        } else if (selectedOption === 'error') {
+            apiUrl = apiError;
         }
-
         axios
-            .get(apiUrl, { headers: { Authorization: `Bearer ${token}` } })
+            .get(apiUrl, {
+                headers: { Authorization: `Bearer ${token}` },
+                cancelToken: source.token, // Use the new cancel token
+            })
             .then((response) => setItems(response.data))
-            .catch((error) => console.error('Error fetching items:', error))
+            .catch((error) => {
+                if (axios.isCancel(error)) {
+                    // Request was canceled, no need to handle this as an error
+                    console.log('Request canceled:', error.message);
+                } else {
+                    console.error('Error fetching items:', error);
+                }
+            })
             .finally(() => {
                 setLoading(false); // Hide loading spinner after data is fetched
             });
     };
-
-
     const formatCreateDate = (createDate) => {
         return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
     };
-
     const isScreenMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
     const handlePageChange = (event, newPage) => {
         setCurrentPage(newPage);
     };
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentItems = items.slice(startIndex, endIndex);
-
-
+    const startIndexDialog = (dialogCurrentPage - 1) * dialogItemsPerPage;
+    const endIndexDialog = startIndexDialog + dialogItemsPerPage;
+    const currentItemsDialog = apiData.slice(startIndexDialog, endIndexDialog);
     const Product = styled(Box)(({ theme }) => ({
         display: 'flex',
         flexDirection: 'column',
@@ -131,7 +256,6 @@ const MyHistoryForm = () => {
             width: '100%',
         },
     }));
-
     const MyTableContainer = styled(Paper)({
         position: 'relative',
         '& thead': {
@@ -143,7 +267,6 @@ const MyHistoryForm = () => {
             width: '100%',
         },
     });
-
     useEffect(() => {
         loadItems(selectedOption);
     }, [selectedOption]);
@@ -155,7 +278,16 @@ const MyHistoryForm = () => {
         },
         backgroundColor: selected ? Colors.secondary : Colors.transparent,
     }));
-
+    const styles = {
+        errorIcon: {
+            fontSize: '100px',
+            color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+        },
+        TaskAltIcon: {
+            fontSize: '150px',
+            color: '#C3E1AE'
+        }
+    };
     return (
         <Product>
             <Box sx={{ width: '100%' }} display="flex" flexDirection={isScreenMd ? 'column' : 'row'} mt={3}>
@@ -180,6 +312,15 @@ const MyHistoryForm = () => {
                         <ListOptionItem button selected={selectedOption === 'fail'} onClick={() => setSelectedOption('fail')}>
                             <ListItemText primary="Phiên Đấu giá thất bại" />
                         </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'pay-success'} onClick={() => setSelectedOption('pay-success')}>
+                            <ListItemText primary="Thắng cuộc đã thanh toán" />
+                        </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'received'} onClick={() => setSelectedOption('received')}>
+                            <ListItemText primary="Đã nhận Tài sản" />
+                        </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'error'} onClick={() => setSelectedOption('error')}>
+                            <ListItemText primary="Hoàn trả tài sản" />
+                        </ListOptionItem>
                     </List>
                 </Paper>
                 <Paper sx={{ width: '100%' }}>
@@ -189,12 +330,12 @@ const MyHistoryForm = () => {
                                 <TableRow>
                                     <TableCell>Tên sản phẩm</TableCell>
                                     <TableCell>
-                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success'
+                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success' || selectedOption === 'pay-success' || selectedOption === 'received' || selectedOption === 'error'
                                             ? 'Người Thắng Cuộc'
                                             : 'Giá Khởi điểm'}
                                     </TableCell>
                                     <TableCell>
-                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success'
+                                        {selectedOption === 'notpay' || selectedOption === 'fail' || selectedOption === 'success' || selectedOption === 'pay-success' || selectedOption === 'received' || selectedOption === 'error'
                                             ? 'Giá Cuối Cùng'
                                             : 'Giá Hiện Tại'}
                                     </TableCell>
@@ -231,18 +372,18 @@ const MyHistoryForm = () => {
                                                 )}</TableCell>
                                             <TableCell>
                                                 {selectedOption === 'instate'
-                                                    ? (item.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
-                                                    : (item.winner || '-')}
+                                                    ? (item?.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
+                                                    : (item?.winner || '-')}
                                             </TableCell>
                                             <TableCell>
                                                 {selectedOption === 'instate'
                                                     ? (item.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')
                                                     : (item.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-')}
                                             </TableCell>
-                                            <TableCell>{selectedOption === 'instate' ? item.categoryName : item?.sessionResponseCompletes?.categoryName}</TableCell>
-                                            <TableCell>{formatCreateDate(item.createDate)}</TableCell>
+                                            <TableCell>{selectedOption === 'instate' ? item?.categoryName : item?.sessionResponseCompletes?.categoryName}</TableCell>
+                                            <TableCell>{formatCreateDate(item?.createDate)}</TableCell>
                                             <TableCell>
-                                                <IconButton onClick={() => handleOpenPopup(selectedOption === 'instate' ? item : item.sessionResponseCompletes.sessionId)}>
+                                                <IconButton onClick={() => handleOpenPopup(selectedOption === 'instate' ? item.sessionId : item.sessionResponseCompletes.sessionId)}>
                                                     <MoreOutlinedIcon />
                                                 </IconButton>
                                             </TableCell>
@@ -262,61 +403,207 @@ const MyHistoryForm = () => {
                     />
                 </Paper>
             </Box>
-
-            <Dialog
-                // TransitionComponent={SlideTransition}
-                variant="permanant"
-                open={isPopupOpen}
-                fullScreen
-            >
-                <DialogTitle
-                    sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
+            {(selectedOption === 'pay-success') ? (
+                <Dialog
+                    // TransitionComponent={SlideTransition}
+                    variant="permanant"
+                    open={isPopupOpen}
+                    fullScreen
                 >
-                    <Box
-                        display="flex"
-                        alignItems="center"
-                        justifyContent={"space-between"}
-                        fontSize={"25px"}
+                    <DialogTitle
+                        sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
                     >
-                        Lịch Sử Đấu Giá Của Phiên
-                        <IconButton onClick={handleClosePopup}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-                </DialogTitle>
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent={"space-between"}
+                            fontSize={"25px"}
+                        >
+                            Lịch Sử Đấu Giá Của Phiên
+                            <IconButton onClick={handleClosePopup}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                    </DialogTitle>
 
+                    <DialogContent>
+                        {/* Loop through the data and display each item */}
+                        {Array.isArray(apiData) && apiData.length > 0 ? (
+                            <MyTableContainer>
+                                <Table aria-label="simple table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="center">Người Đấu Giá:</TableCell>
+                                            <TableCell align="center">Sản Phẩm:</TableCell>
+                                            <TableCell align="center">Giá đấu thầu:</TableCell>
+                                            <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
+                                            {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {currentItemsDialog.map((item) => (
+                                            <TableRow key={item.sessionDetailId}>
+                                                <TableCell align="center">{item?.userName}</TableCell>
+                                                <TableCell align="center">{item?.itemName}</TableCell>
+                                                <TableCell align="center">
+                                                    {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
+                                                </TableCell>
+                                                {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
+                                                    {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
+                                                </TableCell>}
+                                            </TableRow>
+                                        ))}
+
+                                    </TableBody>
+                                </Table>
+                                <Stack
+                                    spacing={2}
+                                    direction="row"
+                                    justifyContent="flex-end" // Align to the right
+                                    padding={2} // Optional padding
+                                    marginTop={"1%"}
+                                    marginRight={"5%"}
+                                >
+                                    <Button variant="outlined" onClick={handleRecieve}>Đã Nhận Hàng</Button>
+                                    <Button variant="outlined" onClick={handleClickOpen} >Trả Hàng Hoàn Tiền</Button>
+                                </Stack>
+                            </MyTableContainer>
+
+                        ) : (
+                            <div>No data to display.</div>
+                        )}
+                    </DialogContent>
+                    <Pagination
+                        count={Math.ceil(apiData.length / dialogItemsPerPage)}
+                        page={dialogCurrentPage}
+                        onChange={(event, page) => setDialogCurrentPage(page)}
+                        color="primary"
+                        size="large"
+                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                    />
+
+                </Dialog>
+            ) : (
+                <Dialog
+                    variant="permanant"
+                    open={isPopupOpen}
+                    fullScreen
+                >
+                    <DialogTitle
+                        sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
+                    >
+                        <Box
+                            display="flex"
+                            alignItems="center"
+                            justifyContent={"space-between"}
+                            fontSize={"25px"}
+                        >
+                            Lịch Sử Đấu Giá Của Phiên
+                            <IconButton onClick={handleClosePopup}>
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                    </DialogTitle>
+                    <DialogContent>
+                        {/* Loop through the data and display each item */}
+                        {Array.isArray(apiData) && apiData.length > 0 ? (
+                            <MyTableContainer>
+                                <Table aria-label="simple table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell align="center">Người Đấu Giá:</TableCell>
+                                            <TableCell align="center">Sản Phẩm:</TableCell>
+                                            <TableCell align="center">Giá đấu thầu:</TableCell>
+                                            <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
+                                            {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {currentItemsDialog.map((item) => (
+                                            <TableRow key={item.sessionDetailId}>
+                                                <TableCell align="center">{item?.userName}</TableCell>
+                                                <TableCell align="center">{item?.itemName}</TableCell>
+                                                <TableCell align="center">
+                                                    {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                </TableCell>
+                                                <TableCell align="center">
+                                                    {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
+                                                </TableCell>
+                                                {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
+                                                    {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
+                                                </TableCell>}
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </MyTableContainer>
+                        ) : (
+                            <div>No data to display.</div>
+                        )}
+                    </DialogContent>
+                    <Pagination
+                        count={Math.ceil(apiData.length / dialogItemsPerPage)}
+                        page={dialogCurrentPage}
+                        onChange={(event, page) => setDialogCurrentPage(page)}
+                        color="primary"
+                        size="large"
+                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                    />
+                </Dialog>)}
+            <Dialog fullWidth maxWidth={maxWidth} open={open} onClose={handleCloseDialog}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">
+                    Xác nhận trả hàng
+                </DialogTitle>
                 <DialogContent>
-                    {/* Loop through the data and display each item */}
-                    <MyTableContainer>
-                        <Table aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell align="center">Người Đấu Giá:</TableCell>
-                                    <TableCell align="center">Sản Phẩm:</TableCell>
-                                    <TableCell align="center">Giá đấu thầu:</TableCell>
-                                    <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {Array.isArray(apiData) && apiData.map((item) => (
-                                    <TableRow key={item.sessionDetailId}>
-                                        <TableCell align="center">{item.userName}</TableCell>
-                                        <TableCell align="center">{item.itemName}</TableCell>
-                                        <TableCell align="center">{item.price}</TableCell>
-                                        <TableCell align="center">{item.createDate}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </MyTableContainer>
-                    {(!Array.isArray(apiData) || apiData.length === 0) && (
-                        <div>No data to display.</div>
-                    )}
+                    <Typography variant="subtitle2" sx={{ marginBottom: '25px' }} align="center">
+                        Bạn có đồng ý trả lại tài sản lưu ý bạn sẽ mất số tiền tham gia và tiền cọc của tài sản
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ marginBottom: '25px' }} align="center">
+                        Xin vui lòng chọn lý do hoàn trả tài sản
+                    </Typography>
+                    <FormControl fullWidth>
+                        <InputLabel>Lý do hoàn trả</InputLabel>
+                        <Select
+                            value={selectedReason}
+                            onChange={handleReasonChange}
+                        >
+                            <MenuItem value="Tài sản không đúng với mô tả">Tài sản không đúng với mô tả</MenuItem>
+                            <MenuItem value="Tôi không muốn mua tài sản này nữa">Tôi không muốn mua tài sản này nữa</MenuItem>
+                            <MenuItem value="Thay đổi địa chỉ nhận tài sản">Thay đổi địa chỉ nhận tài sản</MenuItem>
+                            <MenuItem value="Chưa nhận được tài sản">Chưa nhận được tài sản</MenuItem>
+                            <MenuItem value="Lý do khác">Lý do khác</MenuItem>
+                        </Select>
+                    </FormControl>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" color="success" onClick={handleConfirmReturn}>
+                        Đồng ý
+                    </Button>
+                    <Button variant="contained" color="error" onClick={handleCloseDialog}>
+                        Hủy bỏ
+                    </Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog fullWidth maxWidth={maxWidth} open={successOpen} onClose={handleSuccessClose}>
+                <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+                <DialogTitle variant='h4' align='center' >Thành Công</DialogTitle>
+                <DialogContent>
+                    <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Đã nhận tài sản thành công, xin cám ơn bạn đã sử dụng dịch vu của chúng tôi</Typography>
                 </DialogContent>
 
+                <DialogActions>
+                    <Button variant="contained" color='success' onClick={handleSuccessClose}>Đồng ý</Button>
+                </DialogActions>
+
             </Dialog>
+
         </Product>
     );
 };
-
 export default MyHistoryForm;

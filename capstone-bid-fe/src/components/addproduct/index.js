@@ -18,6 +18,10 @@ import {
   DialogContent,
   DialogActions,
   CircularProgress,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  Grid,
 } from '@mui/material';
 import styled from '@emotion/styled';
 import axios from 'axios';
@@ -28,6 +32,7 @@ const AddProductForm = () => {
   const [categoryId, setCategoryId] = useState('');
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
   const [categories, setCategories] = useState([]);
+  const [deposit, setDeposit] = useState(false);
   const [quantity, setQuantity] = useState('');
   const [firstPrice, setFirstPrice] = useState('');
   const [stepPrice, setStepPrice] = useState('');
@@ -46,8 +51,12 @@ const AddProductForm = () => {
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
   const [calculatedStepPrice, setCalculatedStepPrice] = useState('');
+  const [maxWidth, setMaxWidth] = React.useState('sm');
 
-  const uploader = Uploader({ apiKey: 'public_kW15bfw7HM9PmAu3eqEkeP4eD6aN' });
+  const [auctionHourError, setAuctionHourError] = useState('');
+  const [auctionMinuteError, setAuctionMinuteError] = useState('');
+
+  const uploader = Uploader({ apiKey: 'public_FW25bg99SG8rFu6ZSxaj8xxrYEya' });
   const uploaderOptions = {
     multi: true,
 
@@ -130,6 +139,24 @@ const AddProductForm = () => {
     event.preventDefault();
     setLoading(true);
     // Perform further processing or API call with the form data
+
+    if (auctionHour < 0 || auctionHour > 10) {
+      setError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+      setErrorDialogOpen(true); // Show error dialog
+      return; // Prevent form submission
+    }
+
+    if (auctionMinute < 0 || auctionMinute > 60) {
+      setError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
+      setErrorDialogOpen(true); // Show error dialog
+      return; // Prevent form submission
+    }
+    if (!image) {
+      setError('Hình Ảnh Không Được Bỏ Trống');
+      setErrorDialogOpen(true);
+      setLoading(false);
+      return; // Prevent form submission
+    }
     const formData = {
       userId: jsonUser.Id,
       itemName,
@@ -142,7 +169,7 @@ const AddProductForm = () => {
       image,
       firstPrice,
       stepPrice,
-
+      deposit, // Include the deposit value
     };
 
     // api = `api/${userId}`
@@ -172,12 +199,18 @@ const AddProductForm = () => {
             // Now upload the image to the new API endpoint
             const imageUrls = image.split('\n');
 
+            if(!imageUrls){
+              setError("Hình Ảnh Không Được Bỏ Trống");
+              setErrorDialogOpen(true);
+              return;
+            }
             // Create an array to store the promises for image uploads
             const imageUploadPromises = imageUrls.map((imageUrl) => {
               const imageFormData = {
                 itemId,
                 detailImage: imageUrl,
               };
+              
               return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
                 headers: { Authorization: `Bearer ${token}` },
               });
@@ -202,6 +235,7 @@ const AddProductForm = () => {
               })
               .catch((error) => {
                 console.error('Error uploading image:', error);
+                setLoading(false);
                 setErrorDialogOpen(true);
               })
               .finally(() => {
@@ -251,11 +285,12 @@ const AddProductForm = () => {
   };
 
   const handleErrorDialogClose = () => {
+    setLoading(false);
     setErrorDialogOpen(false);
   };
 
   const styles = {
-    TaskAltIcon:{
+    TaskAltIcon: {
       fontSize: '150px',
       color: '#C3E1AE'
     },
@@ -289,16 +324,7 @@ const AddProductForm = () => {
         margin="normal"
       />
 
-      <TextField
-        label="Mô Tả Sản Phẩm"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-        multiline
-        rows={4}
-      />
+
 
       <FormControl fullWidth required margin="normal">
         <InputLabel>Thể Loại Sản Phẩm</InputLabel>
@@ -334,35 +360,82 @@ const AddProductForm = () => {
         ))}
       </Box>
 
-      <TextField
-        label="Số Lượng"
-        value={quantity}
-        onChange={(event) => setQuantity(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-        type="number"
-      />
+
+      <Grid container >
+        <Grid xs={6}>
+          <TextField
+            label="Số Lượng"
+            value={quantity}
+            onChange={(event) => setQuantity(event.target.value)}
+            fullWidth
+            required
+            margin="normal"
+            type="number"
+          />
+        </Grid>
+        <Grid xs={6} paddingLeft={"125px"}>
+          <Box sx={{width: '50%'}}>
+          <InputLabel>Yêu cầu đặt cọc</InputLabel>
+          <RadioGroup
+            aria-label="Yêu cầu đặt cọc"
+            row
+            name="deposit"
+            value={deposit.toString()} // Convert boolean to string
+            onChange={(event) => {
+              setDeposit(event.target.value === 'true'); // Convert string back to boolean
+            }}
+          >
+            <FormControlLabel value="true" control={<Radio />} label="Có" />
+            <FormControlLabel value="false" control={<Radio />} label="Không" />
+          </RadioGroup>
+          </Box>
+        </Grid>
+      </Grid>
+
 
       <TextField
         label="Thời gian đấu giá (giờ)"
         value={auctionHour}
-        onChange={(event) => setAuctionHour(event.target.value)}
+        onChange={(event) => {
+          const newValue = event.target.value;
+          setAuctionHour(newValue);
+
+          // Validate the input value (not negative and between 0 - 10)
+          if (newValue < 0 || newValue > 10) {
+            setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+          } else {
+            setAuctionHourError('');
+          }
+        }}
         fullWidth
         required
         margin="normal"
         type="number"
+        error={!!auctionHourError}
+        helperText={auctionHourError}
       />
+
       <TextField
         label="Thời gian đấu giá (phút)"
         value={auctionMinute}
-        onChange={(event) => setAuctionMinute(event.target.value)}
+        onChange={(event) => {
+          const newValue = event.target.value;
+          setAuctionMinute(newValue);
+
+          // Validate the input value (not negative and between 0 - 60)
+          if (newValue < 0 || newValue > 60) {
+            setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
+          } else {
+            setAuctionMinuteError('');
+          }
+        }}
         fullWidth
         required
         margin="normal"
         type="number"
+        error={!!auctionMinuteError}
+        helperText={auctionMinuteError}
       />
-
       <FormControl fullWidth required margin="normal">
         <InputLabel id="demo-simple-select-label">Loại Phiên đấu giá</InputLabel>
         <Select
@@ -376,6 +449,16 @@ const AddProductForm = () => {
         </Select>
       </FormControl>
 
+      <TextField
+        label="Mô Tả Sản Phẩm"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        multiline
+        rows={4}
+      />
       <description>Hình Ảnh Sản Phẩm</description>
       <UploadDropzone
         uploader={uploader} // Required.
@@ -427,9 +510,9 @@ const AddProductForm = () => {
       />
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
-      <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
-      <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí sản phẩm thành công.</DialogTitle>
-      <DialogContent>
+        <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+        <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí sản phẩm thành công.</DialogTitle>
+        <DialogContent>
           <Typography align='center' variant="subtitle2">Sản phẩm của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm  của bạn. </Typography>
         </DialogContent>
         <DialogActions>
@@ -438,9 +521,9 @@ const AddProductForm = () => {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
-      <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
-      <DialogTitle variant='h3' align='center' >Đã có lỗi xảy ra </DialogTitle>
+      <Dialog fullWidth maxWidth={maxWidth} open={errorDialogOpen} onClose={handleErrorDialogClose}>
+        <DialogTitle sx={{ textAlign: 'center', }}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+        <DialogTitle variant='h3' align='center' >Đã có lỗi xảy ra </DialogTitle>
         <DialogContent>
           <Typography Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>{error}</Typography>
         </DialogContent>

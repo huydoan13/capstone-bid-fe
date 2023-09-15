@@ -29,7 +29,7 @@ const ShoppingCartForm = () => {
 
     const api = `https://bids-online.azurewebsites.net/api/Sessions/by_user_for_payment?id=${jsonUser.Id}`;
 
-    const paymentAPI =  `https://bids-online.azurewebsites.net/api/Login/payment_complete?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe-git-descrip-f85d2b-doannguyenquochuy13-gmailcom.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
+    const paymentAPI =  `https://bids-online.azurewebsites.net/api/Login/payment_complete?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=http://localhost:3000/payment-success&urlFail=http://localhost:3000/payment-fail`
     useEffect(() => {
         axios.get(api, { headers: { Authorization: `Bearer ${token}` } })
             .then(response => {
@@ -83,7 +83,7 @@ const ShoppingCartForm = () => {
 
             justifyContent={"center"}
             alignItems={"center"}>
-            <TableContainer sx={{ width: matches? '100%':'50%'}} component={Paper}>
+            <TableContainer sx={{ width: matches? '100%':'60%'}} component={Paper}>
                 <Table sx={{ maxWidth: '100%' }} aria-label="spanning table">
                     <TableHead>
                         <TableRow>
@@ -117,14 +117,14 @@ const ShoppingCartForm = () => {
                 </Table>
             </TableContainer>
             <Dialog fullWidth maxWidth={maxWidth} open={dialogOpen} onClose={closeDialog}>
-                <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+                <DialogTitle align='center' variant='h3'>Chi Tiết Đơn Hàng</DialogTitle>
                 <DialogContent>
                     {selectedItem && (
                         <>
-                            <Grid marginTop={"50px"} marginBottom={"50px"} container sx={12}>
+                            <Grid marginTop={"30px"} marginBottom={"30px"} container sx={12}>
                                 <Grid margin={1}>
                                     {selectedItem.images && selectedItem.images.length > 0 && (
-                                        <img src={selectedItem.images[0].detail} alt="Product" style={{ height:matches ?"50px" : '100px', width: matches ?"50px" : '100px' }} />
+                                        <img src={selectedItem.images[0].detail} alt="Product" style={{ height:matches ?"50px" : "100px", width: matches ?"50px" : '100px' }} />
                                     )}
                                 </Grid>
                                 <Grid margin={1}>

@@ -57,7 +57,7 @@ export default function AppbarDesktop({ matches }) {
                         </Link>
                     </MenuItem>
                     <MenuItem onClick={handleMenuClose}>
-                        <Link component="a" href="/finish" underline="none" color="inherit">
+                        <Link component="a" href="/404" underline="none" color="inherit">
                             Cuộc Đấu Giá Đã Kết Thúc
                         </Link>
                     </MenuItem>
@@ -66,10 +66,10 @@ export default function AppbarDesktop({ matches }) {
                 {role === "User" ? (
                     <>
                         <ListItemButton component="a" href="/addproduct">
-                            <ListItemText primary="Thêm Sản Phẩm Đấu Giá" />
+                            <ListItemText primary="Thêm Tài Sản Đấu Giá" />
                         </ListItemButton>
-                        <ListItemButton component="a" href="/myproduct">
-                            <ListItemText primary="Sản Phẩm Của Tôi" />
+                        <ListItemButton component="a" href="/myitem">
+                            <ListItemText primary="Tài Sản Của Tôi" />
                         </ListItemButton>
                         <ListItemButton component="a" href="/myhistory">
                             <ListItemText primary="Lịch Sử Đấu Giá" />

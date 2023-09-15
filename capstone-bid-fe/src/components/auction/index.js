@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate,useParams} from 'react-router-dom';
 import { useTheme } from "@mui/material/styles";
 import axios from 'axios';
 import moment from 'moment';
@@ -60,7 +60,8 @@ const AuctionForm = () => {
   const [isIntervalActive, setIsIntervalActive] = useState(true);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
   const token = localStorage.getItem('token');
-  const sessionId = localStorage.getItem('sessionId');
+  // const sessionId = localStorage.getItem('sessionId');
+  const { sessionId } = useParams();
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
   const [sessionDetails, setSessionDetails] = useState([]);
@@ -88,7 +89,7 @@ const AuctionForm = () => {
 
   useEffect(() => {
     fetchSessionDetails();
-
+    fetchAuctionData();
   }, []);
 
   useEffect(() => {
@@ -126,7 +127,7 @@ const AuctionForm = () => {
       connection
         .start()
         .then(() => {
-          connection.on("ReceiveMessage", (message) => {          
+          connection.on("ReceiveSessionDetailAdd", (message) => {          
             fetchAuctionData();
             fetchSessionDetails();
           });
@@ -136,7 +137,7 @@ const AuctionForm = () => {
   }, [connection]);
 
   const sendMessage = async () => {
-    if (connection) await connection.send("SendMessage", inputText);
+    if (connection) await connection.send("SessionDetailAdd", inputText);
     setInputText("");
   };
 
@@ -383,7 +384,7 @@ const AuctionForm = () => {
   });
 
   const ProductDetailImage1 = styled('img')(({ theme }) => ({
-    width: '750px',
+    width: '650px',
     height: '500px',
     background: Colors.light_gray,
     padding: '10px',

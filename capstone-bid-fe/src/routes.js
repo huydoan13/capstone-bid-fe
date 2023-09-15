@@ -46,7 +46,7 @@ import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import TransactionHistoryPage from './pages/TransactionHistoryPage';
-import Test from './pages/test';
+import Reauction from './pages/Reauction';
 
 
 // ----------------------------------------------------------------------
@@ -60,7 +60,7 @@ export default function Router() {
     //     </RolesAuthRoute>
     //   </Suspense>
     // ), },
-    { path: 'auction', element: <AuctionPage /> },
+    { path: 'auction/:sessionId', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
@@ -68,7 +68,7 @@ export default function Router() {
     { path: 'prepare', element: <PrepareSession />},
     { path: 'instage', element: <InstageSession />},
     { path: 'finish', element: <FinishSession />},
-    { path: 'myproduct', element: <MyProductPage />},
+    { path: 'myitem', element: <MyProductPage />},
     { path: 'mysession', element: <MySessionPage />},
     { path: 'myhistory', element: <MyHistoryPage />},
     { path: 'shoppingcart', element: <ShoppingCartPage />},
@@ -76,7 +76,7 @@ export default function Router() {
     { path: 'payment-success', element: <PaymentSuccessPage /> },
     { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: <TransactionHistoryPage />},
-    { path: 'test', element: <Test />},
+    { path: 're-auction/:itemId', element: <Reauction /> },
     
     {
       path: '/dashboard',

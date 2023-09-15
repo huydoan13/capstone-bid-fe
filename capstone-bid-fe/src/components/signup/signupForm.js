@@ -16,6 +16,7 @@ const SignUpForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
+  const [paypalAccount, setPaypalAccount] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhoneNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -39,11 +40,11 @@ const SignUpForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-
+  const [emailDisabled, setEmailDisabled] = useState(false);
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_kW15bfw7HM9PmAu3eqEkeP4eD6aN" });
+  const uploader = Uploader({ apiKey: "public_FW25bg99SG8rFu6ZSxaj8xxrYEya" });
 
   const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
   const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`
@@ -93,28 +94,28 @@ const SignUpForm = () => {
     setUpdateRoleMessage(''); // If needed to clear the updateRoleMessage state
   };
 
-  const onFileSelected = async (event, setImageState) => {
-    const [file] = event.target.files;
-    const formData = new FormData();
-    formData.append('file', file);
+  // const onFileSelected = async (event, setImageState) => {
+  //   const [file] = event.target.files;
+  //   const formData = new FormData();
+  //   formData.append('file', file);
 
-    try {
-      const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress({ progress });
-        },
-      });
+  //   try {
+  //     const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
+  //       onUploadProgress: (progressEvent) => {
+  //         const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+  //         onProgress({ progress });
+  //       },
+  //     });
 
-      alert(`File uploaded: ${response.data.fileUrl}`);
-      setImageState(response.data.fileUrl);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-  const onProgress = ({ progress }) => {
-    console.log(`File uploading: ${progress}% complete.`)
-  }
+  //     alert(`File uploaded: ${response.data.fileUrl}`);
+  //     setImageState(response.data.fileUrl);
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //   }
+  // };
+  // const onProgress = ({ progress }) => {
+  //   console.log(`File uploading: ${progress}% complete.`)
+  // }
 
 
   const handleUpgradeToAuctioneer = async () => {
@@ -135,6 +136,7 @@ const SignUpForm = () => {
           setRoleUpgradeSuccess(true);
           setUpdateRoleMessage('Xác Thực Email Thành Công');
           setOtpError(false);
+          setEmailDisabled(true);
         } else if (response.data === false) {
           setRoleUpgradeSuccess(false);
           // setUpdateRoleMessage('Xác Thực Email Thành Công');
@@ -201,8 +203,30 @@ const SignUpForm = () => {
         })
         .then(data => {
           console.log(data);
-          setIsLoading(false);
+          const userID = data.data.userId;
+          console.log(userID);
+          const paypalData = {
+            userId : userID,
+            paypalAccount,
+          };
+        
+          axios.post('https://bids-online.azurewebsites.net/api/UserPaymentInformation', paypalData)
+            
+            .catch(err => {
+              if (err.response.status === 400) {
+                setIsLoading(false);
+                const errorMessage = err.response.data; // Assuming the error message is in the response data
+                console.log('Error:', errorMessage);
+                err = setError(errorMessage);
+                setErrorDialogOpen(true);
+              }
+            }).then(response => {
+              setIsLoading(false);
           setSuccessDialogOpen(true);
+            });
+        
+          // These statements should not be inside the inner .then block
+          
         })
         .catch(err => {
 
@@ -214,7 +238,7 @@ const SignUpForm = () => {
             setErrorDialogOpen(true);
           }
           console.log('Server response:', response.data);
-          setSuccessDialogOpen(true);
+          // setSuccessDialogOpen(true);
           // if (err.response && err.response.data && err.response.data.errors) {
           //   const serverErrors = err.response.data.errors;
           //   let formattedErrors = "";
@@ -250,6 +274,7 @@ const SignUpForm = () => {
       setFrontImage(null);
       setBackImage(null);
       setError('');
+      
     } catch (error) {
       // console.error('Error:', error.response);
 
@@ -315,6 +340,7 @@ const SignUpForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         margin="normal"
+        disabled={emailDisabled}
         required
         sx={{ width: '100%' }}
         id="email"
@@ -349,6 +375,17 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="rePassword"
+        disabled={!roleUpgradeSuccess}
+      />
+      <TextField
+        label="Tài Khoản PayPal"
+        type="text"
+        value={paypalAccount}
+        onChange={(e) => setPaypalAccount(e.target.value)}
+        margin="normal"
+        required
+        sx={{ width: '100%' }}
+        id="paypal"
         disabled={!roleUpgradeSuccess}
       />
       <TextField
@@ -454,6 +491,7 @@ const SignUpForm = () => {
           <Checkbox
             color="primary"
             checked={isCheckboxChecked}
+            disabled={!roleUpgradeSuccess}
             onChange={(e) => {
               setIsCheckboxChecked(e.target.checked);
               setCheckboxError(false); // Clear checkbox error when checked
@@ -464,10 +502,11 @@ const SignUpForm = () => {
       />
 
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
-        <DialogContent>
+        
         
         <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
           <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
+          <DialogContent>
           <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Hãy nhập mã OTP đã được gửi về địa chỉ email mà bạn đã đăng kí </Typography>
           <TextField
             label="OTP"
@@ -522,6 +561,7 @@ const SignUpForm = () => {
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
+      
       <Button
         endIcon={<PersonAddIcon />}
         type="submit"

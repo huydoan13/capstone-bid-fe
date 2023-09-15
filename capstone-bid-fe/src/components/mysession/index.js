@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
+import { useNavigate } from 'react-router-dom';
 import MoreOutlinedIcon from '@mui/icons-material/MoreOutlined';
 import { useTheme } from '@mui/styles';
 import { Colors } from "../../style/theme";
+
 
 
 const MySessionForm = () => {
@@ -28,12 +30,11 @@ const MySessionForm = () => {
     const isSuccessSelected = selectedOption === 'success';
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
+    const [cancelToken, setCancelToken] = useState(null);
+    const navigate = useNavigate();
     function SlideTransition(props) {
         return <Slide direction="down" {...props} />;
     }
-
-
-
     const apiNotStart = `https://bids-online.azurewebsites.net/api/Sessions/by_not_start_user?id=${jsonUser.Id}`;
     const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user?id=${jsonUser.Id}`;
     const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
@@ -49,21 +50,32 @@ const MySessionForm = () => {
     useEffect(() => {
         setCurrentPage(1); // Reset current page when items change
     }, [items]);
-
-
-
     const handleOpenPopup = (item) => {
         setSelectedItem(item);
         setIsPopupOpen(true);
         setShowButtonInDialog(selectedOption === 'fail');
     };
 
+    const handleReAuctionClick = () => {
+        if (selectedItem) {
+            const itemId = selectedItem?.sessionResponseCompletes?.itemId;
+            console.log(itemId);
+            navigate(`/re-auction/${itemId}`);
+        }
+    };
     // Function to close the popup dialog
     const handleClosePopup = () => {
         setIsPopupOpen(false);
     };
     const loadItems = (selectedOption) => {
         setLoading(true);
+        if (cancelToken) {
+            cancelToken.cancel('Operation canceled by the user.');
+          }
+        
+          // Create a new cancel token for the current request
+          const source = CancelToken.source();
+          setCancelToken(source);
         let apiUrl;
         if (selectedOption === 'waiting') {
             apiUrl = apiNotStart;
@@ -82,14 +94,20 @@ const MySessionForm = () => {
         }
 
         axios
-            .get(apiUrl, { headers: { Authorization: `Bearer ${token}` } })
+            .get(apiUrl, { headers: { Authorization: `Bearer ${token}` },cancelToken: source.token,})
             .then((response) => setItems(response.data))
-            .catch((error) => console.error('Error fetching items:', error))
+            .catch((error) => {
+                if (axios.isCancel(error)) {
+                  // Request was canceled, no need to handle this as an error
+                  console.log('Request canceled:', error.message);
+                } else {
+                  console.error('Error fetching items:', error);
+                }
+              })
             .finally(() => {
                 setLoading(false); // Hide loading spinner after data is fetched
             });
     };
-
     const handleFailedAuctionClick = (item) => {
         setSelectedItem(item);
         setIsPopupOpen(true);
@@ -98,25 +116,20 @@ const MySessionForm = () => {
         display: "flex",
         gap: "8px", // Add some space between small images
     });
-
     const formatCreateDate = (createDate) => {
         return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
     };
-
     const isScreenMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
 
     const handlePageChange = (event, newPage) => {
         setCurrentPage(newPage);
     };
-
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentItems = items.slice(startIndex, endIndex);
     const handleImageClick = (index) => {
         setSelectedImageIndex(index);
     };
-
-
     const ProductDetailWrapper = styled(Box)(({ theme }) => ({
         display: "flex",
         padding: theme.spacing(4),
@@ -354,7 +367,6 @@ const MySessionForm = () => {
                     </Box>
                 </Paper>
             </Box>
-
             <Dialog
                 // TransitionComponent={SlideTransition}
                 variant="permanant"
@@ -379,8 +391,7 @@ const MySessionForm = () => {
                 {selectedItem && (
                     <>
                         <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
-
-                            {isNotPaySelected ? (
+                          {isNotPaySelected ? (
                                 <ImageProduct sx={{ mr: 4 }}>
                                     <ProductImageBig
                                         src={selectedItem?.sessionResponseCompletes?.images?.[selectedImageIndex]?.detail || ''}
@@ -398,8 +409,7 @@ const MySessionForm = () => {
                                     </ProductImageSmallWrapper>
                                 </ImageProduct>
                             ) : (
-
-                                <ImageProduct sx={{ mr: 4 }}>
+                               <ImageProduct sx={{ mr: 4 }}>
                                     <ProductImageBig
                                         src={selectedItem.images?.[selectedImageIndex]?.detail || ''}
                                         alt={`Big Image`}
@@ -416,51 +426,8 @@ const MySessionForm = () => {
                                     </ProductImageSmallWrapper>
                                 </ImageProduct>
                             )}
-
-
-
                             {isNotPaySelected ? (
                                 <>
-                                    {/* <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Tên sản phẩm:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>{selectedItem?.sessionResponseCompletes?.itemName}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Mô Tả sản phẩm:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>{selectedItem?.sessionResponseCompletes?.description}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Người Thắng Cuộc:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>
-                                            {selectedItem.winner || '-'}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Giá Cuối Cùng:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>
-                                            {selectedItem?.sessionResponseCompletes?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Thể Loại:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>{selectedItem?.sessionResponseCompletes?.categoryName}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableLabel>Ngày Tạo:</TableLabel>
-                                        </TableCell>
-                                        <TableCell>{formatCreateDate(selectedItem.createDate)}</TableCell>
-                                    </TableRow> */}
                                     <ProductDetailInfoWrapper>
                                         <Stack
                                             sx={{
@@ -534,53 +501,17 @@ const MySessionForm = () => {
                                                     </Typography>
                                                 ))
                                             }
+                                            {showButtonInDialog && (
+                                                <Button onClick={handleReAuctionClick} variant="contained" color="primary">
+                                                    Đấu Giá Lại
+                                                </Button>
+                                            )}
                                         </Stack>
                                     </ProductDetailInfoWrapper>
                                 </>
                             ) : (
                                 <>
                                     <ProductDetailInfoWrapper>
-                                        {/* <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Tên sản phẩm:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem.itemName}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Mô Tả sản phẩm:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem?.description}</TableCell>
-                                                </TableRow>
-                                                
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Giá Khởi điểm:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {selectedItem.firstPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Bước Giá:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {selectedItem?.stepPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                                    </TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Thể Loại:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{selectedItem?.categoryName}</TableCell>
-                                                </TableRow>
-                                                <TableRow>
-                                                    <TableCell>
-                                                        <TableLabel>Ngày Tạo:</TableLabel>
-                                                    </TableCell>
-                                                    <TableCell>{formatCreateDate(selectedItem?.createDate)}</TableCell>
-                                                </TableRow> */}
                                         <Stack
                                             sx={{
                                                 boxShadow: 12,
@@ -631,7 +562,7 @@ const MySessionForm = () => {
                                                 <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(selectedItem?.createDate)} </Typography>
                                             </Typography>
                                             {
-                                                selectedItem?.descriptions.map((description, index) => (
+                                                selectedItem?.descriptions?.map((description, index) => (
                                                     <Typography
                                                         key={index}
                                                         margin={"1%"}
@@ -653,20 +584,12 @@ const MySessionForm = () => {
                                                     </Typography>
                                                 ))
                                             }
+
                                         </Stack>
+
                                     </ProductDetailInfoWrapper>
                                 </>
                             )}
-
-
-                            {showButtonInDialog && (
-                                <DialogActions>
-                                    <Button onClick={() => console.log('Button clicked!')} variant="contained" color="primary">
-                                        Đấu Giá Lại
-                                    </Button>
-                                </DialogActions>
-                            )}
-
                         </ProductDetailWrapper>
 
                     </>

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axios, { CancelToken } from 'axios';
 import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
 import MoreOutlinedIcon from '@mui/icons-material/MoreOutlined';
 import { useTheme } from '@mui/styles';
+import { useNavigate } from 'react-router-dom';
 import { Colors } from "../../style/theme";
 
 
@@ -25,9 +26,11 @@ const MyProductForm = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
+    const [cancelToken, setCancelToken] = useState(null);
     function SlideTransition(props) {
         return <Slide direction="down" {...props} />;
     }
+    const navigate = useNavigate();
 
 
 
@@ -58,9 +61,26 @@ const MyProductForm = () => {
     const handleClosePopup = () => {
         setIsPopupOpen(false);
     };
+
+    const handleReAuctionClick = () => {
+        if (selectedItem) {
+            const itemId = selectedItem.itemId;
+            navigate(`/re-auction/${itemId}`);
+        }
+    };
+
     const loadItems = (selectedOption) => {
+        
         setLoading(true);
+        if (cancelToken) {
+            cancelToken.cancel('Operation canceled by the user.');
+          }
+        
+          // Create a new cancel token for the current request
+          const source = CancelToken.source();
+          setCancelToken(source);
         let apiUrl;
+
         if (selectedOption === 'waiting') {
             apiUrl = apiUrlWaiting;
         } else if (selectedOption === 'approved') {
@@ -72,9 +92,16 @@ const MyProductForm = () => {
         }
 
         axios
-            .get(apiUrl, { headers: { Authorization: `Bearer ${token}` } })
+            .get(apiUrl, { headers: { Authorization: `Bearer ${token}` } ,cancelToken: source.token,})
             .then((response) => setItems(response.data))
-            .catch((error) => console.error('Error fetching items:', error))
+            .catch((error) => {
+                if (axios.isCancel(error)) {
+                    // Request was canceled, no need to handle this as an error
+                    console.log('Request canceled:', error.message);
+                  } else {
+                    console.error('Error fetching items:', error);
+                  }
+            })
             .finally(() => {
                 setLoading(false); // Hide loading spinner after data is fetched
             });
@@ -215,12 +242,13 @@ const MyProductForm = () => {
                         <ListOptionItem button selected={selectedOption === 'waiting'} onClick={() => setSelectedOption('waiting')}>
                             <ListItemText primary="Sản Phẩm Chờ Duyệt" />
                         </ListOptionItem>
-                        <ListOptionItem button selected={selectedOption === 'approved'} onClick={() => setSelectedOption('approved')}>
-                            <ListItemText primary="Sản Phẩm Đã Lên Sàn" />
-                        </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'waiting-session'} onClick={() => setSelectedOption('waiting-session')}>
                             <ListItemText primary="Sản Phẩm Chưa Lên Sàn" />
                         </ListOptionItem>
+                        <ListOptionItem button selected={selectedOption === 'approved'} onClick={() => setSelectedOption('approved')}>
+                            <ListItemText primary="Sản Phẩm Đã Lên Sàn" />
+                        </ListOptionItem>
+
                         <ListOptionItem button selected={selectedOption === 'cancelled'} onClick={() => setSelectedOption('cancelled')}>
                             <ListItemText primary="Sản Phẩm Đã Bị Hủy" />
                         </ListOptionItem>
@@ -453,6 +481,11 @@ const MyProductForm = () => {
                                             </Typography>
                                         ))
                                     }
+                                    {selectedOption === 'cancelled' && (
+                                        <Button variant='contained' onClick={handleReAuctionClick}>
+                                            Đấu giá lại
+                                        </Button>
+                                    )}
                                 </Stack>
                             </ProductDetailInfoWrapper>
 
