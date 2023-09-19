@@ -1,16 +1,23 @@
 import React, { useRef, useState } from 'react';
-import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox } from '@mui/material';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
 import { format } from 'date-fns'
 import axios from 'axios';
+import EmailIcon from '@mui/icons-material/Email';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useNavigate } from 'react-router-dom';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useTheme } from "@mui/material/styles";
 
 const SignUpForm = () => {
   const [userName, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rePassword, setRePassword] = useState('');
+  const [paypalAccount, setPaypalAccount] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhoneNumber] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -28,16 +35,17 @@ const SignUpForm = () => {
   const jsonUser = JSON.parse(user)
   const [dialogOpen, setDialogOpen] = useState(false);
   const [updateRoleMessage, setUpdateRoleMessage] = useState('');
-
+  const [checkboxError, setCheckboxError] = useState(false);
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   const [otpDialogOpen, setOtpDialogOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
-
+  const [emailDisabled, setEmailDisabled] = useState(false);
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
   const navigate = useNavigate()
-
-  const uploader = Uploader({ apiKey: "public_kW15bfw7HM9PmAu3eqEkeP4eD6aN" });
+  const theme = useTheme();
+  const uploader = Uploader({ apiKey: "public_kW15bhNGeEwXXtjm51C1xufEVTUm" });
 
   const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
   const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`
@@ -48,7 +56,17 @@ const SignUpForm = () => {
   };
 
   const handleOpenOtpDialog = () => {
-    handleOtpSubmit();
+
+    if (!email) {
+      setError('Địa chỉ Email không được bỏ trống');
+      // You can set an error message if email is empty
+      setErrorDialogOpen(true);
+      return;
+    }
+
+    // If email is not empty, proceed to send OTP
+    setError(''); // Clear any previous error message
+    handleOtpSubmit(); // Call the function to send OTP
     setOtpDialogOpen(true);
     setOtpValue('');
     setOtpError(false);
@@ -77,33 +95,33 @@ const SignUpForm = () => {
     setUpdateRoleMessage(''); // If needed to clear the updateRoleMessage state
   };
 
-  const onFileSelected = async (event, setImageState) => {
-    const [file] = event.target.files;
-    const formData = new FormData();
-    formData.append('file', file);
+  // const onFileSelected = async (event, setImageState) => {
+  //   const [file] = event.target.files;
+  //   const formData = new FormData();
+  //   formData.append('file', file);
 
-    try {
-      const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
-        onUploadProgress: (progressEvent) => {
-          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          onProgress({ progress });
-        },
-      });
+  //   try {
+  //     const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
+  //       onUploadProgress: (progressEvent) => {
+  //         const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+  //         onProgress({ progress });
+  //       },
+  //     });
 
-      alert(`File uploaded: ${response.data.fileUrl}`);
-      setImageState(response.data.fileUrl);
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-  const onProgress = ({ progress }) => {
-    console.log(`File uploading: ${progress}% complete.`)
-  }
+  //     alert(`File uploaded: ${response.data.fileUrl}`);
+  //     setImageState(response.data.fileUrl);
+  //   } catch (error) {
+  //     console.error('Error uploading file:', error);
+  //   }
+  // };
+  // const onProgress = ({ progress }) => {
+  //   console.log(`File uploading: ${progress}% complete.`)
+  // }
 
 
   const handleUpgradeToAuctioneer = async () => {
     const otpValue = otpInputRef.current.value;
-  
+
     try {
       const response = await axios.put(
         UpdateRoleApi,
@@ -113,11 +131,18 @@ const SignUpForm = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (response.status === 200) {
-        setRoleUpgradeSuccess(true);
-        setUpdateRoleMessage('Xác Thực Email Thành Công');
-        setOtpError(false);
+        if (response.data === true) {
+          setRoleUpgradeSuccess(true);
+          setUpdateRoleMessage('Xác Thực Email Thành Công');
+          setOtpError(false);
+          setEmailDisabled(true);
+        } else if (response.data === false) {
+          setRoleUpgradeSuccess(false);
+          // setUpdateRoleMessage('Xác Thực Email Thành Công');
+          setOtpError(true);
+        }
       } else {
         setRoleUpgradeSuccess(false);
         setOtpError(true);
@@ -154,7 +179,11 @@ const SignUpForm = () => {
       setError('Vui lòng tải lên đủ 3 hình ảnh (Ảnh đại diện, Mặt trước CCCD, Mặt sau CCCD).');
       return;
     }
-
+    if (!isCheckboxChecked) {
+      setCheckboxError(true); // Set checkbox error when not checked
+      return;
+    }
+    setIsLoading(true);
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
@@ -175,18 +204,42 @@ const SignUpForm = () => {
         })
         .then(data => {
           console.log(data);
+          const userID = data.data.userId;
+          console.log(userID);
+          const paypalData = {
+            userId : userID,
+            paypalAccount,
+          };
+        
+          axios.post('https://bids-online.azurewebsites.net/api/UserPaymentInformation', paypalData)
+            
+            .catch(err => {
+              if (err.response.status === 400) {
+                setIsLoading(false);
+                const errorMessage = err.response.data; // Assuming the error message is in the response data
+                console.log('Error:', errorMessage);
+                err = setError(errorMessage);
+                setErrorDialogOpen(true);
+              }
+            }).then(response => {
+              setIsLoading(false);
           setSuccessDialogOpen(true);
+            });
+        
+          // These statements should not be inside the inner .then block
+          
         })
         .catch(err => {
 
           if (err.response.status === 400) {
+            setIsLoading(false);
             const errorMessage = err.response.data; // Assuming the error message is in the response data
             console.log('Error:', errorMessage);
             err = setError(errorMessage);
             setErrorDialogOpen(true);
           }
           console.log('Server response:', response.data);
-          setSuccessDialogOpen(true);
+          // setSuccessDialogOpen(true);
           // if (err.response && err.response.data && err.response.data.errors) {
           //   const serverErrors = err.response.data.errors;
           //   let formattedErrors = "";
@@ -222,6 +275,7 @@ const SignUpForm = () => {
       setFrontImage(null);
       setBackImage(null);
       setError('');
+      
     } catch (error) {
       // console.error('Error:', error.response);
 
@@ -241,8 +295,19 @@ const SignUpForm = () => {
 
   const handleErrorDialogClose = () => {
     setErrorDialogOpen(false);
+    setCheckboxError(false);
   };
 
+  const styles = {
+    errorIcon: {
+      fontSize: '150px',
+      color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+    TaskAltIcon:{
+      fontSize: '150px',
+      color: '#C3E1AE'
+    }
+  };
 
   return (
     <Box
@@ -257,6 +322,9 @@ const SignUpForm = () => {
         padding: '20px',
         border: '1px solid #ccc',
         borderRadius: '4px',
+        [theme.breakpoints.down('md')]: {
+          width: '100%',
+        }
       }}
       onSubmit={handleSubmit}
     >
@@ -276,6 +344,7 @@ const SignUpForm = () => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         margin="normal"
+        disabled={emailDisabled}
         required
         sx={{ width: '100%' }}
         id="email"
@@ -285,6 +354,8 @@ const SignUpForm = () => {
         color="primary"
         sx={{ marginTop: '10px', width: '100%' }}
         onClick={handleOpenOtpDialog}
+        endIcon={<EmailIcon />}
+        disabled={emailDisabled}
       >
         Xác Thực Email
       </Button>
@@ -309,6 +380,17 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="rePassword"
+        disabled={!roleUpgradeSuccess}
+      />
+      <TextField
+        label="Tài Khoản PayPal"
+        type="text"
+        value={paypalAccount}
+        onChange={(e) => setPaypalAccount(e.target.value)}
+        margin="normal"
+        required
+        sx={{ width: '100%' }}
+        id="paypal"
         disabled={!roleUpgradeSuccess}
       />
       <TextField
@@ -371,9 +453,9 @@ const SignUpForm = () => {
             const avatarimg = files.map(f => f.fileUrl).join("\n");
             setAvatar(avatarimg);
           }
-        }} 
-        
-        />
+        }}
+
+      />
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -387,7 +469,7 @@ const SignUpForm = () => {
             const frontimg = files.map(f => f.fileUrl).join("\n");
             setFrontImage(frontimg);
           }
-        }}disabled={!roleUpgradeSuccess} />
+        }} disabled={!roleUpgradeSuccess} />
       <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -401,18 +483,36 @@ const SignUpForm = () => {
             const backimg = files.map(f => f.fileUrl).join("\n");
             setBackImage(backimg);
           }
-        }} 
-        />
+        }}
+      />
       {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
           {err}
         </Typography>
       )}
 
+      <FormControlLabel
+        control={
+          <Checkbox
+            color="primary"
+            checked={isCheckboxChecked}
+            disabled={!roleUpgradeSuccess}
+            onChange={(e) => {
+              setIsCheckboxChecked(e.target.checked);
+              setCheckboxError(false); // Clear checkbox error when checked
+            }}
+          />
+        }
+        label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá), Chính sách bảo mật thông tin khách hàng, Cơ chế giải quyết tranh chấp, Quy chế hoạt động tại website đấu giá trực tuyến của Online Bids."
+      />
 
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
-        <DialogContent>
-          <DialogTitle>Xác Thực Email (Vui lòng kiểm tra gmail)</DialogTitle>
+        
+        
+        <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+          <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
+          <DialogContent>
+          <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Hãy nhập mã OTP đã được gửi về địa chỉ email mà bạn đã đăng kí </Typography>
           <TextField
             label="OTP"
             fullWidth
@@ -446,9 +546,10 @@ const SignUpForm = () => {
 
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
-        <DialogTitle>Thành Công</DialogTitle>
+      <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+        <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí tài Khoản.</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">Tạo Tài Khoản thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
+          <Typography align='center' variant="subtitle2">Tài Khoản của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSuccessDialogClose}>OK</Button>
@@ -456,17 +557,25 @@ const SignUpForm = () => {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={errorDialogOpen} onClose={handleErrorDialogClose}>
+      <Dialog open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">{err}</Typography>
+          <Typography variant="body1">{checkboxError ? 'Bạn cần chấp nhận điều khoản và điều kiện.' : err}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
-      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }} disabled={!roleUpgradeSuccess}>
-        Đăng Kí
+      
+      <Button
+        endIcon={<PersonAddIcon />}
+        type="submit"
+        variant="contained"
+        color="primary"
+        sx={{ marginTop: '20px' }}
+        disabled={!roleUpgradeSuccess || isLoading} // Disable when loading
+      >
+        {isLoading ? <CircularProgress size={24} /> : 'Đăng Kí'}
       </Button>
     </Box>
   );

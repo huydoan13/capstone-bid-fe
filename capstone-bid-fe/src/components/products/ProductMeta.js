@@ -21,7 +21,7 @@ export default function ProductMeta({ product, matches }) {
         Giá khởi Điểm : {formatToVND(product.firstPrice)}
         </Typography>
         <Typography variant={matches ? "caption" : "body1"}>
-          {formatCreateDate(product.beginTime)}
+        Thời Gian Bắt Đầu :  {formatCreateDate(product.beginTime)}
         </Typography>
       </ProductMetaWrapper>
     );

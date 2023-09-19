@@ -56,6 +56,8 @@ import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import TransactionHistoryPage from './pages/TransactionHistoryPage';
+import Reauction from './pages/Reauction';
+import Test from './pages/test';
 import BookingItemNow from './pages/BookingItemNow';
 import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
@@ -77,7 +79,7 @@ export default function Router() {
     //     </RolesAuthRoute>
     //   </Suspense>
     // ), },
-    { path: 'auction', element: <AuctionPage /> },
+    { path: 'auction/:sessionId', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
     { path: 'addproduct', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
@@ -85,7 +87,7 @@ export default function Router() {
     { path: 'prepare', element: <PrepareSession />},
     { path: 'instage', element: <InstageSession />},
     { path: 'finish', element: <FinishSession />},
-    { path: 'myproduct', element: <MyProductPage />},
+    { path: 'myitem', element: <MyProductPage />},
     { path: 'mysession', element: <MySessionPage />},
     { path: 'myhistory', element: <MyHistoryPage />},
     { path: 'shoppingcart', element: <ShoppingCartPage />},
@@ -93,7 +95,8 @@ export default function Router() {
     { path: 'payment-success', element: <PaymentSuccessPage /> },
     { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: <TransactionHistoryPage />},
-    
+    { path: 're-auction/:itemId', element: <Reauction /> },
+    { path: 'test', element: <Test /> },
     {
       path: '/dashboard',
       element: (

@@ -13,7 +13,7 @@ import {
     Divider,
     Grid,
 } from "@mui/material";
-
+import { useNavigate } from 'react-router-dom';
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
@@ -67,8 +67,10 @@ function SlideTransition(props) {
 const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
     padding: theme.spacing(1),
-    border: ' 1px solid #000000',
     marginTop: '1%',
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    }
 }));
 
 const ProductDetailInfoWrapper = styled(Box)(() => ({
@@ -104,8 +106,8 @@ export default function StageProductDetail({ open, onClose, product }) {
     const isLoggedIn = !!jsonUser && !!jsonUser.Email;
     const [maxWidth, setMaxWidth] = React.useState('sm');
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning_in_stage';
-    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-join-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
-
+    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
+    const navigate = useNavigate();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -150,7 +152,9 @@ export default function StageProductDetail({ open, onClose, product }) {
                 // Handle the response from the API if needed.
                 // For example, you can show a success message or refresh the page.
 
-                window.location.href = "/auction"
+                // window.location.href = "/auction"
+                const sessionId = product.sessionId;
+                navigate(`/auction/${sessionId}`);
             })
             .catch(error => {
                 console.error('Error joining the auction:', error);
@@ -192,8 +196,9 @@ export default function StageProductDetail({ open, onClose, product }) {
 
     // Function to handle the auction button click
     const handleAuctionButtonClick = (product) => {
-        localStorage.setItem("sessionId", product.sessionId);
-        console.log(product.sessionId)
+        // localStorage.setItem("sessionId", product.sessionId);
+        // console.log(product.sessionId)
+
         if (isLoggedIn) {
             joinAuction();
 
@@ -467,7 +472,7 @@ export default function StageProductDetail({ open, onClose, product }) {
                 </DialogActions>
             </Dialog>
             <Dialog fullWidth maxWidth={maxWidth} open={feeDialogOpen} onClose={closeDialog}>
-                <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+                <DialogTitle variant="h5" align="center">Chi tiết đơn hàng</DialogTitle>
                 <DialogContent>
                     {selectedItem && (
                         <>
