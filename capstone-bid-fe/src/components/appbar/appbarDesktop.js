@@ -66,7 +66,7 @@ export default function AppbarDesktop({ matches }) {
                 {role === "User" ? (
                     <>
                         <ListItemButton component="a" href="/addproduct">
-                            <ListItemText primary="Thêm Tài Sản Đấu Giá" />
+                            <ListItemText sx={{fontWeight : "bold"}} primary="Thêm Tài Sản Đấu Giá" />
                         </ListItemButton>
                         <ListItemButton component="a" href="/myitem">
                             <ListItemText primary="Tài Sản Của Tôi" />

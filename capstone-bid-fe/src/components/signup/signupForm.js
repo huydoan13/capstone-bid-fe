@@ -10,6 +10,7 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { useNavigate } from 'react-router-dom';
 import CircularProgress from '@mui/material/CircularProgress';
+import { useTheme } from "@mui/material/styles";
 
 const SignUpForm = () => {
   const [userName, setUsername] = useState('');
@@ -43,8 +44,8 @@ const SignUpForm = () => {
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
   const navigate = useNavigate()
-
-  const uploader = Uploader({ apiKey: "public_FW25bg99SG8rFu6ZSxaj8xxrYEya" });
+  const theme = useTheme();
+  const uploader = Uploader({ apiKey: "public_kW15bhNGeEwXXtjm51C1xufEVTUm" });
 
   const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
   const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`
@@ -321,6 +322,9 @@ const SignUpForm = () => {
         padding: '20px',
         border: '1px solid #ccc',
         borderRadius: '4px',
+        [theme.breakpoints.down('md')]: {
+          width: '100%',
+        }
       }}
       onSubmit={handleSubmit}
     >
@@ -351,6 +355,7 @@ const SignUpForm = () => {
         sx={{ marginTop: '10px', width: '100%' }}
         onClick={handleOpenOtpDialog}
         endIcon={<EmailIcon />}
+        disabled={emailDisabled}
       >
         Xác Thực Email
       </Button>

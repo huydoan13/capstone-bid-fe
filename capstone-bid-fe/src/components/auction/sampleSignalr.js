@@ -8,7 +8,7 @@ export const Notify = () => {
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()
-      .withUrl("http://localhost:5030/chatHub")
+      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
       .withAutomaticReconnect()
       .build();
 

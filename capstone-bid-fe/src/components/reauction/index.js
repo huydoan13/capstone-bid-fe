@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { useParams ,useNavigate} from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 
 const ReAuctionForm = () => {
@@ -18,7 +18,7 @@ const ReAuctionForm = () => {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState('');
   const [selectedCategoryName, setSelectedCategoryName] = useState('');
-
+  const [defaultCategoryName, setDefaultCategoryName] = useState('');
   const [reFirstPriceValue, setReFirstPriceValue] = useState(itemData ? itemData[0]?.firstPrice : "");
   const [reStepPriceValue, setReStepPriceValue] = useState(itemData ? itemData[0]?.stepPrice : "");
   const reFirstPrice = useRef('');
@@ -51,8 +51,14 @@ const ReAuctionForm = () => {
 
   const handleErrorDialogClose = () => {
     setErrorDialogOpen(false);
-    
+
   };
+
+
+  function findCategoryIdByCategoryName(categories, categoryName) {
+    const category = categories.find((category) => category.categoryName === categoryName);
+    return category ? category.categoryId : ''; // Return an empty string if not found
+  }
 
   const handleReauction = () => {
     const itemName = reItemName.current.value;
@@ -65,49 +71,49 @@ const ReAuctionForm = () => {
       // Do not proceed with the API request if there are validation errors
       return;
     }
-    if (!itemName ){
+    if (!itemName) {
       setError("Tên Sản Phẩm Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!description ){
+    if (!description) {
       setError("Mô Tả Sản Phẩm Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!quantity ){
+    if (!quantity) {
       setError("Số Lượng Sản Phẩm Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!auctionHour ){
+    if (!auctionHour) {
       setError("Thời Gian Đấu Giá Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!auctionMinute ){
+    if (!auctionMinute) {
       setError("Thời Gian Đấu Giá Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!firstPrice ){
+    if (!firstPrice) {
       setError("Giá Ban Đầu Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!stepPrice ){
+    if (!stepPrice) {
       setError("Bước Giá Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
-    if (!categoryId ){
+    if (!categoryId) {
       setError("Thể Loại sản Phẩm Không Được Bỏ Trống");
       setErrorDialogOpen(true);
       return;
     }
     const apiReUrl = `https://bids-online.azurewebsites.net/api/BookingItems/re_auction`;
     const requestBody = {
-      itemId, itemName, description,categoryId, deposit, quantity, auctionHour, auctionMinute, firstPrice, stepPrice
+      itemId, itemName, description, categoryId, deposit, quantity, auctionHour, auctionMinute, firstPrice, stepPrice
     };
     axios
       .put(apiReUrl, requestBody, {
@@ -121,7 +127,7 @@ const ReAuctionForm = () => {
       })
       .catch((error) => {
         // Set the error message in the state
-        setError( error?.response?.data ||'An error occurred.');
+        setError(error?.response?.data || 'An error occurred.');
 
         // Open the error dialog
         setErrorDialogOpen(true);
@@ -139,6 +145,13 @@ const ReAuctionForm = () => {
       .then((response) => {
         // Set the retrieved data in the state
         setItemData(response.data);
+        const categoryNameFromItemData = response.data[0].categoryName;
+
+        // Set the default category name in the state
+        setDefaultCategoryName(categoryNameFromItemData);
+
+        const defaultCategoryId = findCategoryIdByCategoryName(categories, categoryNameFromItemData);
+        setCategoryId(defaultCategoryId);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -256,16 +269,18 @@ const ReAuctionForm = () => {
         rows={4}
       />
 
-      <FormControl fullWidth required margin="normal">
+
+      <FormControl fullWidth disabled required margin="normal">
         <InputLabel>Thể Loại Sản Phẩm</InputLabel>
-        <Select value={categoryId} onChange={handleCategoryChange} label="Category">
+        <Select value={defaultCategoryName} onChange={handleCategoryChange} label="Category">
           {categories.map((category) => (
-            <MenuItem key={category.categoryId} value={category.categoryId}>
+            <MenuItem key={category.categoryId} value={category.categoryName}>
               {category.categoryName}
             </MenuItem>
           ))}
         </Select>
       </FormControl>
+
       <Grid container >
         <Grid xs={6}>
           <TextField
@@ -304,6 +319,7 @@ const ReAuctionForm = () => {
             label="Thời gian đấu giá (giờ)"
             value={auctionHour}
             onChange={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, '');
               const newValue = event.target.value;
               setAuctionHour(newValue);
 
@@ -327,12 +343,13 @@ const ReAuctionForm = () => {
             label="Thời gian đấu giá (phút)"
             value={auctionMinute}
             onChange={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, '');
               const newValue = event.target.value;
               setAuctionMinute(newValue);
 
               // Validate the input value (not negative and between 0 - 60)
-              if (newValue < 0 || newValue > 60) {
-                setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
+              if (newValue < 0 || newValue > 59) {
+                setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 59');
               } else {
                 setAuctionMinuteError('');
               }
@@ -352,6 +369,7 @@ const ReAuctionForm = () => {
             label="Giá Ban Đầu (VND)"
             value={reFirstPriceValue} // Use state variable here
             onChange={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, '');
               const newValue = event.target.value;
               setReFirstPriceValue(newValue); // Update state variable
             }}
@@ -372,6 +390,7 @@ const ReAuctionForm = () => {
             label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
             value={reStepPriceValue} // Use state variable here
             onChange={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, '');
               const newValue = event.target.value;
               setReStepPriceValue(newValue); // Update state variable
             }}

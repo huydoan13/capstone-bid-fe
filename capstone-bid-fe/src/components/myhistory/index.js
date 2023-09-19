@@ -40,15 +40,15 @@ const MyHistoryForm = () => {
     const [sessionIdToError, setSessionIdToError] = useState(null); // State to store the session ID for the PUT request
     const [cancelToken, setCancelToken] = useState(null);
 
-    const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
-    const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
-    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_user?id=${jsonUser.Id}`;
-    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_pay_user?id=${jsonUser.Id}`;
-    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_user?id=${jsonUser.Id}`;
-    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_user?id=${jsonUser.Id}`;
+    // const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
+    // const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
+    const apiInState = `https://bids-online.azurewebsites.net/api/Sessions/by_in_stage_by_auctioneer?id=${jsonUser.Id}`;
+    const apiNotPay = `https://bids-online.azurewebsites.net/api/Sessions/by_havent_tranfer_by_auctioneer?userId=${jsonUser.Id}`;
+    const apiComplete = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_by_auctioneer?userId=${jsonUser.Id}`;
+    const apiFail = `https://bids-online.azurewebsites.net/api/Sessions/by_fail_by_auctioneer?userId=${jsonUser.Id}`;
     const apiWinner = `https://bids-online.azurewebsites.net/api/Sessions/by_complete_by_winner?userId=${jsonUser.Id}`;
-    const apiRecieve = `https://bids-online.azurewebsites.net/api/Sessions/by_received_by_winner?userId=${jsonUser.Id}`;
-    const apiError = `https://bids-online.azurewebsites.net/api/Sessions/by_error_item_by_winner?userId=${jsonUser.Id}`;
+    const apiRecieve = `https://bids-online.azurewebsites.net/api/Sessions/by_received_by_auctioneer?userId=${jsonUser.Id}`;
+    const apiError = `https://bids-online.azurewebsites.net/api/Sessions/by_error_item_by_auctioneer?userId=${jsonUser.Id}`;
 
     useEffect(() => {
         loadItems(option);
@@ -73,6 +73,7 @@ const MyHistoryForm = () => {
     };
 
     const handleSuccessClose = () => {
+        loadItems(option);
         setOpen(false);
         setIsPopupOpen(false);
         setSuccessOpen(false);
@@ -301,16 +302,16 @@ const MyHistoryForm = () => {
                 >
                     <List>
                         <ListOptionItem button selected={selectedOption === 'instate'} onClick={() => setSelectedOption('instate')}>
-                            <ListItemText primary="Phiên Đấu giá đang diễn ra" />
+                            <ListItemText primary="Cuộc Đấu giá đang diễn ra" />
                         </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'notpay'} onClick={() => setSelectedOption('notpay')}>
-                            <ListItemText primary="Phiên Đấu giá chưa thanh toán" />
+                            <ListItemText primary="Cuộc Đấu giá chưa thanh toán" />
                         </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'success'} onClick={() => setSelectedOption('success')}>
-                            <ListItemText primary="Phiên Đấu giá thành công" />
+                            <ListItemText primary="Cuộc Đấu giá thành công" />
                         </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'fail'} onClick={() => setSelectedOption('fail')}>
-                            <ListItemText primary="Phiên Đấu giá thất bại" />
+                            <ListItemText primary="Cuộc Đấu giá thất bại" />
                         </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'pay-success'} onClick={() => setSelectedOption('pay-success')}>
                             <ListItemText primary="Thắng cuộc đã thanh toán" />

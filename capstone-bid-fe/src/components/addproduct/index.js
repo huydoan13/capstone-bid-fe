@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from "@mui/material/styles";
 import { Uploader } from 'uploader';
 import { UploadDropzone } from 'react-uploader';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
@@ -52,11 +53,10 @@ const AddProductForm = () => {
   const jsonUser = JSON.parse(user);
   const [calculatedStepPrice, setCalculatedStepPrice] = useState('');
   const [maxWidth, setMaxWidth] = React.useState('sm');
-
+  const theme = useTheme();
   const [auctionHourError, setAuctionHourError] = useState('');
   const [auctionMinuteError, setAuctionMinuteError] = useState('');
-
-  const uploader = Uploader({ apiKey: 'public_FW25bg99SG8rFu6ZSxaj8xxrYEya' });
+  const uploader = Uploader({ apiKey: 'public_kW15bhNGeEwXXtjm51C1xufEVTUm' });
   const uploaderOptions = {
     multi: true,
 
@@ -199,7 +199,7 @@ const AddProductForm = () => {
             // Now upload the image to the new API endpoint
             const imageUrls = image.split('\n');
 
-            if(!imageUrls){
+            if (!imageUrls) {
               setError("Hình Ảnh Không Được Bỏ Trống");
               setErrorDialogOpen(true);
               return;
@@ -210,7 +210,7 @@ const AddProductForm = () => {
                 itemId,
                 detailImage: imageUrl,
               };
-              
+
               return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
                 headers: { Authorization: `Bearer ${token}` },
               });
@@ -299,6 +299,8 @@ const AddProductForm = () => {
       color: '#B5E4EB' // Adjust the size as needed // To center it vertically
     },
   };
+
+  
   return (
     <Box
       component="form"
@@ -312,6 +314,9 @@ const AddProductForm = () => {
         padding: '20px',
         border: '1px solid #ccc',
         borderRadius: '4px',
+        [theme.breakpoints.down('md')]: {
+          width: '100%',
+        }
       }}
       onSubmit={handleSubmit}
     >
@@ -366,28 +371,31 @@ const AddProductForm = () => {
           <TextField
             label="Số Lượng"
             value={quantity}
-            onChange={(event) => setQuantity(event.target.value)}
+            onInput={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+              setQuantity(event.target.value);
+            }}
             fullWidth
             required
             margin="normal"
-            type="number"
+            type="text"  // Change type to "text" to prevent non-numeric input
           />
         </Grid>
         <Grid xs={6} paddingLeft={"125px"}>
-          <Box sx={{width: '50%'}}>
-          <InputLabel>Yêu cầu đặt cọc</InputLabel>
-          <RadioGroup
-            aria-label="Yêu cầu đặt cọc"
-            row
-            name="deposit"
-            value={deposit.toString()} // Convert boolean to string
-            onChange={(event) => {
-              setDeposit(event.target.value === 'true'); // Convert string back to boolean
-            }}
-          >
-            <FormControlLabel value="true" control={<Radio />} label="Có" />
-            <FormControlLabel value="false" control={<Radio />} label="Không" />
-          </RadioGroup>
+          <Box sx={{ width: '50%' }}>
+            <InputLabel>Yêu cầu đặt cọc</InputLabel>
+            <RadioGroup
+              aria-label="Yêu cầu đặt cọc"
+              row
+              name="deposit"
+              value={deposit.toString()} // Convert boolean to string
+              onChange={(event) => {
+                setDeposit(event.target.value === 'true'); // Convert string back to boolean
+              }}
+            >
+              <FormControlLabel value="true" control={<Radio />} label="Có" />
+              <FormControlLabel value="false" control={<Radio />} label="Không" />
+            </RadioGroup>
           </Box>
         </Grid>
       </Grid>
@@ -396,11 +404,12 @@ const AddProductForm = () => {
       <TextField
         label="Thời gian đấu giá (giờ)"
         value={auctionHour}
-        onChange={(event) => {
-          const newValue = event.target.value;
-          setAuctionHour(newValue);
+        onInput={(event) => {
+          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+          setAuctionHour(event.target.value);
 
           // Validate the input value (not negative and between 0 - 10)
+          const newValue = parseInt(event.target.value, 10); // Convert to integer
           if (newValue < 0 || newValue > 10) {
             setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
           } else {
@@ -410,7 +419,7 @@ const AddProductForm = () => {
         fullWidth
         required
         margin="normal"
-        type="number"
+        type="text"  // Change type to "text" to prevent non-numeric input
         error={!!auctionHourError}
         helperText={auctionHourError}
       />
@@ -418,11 +427,12 @@ const AddProductForm = () => {
       <TextField
         label="Thời gian đấu giá (phút)"
         value={auctionMinute}
-        onChange={(event) => {
-          const newValue = event.target.value;
-          setAuctionMinute(newValue);
+        onInput={(event) => {
+          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+          setAuctionMinute(event.target.value);
 
           // Validate the input value (not negative and between 0 - 60)
+          const newValue = parseInt(event.target.value, 10); // Convert to integer
           if (newValue < 0 || newValue > 60) {
             setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
           } else {
@@ -432,7 +442,7 @@ const AddProductForm = () => {
         fullWidth
         required
         margin="normal"
-        type="number"
+        type="text"  // Change type to "text" to prevent non-numeric input
         error={!!auctionMinuteError}
         helperText={auctionMinuteError}
       />
@@ -482,11 +492,14 @@ const AddProductForm = () => {
       <TextField
         label="Giá Ban Đầu (VND)"
         value={firstPrice}
-        onChange={(event) => setFirstPrice(event.target.value)}
+        onInput={(event) => {
+          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+          setFirstPrice(event.target.value);
+        }}
         fullWidth
         required
         margin="normal"
-        type="number"
+        type="text"  // Change type to "text" to prevent non-numeric input
         InputProps={{
           endAdornment: firstPrice ? (
             <InputAdornment position="end">{parseFloat(firstPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
@@ -497,11 +510,14 @@ const AddProductForm = () => {
       <TextField
         label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
         value={stepPrice}
-        onChange={(event) => setStepPrice(event.target.value)}
+        onInput={(event) => {
+          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+          setStepPrice(event.target.value);
+        }}
         fullWidth
         required
         margin="normal"
-        type="number"
+        type="text"  // Change type to "text" to prevent non-numeric input
         InputProps={{
           endAdornment: stepPrice ? (
             <InputAdornment position="start">{parseFloat(stepPrice).toLocaleString('vi-VN')} ₫</InputAdornment>

@@ -174,6 +174,9 @@ const MySessionForm = () => {
         flexDirection: "column",
         maxWidth: "100%",
         lineHeight: 1.5,
+        [theme.breakpoints.down('md')]: {
+          width: '100%',
+        }
     }));
 
     const ProductImage = styled('img')(({ src, theme }) => ({

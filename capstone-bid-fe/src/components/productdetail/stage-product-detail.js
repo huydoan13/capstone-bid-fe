@@ -67,8 +67,10 @@ function SlideTransition(props) {
 const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
     padding: theme.spacing(1),
-    border: ' 1px solid #000000',
     marginTop: '1%',
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    }
 }));
 
 const ProductDetailInfoWrapper = styled(Box)(() => ({
@@ -104,7 +106,7 @@ export default function StageProductDetail({ open, onClose, product }) {
     const isLoggedIn = !!jsonUser && !!jsonUser.Email;
     const [maxWidth, setMaxWidth] = React.useState('sm');
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning_in_stage';
-    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=http://localhost:3000/payment-success&urlFail=http://localhost:3000/payment-fail`
+    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -151,6 +153,8 @@ export default function StageProductDetail({ open, onClose, product }) {
                 // For example, you can show a success message or refresh the page.
 
                 // window.location.href = "/auction"
+                const sessionId = product.sessionId;
+                navigate(`/auction/${sessionId}`);
             })
             .catch(error => {
                 console.error('Error joining the auction:', error);
@@ -194,8 +198,7 @@ export default function StageProductDetail({ open, onClose, product }) {
     const handleAuctionButtonClick = (product) => {
         // localStorage.setItem("sessionId", product.sessionId);
         // console.log(product.sessionId)
-        const sessionId = product.sessionId;
-        navigate(`/auction/${sessionId}`);
+
         if (isLoggedIn) {
             joinAuction();
 

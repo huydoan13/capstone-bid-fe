@@ -47,6 +47,7 @@ import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
 import TransactionHistoryPage from './pages/TransactionHistoryPage';
 import Reauction from './pages/Reauction';
+import Test from './pages/test';
 
 
 // ----------------------------------------------------------------------
@@ -77,7 +78,7 @@ export default function Router() {
     { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: <TransactionHistoryPage />},
     { path: 're-auction/:itemId', element: <Reauction /> },
-    
+    { path: 'test', element: <Test /> },
     {
       path: '/dashboard',
       element: (

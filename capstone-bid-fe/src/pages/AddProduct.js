@@ -22,7 +22,7 @@ export default function addProduct(){
                 <Appbar />
 
                 <Box display={"flex"} flexDirection={'column'} alignItems="center" justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography variant="h4">Đăng Kí Sản Phẩm Bán Đấu Giá </Typography>
+                    <Typography variant="h4">Đăng Kí Tài Sản Đấu Giá </Typography>
 
                 </Box>
 

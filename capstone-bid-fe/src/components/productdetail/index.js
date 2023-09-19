@@ -106,7 +106,7 @@ export default function ProductDetail({ open, onClose, product }) {
 
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning';
     const autoApi = 'https://bids-online.azurewebsites.net/api/Sessions/session_status_to_in_stage';
-    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=http://localhost:3000/payment-success&urlFail=http://localhost:3000/payment-fail`
+    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
     
     const [link, setPaymentlink] = useState();
 

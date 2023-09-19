@@ -29,7 +29,11 @@ import {
   
   const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
-    padding: theme.spacing(4),
+    padding: theme.spacing(1),
+    marginTop: '1%',
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    }
   }));
   
   const ProductDetailInfoWrapper = styled(Box)(() => ({
