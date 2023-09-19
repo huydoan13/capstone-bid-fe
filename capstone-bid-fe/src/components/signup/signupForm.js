@@ -503,7 +503,7 @@ const SignUpForm = () => {
             }}
           />
         }
-        label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá), Chính sách bảo mật thông tin khách hàng, Cơ chế giải quyết tranh chấp, Quy chế hoạt động tại website đấu giá trực tuyến lacvietauction.vn."
+        label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá), Chính sách bảo mật thông tin khách hàng, Cơ chế giải quyết tranh chấp, Quy chế hoạt động tại website đấu giá trực tuyến của Online Bids."
       />
 
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
