@@ -45,6 +45,7 @@ import Scrollbar from '../components/scrollbar';
 // sections
 import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
+import axiosInstance from '../services/axios-instance';
 // mock
 // import USERLIST from '../_mock/user';
 
@@ -118,7 +119,7 @@ export default function SessionNotPay() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
-  const formatAuctionTime = (date) => moment(date, "HH:mm:ss.SSSSSSS").format('hh:mm:ss');
+  const formatAuctionTime = (date) => moment(date, 'HH:mm:ss.SSSSSSS').format('hh:mm:ss');
 
   const navigate = useNavigate();
 
@@ -145,11 +146,22 @@ export default function SessionNotPay() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getSessionsNotPay().then((response) => {
-      setSession(response.data);
-      console.log(response.data);
-    });
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/sessions/by_havent_pay');
+        console.log(response);
+        setSession(response.data);
+      } catch (error) {
+        console.log('Failed to fetch: ', error);
+      }
+    })();
   }, []);
+  // useEffect(() => {
+  //   getSessionsNotPay().then((response) => {
+  //     setSession(response.data);
+  //     console.log(response.data);
+  //   });
+  // }, []);
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -296,7 +308,7 @@ export default function SessionNotPay() {
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
-                      row;
+                      row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -319,7 +331,10 @@ export default function SessionNotPay() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell>
+                        <TableCell align="left">
+                          {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
+                        {/* <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip
@@ -329,30 +344,51 @@ export default function SessionNotPay() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Link to={`/dashboard/session-detail/${row.sessionId}`}>
-                            <Button
-                            // color="secondary"
-                            // onClick={() => {
-                            //   handleOpenModalWithItem(row.itemId);
-                            // }}
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
-                          </Link>
-
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
-                              sx={{ color: 'error.main' }}
-                            >
-                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => handleOpenMenu(event, sessionId)}
+                          >
+                            <Iconify icon={'eva:more-vertical-fill'} />
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 150,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem>
+                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                            <MenuItem>
+                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Lịch sử đấu giá
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
-                        {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
                     );
                   })}
@@ -462,10 +498,21 @@ export default function SessionNotPay() {
                         <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
+                        <TextField
+                          multiline
+                          label="Thời gian đấu giá"
+                          defaultValue={formatAuctionTime(upSession.auctionTime)}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice?.toLocaleString("vi-VN", { style: "currency", currency: "VND" })} />
+                        <TextField
+                          multiline
+                          label="Giá cuối cùng"
+                          defaultValue={upSession.finalPrice?.toLocaleString('vi-VN', {
+                            style: 'currency',
+                            currency: 'VND',
+                          })}
+                        />
                       </Grid>
                       {/* <Grid item md={6} xs={12}>
                         <TextField label="Ngày sinh" defaultValue={formatDate(upSession.dateOfBirth)} />

@@ -14,9 +14,9 @@ export async function createFee(fee) {
     name: fee.name,
     min: fee.min,
     max: fee.max,
-    participationFee: fee.participationFee,
-    depositFee: fee.depositFee,
-    surcharge: fee.surcharge,
+    participationFee: fee.participationFee/100,
+    depositFee: fee.depositFee/100,
+    surcharge: fee.surcharge/100,
   };
   try {
     axiosInstance.post(url, data);
@@ -32,9 +32,9 @@ export async function updateFee(fee) {
     name: fee.feeName,
     min: fee.min,
     max: fee.max,
-    participationFee: fee.participationFee,
-    depositFee: fee.depositFee,
-    surcharge: fee.surcharge,
+    participationFee: fee.participationFee/100,
+    depositFee: fee.depositFee/100,
+    surcharge: fee.surcharge/100,
     status: Boolean(fee.status),
   };
   try {
@@ -45,7 +45,7 @@ export async function updateFee(fee) {
 }
 
 export async function deleteFee(feeId) {
-  const url = `${BASE_URL}/fee/${feeId}`;
+  const url = `${BASE_URL}/fee?id=${feeId}`;
   try {
     axiosInstance.delete(url, { data: { feeId } });
     console.log(`Deleted Fee: ${feeId}`);

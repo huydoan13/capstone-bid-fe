@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from "@mui/material/styles";
 import axios from 'axios';
 import moment from 'moment';
 
-
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import GavelIcon from '@mui/icons-material/Gavel';
 import {
   Container,
   Grid,
@@ -23,6 +25,7 @@ import {
   DialogTitle,
   DialogActions,
   TextField,
+  Stack,
 } from '@mui/material';
 import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
@@ -46,35 +49,38 @@ const AuctionForm = () => {
     const storedDelayTime = localStorage.getItem('currentDelayTime');
     return storedDelayTime || null; // Set to null initially to fetch from API later
   });
+  const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState(0);
   const [currentBigImage, setCurrentBigImage] = useState(null);
   const theme = useTheme();
   const currentTime = moment();
   const [isWinner, setIsWinner] = useState(false);
   const [winnerData, setWinnerData] = useState(null);
+  const [isIntervalActive, setIsIntervalActive] = useState(true);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
   const token = localStorage.getItem('token');
   const sessionId = localStorage.getItem('sessionId');
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
   const [sessionDetails, setSessionDetails] = useState([]);
+  const [showDescriptions, setShowDescriptions] = useState(false);
+  const [shouldResetCountdown, setShouldResetCountdown] = useState(false);
 
-  const api = `https://bids-online.azurewebsites.net/api/Sessions/${sessionId}`
+
+  const api = `https://bids-online.azurewebsites.net/api/Sessions/by_id?id=${sessionId}`
   const IncreaseApi = `https://bids-online.azurewebsites.net/api/SessionDetails/increase_price`
   const NotPayApi = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
-  const sessionDetailAPI = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session/${sessionId}`
+  const sessionDetailAPI = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`
 
-  useEffect(() => {
-    fetchAuctionData();
-    fetchSessionDetails();
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     fetchAuctionData();
+  //     fetchSessionDetails();
+  //   }, 5000);
 
-    const interval = setInterval(() => {
-      fetchAuctionData();
-      fetchSessionDetails();
-    }, 5000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   useEffect(() => {
     fetchSessionDetails();
@@ -103,12 +109,14 @@ const AuctionForm = () => {
       const response = await axios.get(api, { headers: { Authorization: `Bearer ${token}` } });
       setAuctionData(response.data);
 
-      // Calculate the remaining time until the endTime in seconds
-      const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
-      if (remainingTime <= 300) {
-        setCurrentDelayTime(response.data[0]?.delayFreeTime);
-      } else {
-        setCurrentDelayTime(response.data[0]?.delayTime);
+      if (response.data.length > 0) {
+        const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
+
+        if (remainingTime <= response.data[0]?.freeTime) {
+          setCurrentDelayTime(response.data[0]?.delayFreeTime);
+        } else {
+          setCurrentDelayTime(response.data[0]?.delayTime);
+        }
       }
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -129,6 +137,16 @@ const AuctionForm = () => {
       const response = await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
       console.log("API response:", response.data);
 
+      // Check if the user is the winner based on the API response
+      const winnerEmail = response.data[0]?.winner?.toLowerCase(); // Convert to lowercase
+      console.log(winnerEmail);
+      const userEmail = jsonUser.Email.toLowerCase(); // Convert to lowercase
+      if (winnerEmail === userEmail) {
+        setIsWinner(true);
+      } else {
+        setIsWinner(false);
+      }
+
       setWinnerData(response.data); // Store the winner data from the API response
     } catch (error) {
       console.error('Error updating session status:', error);
@@ -136,6 +154,9 @@ const AuctionForm = () => {
     }
   };
 
+  const handleToggleDescriptions = () => {
+    setShowDescriptions((prevState) => !prevState);
+  };
   const formatCreateDate = (createDate) => {
     return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
   };
@@ -160,13 +181,17 @@ const AuctionForm = () => {
             return updatedTime;
           }
 
-          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(5, 'minutes').format("HH:mm:ss"));
+          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
+
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
-            localStorage.clear('countdownTime');
+
+            window.localStorage.removeItem('currentDelayTime');
+            window.localStorage.removeItem('countdownTime');
             const delayFreeTime = auctionData[0]?.delayFreeTime;
             if (delayFreeTime) {
               setCurrentDelayTime(delayFreeTime);
               localStorage.setItem('currentDelayTime', delayFreeTime);
+              setShouldResetCountdown(true); // Set the flag to indicate countdown reset
               return convertTimeToSeconds(delayFreeTime);
             }
           }
@@ -177,7 +202,7 @@ const AuctionForm = () => {
       }, 1000);
 
       return () => clearInterval(interval);
-    }, [endTime, auctionData]);
+    }, [endTime, auctionData, shouldResetCountdown]);
 
     useEffect(() => {
       const remainingTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
@@ -198,26 +223,32 @@ const AuctionForm = () => {
 
 
     return (
-      <Box sx={{ mt: 4, display: "flex", alignItems: "center" }}>
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          <Typography variant="h6" component="span" sx={{ mr: 1 }}>
-            {formatTime(time)}
-          </Typography>
-        </Box>
-        <Button
-          sx={{ position: "absolute", marginLeft: "12%", width: "200px" }}
-          color="primary"
-          variant="contained"
-          onClick={() => {
-            setIsDialogOpen(true);
-            setCurrentPrice(auctionData[0]?.finalPrice);
-          }}
-          // Disable the button if the current time is after the auction end time
-          disabled={isCountdownRunning || moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").isBefore(currentTime)}
-        >
-          Tăng Giá
-        </Button>
-      </Box>
+
+      <Grid container margin={"1%"} sx={{ justifyContent: 'center' }}>
+        <Grid item>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="h6" component="span" sx={{ mr: 1 }}>
+              {formatTime(time)}
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item>
+          <Button
+            color="primary"
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              setIsDialogOpen(true);
+              setCurrentPrice(auctionData[0]?.finalPrice);
+            }}
+            // Disable the button if the current time is after the auction end time
+            disabled={isCountdownRunning || moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").isBefore(currentTime)}
+          >
+            Tăng Giá
+          </Button>
+        </Grid>
+      </Grid>
+
     );
   };
 
@@ -229,34 +260,50 @@ const AuctionForm = () => {
     border: '1px dashed #000000',
     marginTop: '1%',
     borderRadius: '5px',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+    }
   }));
 
   const ProductDetailInfoWrapper = styled(Box)(() => ({
     width: '100%',
     display: "flex",
     flexDirection: "column",
-    marginLeft: '5%',
     maxWidth: '100%',
     lineHeight: 1.5,
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+    }
 
   }));
 
-  const handleDialogOpen = (price) => {
-    setCurrentPrice(price);
-    setIsDialogOpen(true);
-  };
 
   useEffect(() => {
-    const currentTime = moment();
-
-    // Add a conditional check for auctionData before accessing its first element's endTime property
-    if (auctionData && auctionData.length > 0) {
-      const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
-      if (auctionEndTime.isBefore(currentTime)) {
-        handleGoBack(); // Call the API to update the session status and check if the user is the winner
+    const checkAuctionEnd = () => {
+      if (auctionData && auctionData[0]) { // Check if auctionData is not null and has at least one element
+        const currentTime = moment();
+        const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
+        if (auctionEndTime.isBefore(currentTime)) {
+          handleGoBack(); // Call the API to update the session status and check if the user is the winner
+          setIsIntervalActive(false); // Disable the interval once the auction ends
+        }
       }
+    };
+
+    let interval = null;
+
+    if (isIntervalActive) {
+      interval = setInterval(() => {
+        fetchAuctionData();
+        fetchSessionDetails();
+        checkAuctionEnd(); // Check if the auction has ended on each interval
+      }, 5000);
     }
-  }, [auctionData]);
+
+    return () => {
+      clearInterval(interval); // Clear the interval on cleanup
+    };
+  }, [isIntervalActive, auctionData]);
 
   const handleDialogClose = async () => {
     await makeApiCall();
@@ -268,10 +315,12 @@ const AuctionForm = () => {
     if (currentDelayTime) {
       localStorage.setItem('countdownTime', convertTimeToSeconds(currentDelayTime).toString());
     }
+
+    setShouldResetCountdown(false); // Reset the flag after countdown reset
   };
 
   if (!auctionData) {
-    return <div>Trang này hiện giờ không khả dụng</div>;
+    return <Typography>Trang này hiện giờ không khả dụng</Typography>;
   }
 
 
@@ -311,12 +360,22 @@ const AuctionForm = () => {
   }));
 
   const renderProductImages = () => {
-    if (!auctionData) {
-      return null;
+    if (!auctionData || !auctionData[0] || !auctionData[0].images || auctionData[0].images.length === 0) {
+      // Render the default image when there are no product images
+      return (
+        <ProductDetailImageContainer>
+          <ProductDetailImage1 src="/assets/images/covers/auction-hammer.jpg" />
+        </ProductDetailImageContainer>
+      );
     }
 
-    const bigImage = currentBigImage || auctionData[0]?.images?.[0]?.detail;
-    const thumbnailImages = auctionData[0]?.images?.slice(1);
+    // Use the selected thumbnail index or default to 0 (first image) if not selected
+    const selectedThumbnailIndex = currentBigImage
+      ? auctionData[0]?.images.findIndex((image) => image.detail === currentBigImage)
+      : 0;
+
+    const bigImage = currentBigImage || auctionData[0]?.images?.[selectedThumbnailIndex]?.detail;
+    const thumbnailImages = auctionData[0]?.images || [];
 
     return (
       <ProductDetailImageContainer>
@@ -334,35 +393,7 @@ const AuctionForm = () => {
     );
   };
 
-  const renderDescriptions = () => {
-    if (!auctionData || !auctionData[0]?.descriptions) {
-      return null;
-    }
 
-    return auctionData[0]?.descriptions.map((desc, index) => (
-      <TableRow key={index}>
-        <TableCell>{desc.description}</TableCell>
-        <TableCell>{desc.detail}</TableCell>
-      </TableRow>
-    ));
-  };
-
-  const StyledTextField = styled(TextField)(({ theme }) => ({
-    '& textarea': {
-      // Add styles for the textarea element inside the TextField
-      fontFamily: 'Arial, sans-serif', // Adjust the font-family as needed
-      fontSize: '14px', // Adjust the font size as needed
-      color: theme.palette.text.primary, // Use the primary text color from the theme
-    },
-  }));
-
-
-  const StyledScrollbar = styled(Scrollbar)({
-    // Add styles for the Scrollbar component
-    width: '80%',
-    height: '250px', // Set the desired height for the scrollbar container
-    borderRadius: '4px', // Add some border radius to the container
-  });
   const BidDialog = () => {
     const { isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice } = useBidDialog();
 
@@ -397,71 +428,169 @@ const AuctionForm = () => {
               <AuctionCountdown endTime={auctionData[0]?.endTime} beginTime={auctionData[0]?.beginTime} />
             )}
           </Box>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h5" fontWeight="bold" sx={{ marginBottom: 2 }}>
-                Thông tin chi tiết của sản phẩm:
+          <Stack
+            sx={{
+              boxShadow: 12,
+              padding: 2,
+
+            }}
+          >
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} align="inherit" color={"#696969"} variant="subtitle">Mô tả sản phẩm  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {auctionData[0]?.description} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Giá khởi Điểm :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.firstPrice)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Phí Tham Gia Đấu Giá:  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle">
+                {formatToVND(
+                  Math.min(
+                    Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                    200000
+                  )
+                )}
+                {/* {formatToVND(auctionData[0]?.participationFee * auctionData[0]?.firstPrice)} */}
               </Typography>
-              <TableContainer component={Paper} sx={{ mr: 2 }}>
-                <Table>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell variant="head">Tên Sản Phẩm:</TableCell>
-                      <TableCell>{auctionData[0]?.itemName}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell variant="head">Mô tả sản phẩm:</TableCell>
-                      <TableCell>{auctionData[0]?.description}</TableCell>
-                    </TableRow>
-                    <TableRow sx={{ '&:last-child td': { borderBottom: 0 } }}>
-                      <TableCell variant="head">Giá khởi Điểm:</TableCell>
-                      <TableCell>{formatToVND(auctionData[0]?.firstPrice)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell variant="head">Bước Giá:</TableCell>
-                      <TableCell>{formatToVND(auctionData[0]?.stepPrice)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell variant="head">Giá hiện tại:</TableCell>
-                      <TableCell>{formatToVND(auctionData[0]?.finalPrice)}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell variant="head">Thời gian bắt đầu:</TableCell>
-                      <TableCell>{formatCreateDate(auctionData[0]?.beginTime)}</TableCell>
-                    </TableRow>
-                    {/* Uncomment the following section when you have the auctionTime available */}
-                    {/* <TableRow>
-            <TableCell variant="head">Thời gian đấu giá:</TableCell>
-            <TableCell>{auctionData[0]?.auctionTime}</TableCell>
-          </TableRow> */}
-                    <TableRow>
-                      <TableCell variant="head">Thời gian Kết thúc:</TableCell>
-                      <TableCell>{formatCreateDate(auctionData[0]?.endTime)}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  {auctionData[0]?.delayTime && (
-                    <RemainingTime endTime={auctionData[0]?.endTime} />
-                  )}
-                </Box>
-              </TableContainer>
-            </Grid>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Tiền Đặt Cọc:  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Bước Giá :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.stepPrice)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Giá hiện tại  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.finalPrice)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Thời gian trì hoãn tăng giá :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {(auctionData[0]?.delayTime)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Thay đổi thời gian trì hoãn tăng giá :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {(auctionData[0]?.freeTime)} (Cuối) </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Thời gian trì hoãn tăng giá đã thay đổi :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {(auctionData[0]?.delayFreeTime)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}>
+              <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Thời gian bắt đầu :  </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(auctionData[0]?.beginTime)} </Typography>
+            </Typography>
+            <Typography sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              margin: '1%'
+            }}>
+              <Typography color={"#696969"} align="left" variant="subtitle">Thời gian Kết thúc :  </Typography>
+              <Typography align="right" color={"#B41712"} variant="subtitle"> {formatCreateDate(auctionData[0]?.endTime)} </Typography>
+            </Typography>
+            {/* <Typography margin={'1%'} variant="subtitle">Giá khởi Điểm : {formatToVND(product.firstPrice)}</Typography>
+                                <Typography margin={'1%'} variant="subtitle">Bước Giá : {formatToVND(product.stepPrice)}</Typography>
+                                <Typography margin={'1%'} variant="subtitle">Giá hiện tại : {formatToVND(product.finalPrice)}</Typography>
+                                <Typography margin={'1%'} variant="subtitle">Thời gian bắt đầu : {formatCreateDate(product.beginTime)}</Typography>
+                                <Typography margin={'1%'} variant="subtitle">Thời gian Kết thúc : {formatCreateDate(product.endTime)}</Typography> */}
+
+            {
+              auctionData[0]?.descriptions.map((description, index) => (
+                <Typography
+                  key={index}
+                  margin={"1%"}
+                  sx={{
+                    display: showDescriptions ? "flex" : "none", // Show or hide the descriptions based on state
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography color={"#696969"} variant="subtitle">
+                    {description.description} :
+                  </Typography>
+                  <Typography
+                    color={"#B41712"}
+                    variant="subtitle"
+                    sx={{ marginLeft: "auto" }}
+                  >
+                    {description.detail}
+                  </Typography>
+                </Typography>
+              ))
+            }
+            <Typography
+              margin={"1%"}
+              fontWeight={"bold"}
+              variant="dashed"
+              sx={{ cursor: "pointer", display: "flex", justifyContent: "center", }}
+              onClick={handleToggleDescriptions} // Toggle the visibility on click
+            >
+              {showDescriptions ? (
+                <>
+                  Ẩn bớt <KeyboardArrowUpIcon />
+                </>
+              ) : (
+                <>
+                  Xem thêm <KeyboardArrowDownIcon />
+                </>
+              )}
+            </Typography>
+
             <Grid item xs={12} sm={6}>
               {/* Use the StyledScrollbar component to wrap the TextField */}
-              <StyledScrollbar>
-                <StyledTextField
-                  id="multiline-textfield"
-                  label="Lịch Sử Tăng Giá"
-                  multiline
-                  rows={25}
-                  variant="outlined"
-                  fullWidth
-                  value={sessionDetails.map((detail) => `${detail.userName} || ${formatToVND(detail.price)} || ${formatCreateDate(detail.createDate)}`).join('\n')}
-                />
-              </StyledScrollbar>
+
+              <TextField
+                fontFamily="Arial, sans-serif" // Adjust the font-family as needed
+                fontSize="15px" // Adjust the font size as needed // Use the primary text color from the theme
+                label="Lịch Sử Tăng Giá"
+                multiline
+                rows={6}
+                variant="outlined"
+                fullWidth
+                value={sessionDetails.map((detail) => ` Người Dùng : ${detail.userName} || Đã Tăng Lên: ${formatToVND(detail.price)} || Vào Lúc : ${formatCreateDate(detail.createDate)}`).join('\n')}
+              />
+
             </Grid>
-          </Grid>
+
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              {auctionData[0]?.delayTime && (
+                <RemainingTime endTime={auctionData[0]?.endTime} />
+              )}
+            </Box>
+
+          </Stack>
         </ProductDetailInfoWrapper>
       </ProductDetailWrapper>
       <BidDialogContext.Provider value={{ isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice }}>
@@ -469,41 +598,45 @@ const AuctionForm = () => {
       </BidDialogContext.Provider>
 
       {/* popupdialog */}
-      {winnerData && (
-        <Dialog open onClose={() => { }}>
-          <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>
-            {/* {winnerData.winner ? "Xin chúc mừng bạn là người chiến thắng" : "Cuộc đấu giá đã kết thúc"} */}
-            Phiên Đấu Giá Đã Kết thúc
-          </DialogTitle>
-          <DialogContent>
-            {winnerData.winner && (
-              <Typography>
-                Người chiến thắng là : {winnerData.winner}
-              </Typography>
-            )}
-            {!winnerData.winner && (
-              <Typography>
-                {/* Display any message you want for non-winners here */}
-              </Typography>
-            )}
-          </DialogContent>
-          <DialogActions>
-            {winnerData.winner ? (
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Button color="primary" onClick={handleGoBack}>
-                  Quay lại Trang chủ
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/home" style={{ textDecoration: 'none' }}>
-                <Button color="primary" onClick={handleGoBack}>
-                  Quay lại Trang chủ
-                </Button>
-              </Link>
-            )}
-          </DialogActions>
-        </Dialog>
+      {isAuctionOver && (
+        <>
+          {isWinner ? (
+            <Dialog open onClose={() => { }}>
+              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Xin chúc mừng</DialogTitle>
+              <DialogContent>
+                <Typography  >Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
+              </DialogContent>
+              <DialogActions>
+                <Link to="/home" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Quay lại Trang chủ
+                  </Button>
+                </Link>
+                <Link to="/shoppingcart" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Thanh Toán Ngay
+                  </Button>
+                </Link>
+              </DialogActions>
+            </Dialog>
+          ) : (
+            <Dialog open onClose={() => { }}>
+              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Cuộc đấu giá đã kết thúc</DialogTitle>
+              <DialogContent>
+                <Typography  >Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
+              </DialogContent>
+              <DialogActions>
+                <Link to="/home" style={{ textDecoration: 'none' }}>
+                  <Button color="primary" onClick={handleGoBack}>
+                    Quay lại Trang chủ
+                  </Button>
+                </Link>
+              </DialogActions>
+            </Dialog>
+          )}
+        </>
       )}
+
     </>
   );
 };

@@ -34,7 +34,7 @@ import {
 } from '@mui/material';
 import { Image } from 'mui-image';
 // components
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserDetail from '../sections/@dashboard/user/UserDetail';
 import { acceptUserWaiting, denyUserWaiting } from '../services/staff-actions';
 // eslint-disable-next-line import/no-unresolved
@@ -118,7 +118,7 @@ export default function SessionSuccess() {
   const [anchorEl, setAnchorEl] = useState(null);
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
-  const formatAuctionTime = (date) => moment(date, "HH:mm:ss.SSSSSSS").format('hh:mm:ss');
+  const formatAuctionTime = (date) => moment(date, 'HH:mm:ss.SSSSSSS').format('hh:mm:ss');
 
   const navigate = useNavigate();
 
@@ -296,7 +296,7 @@ export default function SessionSuccess() {
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
-                      row;
+                      row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -329,11 +329,15 @@ export default function SessionSuccess() {
                         </TableCell>
 
                         <TableCell align="right">
-                          {/* <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, userId)}>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => handleOpenMenu(event, sessionId)}
+                          >
                             <Iconify icon={'eva:more-vertical-fill'} />
-                          </IconButton> */}
-                          {/* <Popover
-                            open={openPopoverId === userId}
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionId}
                             anchorEl={anchorEl}
                             // open={Boolean(open)}
                             // anchorEl={open}
@@ -343,7 +347,7 @@ export default function SessionSuccess() {
                             PaperProps={{
                               sx: {
                                 p: 1,
-                                width: 140,
+                                width: 150,
                                 '& .MuiMenuItem-root': {
                                   px: 1,
                                   typography: 'body2',
@@ -351,27 +355,24 @@ export default function SessionSuccess() {
                                 },
                               },
                             }}
-                          > */}
-                          <Button
-                            color="secondary"
-                            onClick={() => {
-                              handleOpenModalWithUser(row.sessionId);
-                            }}
                           >
-                            <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                            Chi tiết
-                          </Button>
-
-                          {/* <MenuItem
-                              // onClick={() => {
-                              //   handleDeleteButton(row.userId);
-                              // }}
-                              sx={{ color: 'error.main' }}
-                            >
-                              <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
-                              Delete
-                            </MenuItem> */}
-                          {/* </Popover> */}
+                            <MenuItem>
+                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                            <MenuItem>
+                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Lịch sử đấu giá
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -452,7 +453,12 @@ export default function SessionSuccess() {
                         <Typography variant="subtitle1" gutterBottom>
                           Hình ảnh sản phẩm
                         </Typography>
-                        <CardMedia component="img" image={upSession.image} alt="Item Image" className={classes.cardMedia} />
+                        <CardMedia
+                          component="img"
+                          image={upSession.image}
+                          alt="Item Image"
+                          className={classes.cardMedia}
+                        />
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <Typography variant="subtitle1" gutterBottom>
@@ -473,7 +479,11 @@ export default function SessionSuccess() {
                         <TextField multiline label="Thời gian kết thúc" defaultValue={formatDate(upSession.endTime)} />
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <TextField multiline label="Thời gian đấu giá" defaultValue={formatAuctionTime(upSession.auctionTime)} />
+                        <TextField
+                          multiline
+                          label="Thời gian đấu giá"
+                          defaultValue={formatAuctionTime(upSession.auctionTime)}
+                        />
                       </Grid>
                       <Grid item md={6} xs={12}>
                         <TextField multiline label="Giá cuối cùng" defaultValue={upSession.finalPrice} />

@@ -44,7 +44,7 @@ export async function updateSessionRule(upSessionRule) {
 }
 
 export async function deleteSessionRule(id) {
-    const url = `${BASE_URL}/sessionrule/${id}`;
+    const url = `${BASE_URL}/sessionrule?id=${id}`;
     try {
         axiosInstance.delete(url, { data: { id } });
         console.log(`Deleted SessionRule: ${id}`);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
@@ -20,41 +20,111 @@ const SignUpForm = () => {
   const [avatar, setAvatar] = useState(null);
   const [cccdfrontImage, setFrontImage] = useState(null);
   const [cccdbackImage, setBackImage] = useState(null);
+  const [otpValue, setOtpValue] = useState('');
+  const [otpError, setOtpError] = useState(false);
+  const otpInputRef = useRef('');
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('loginUser');
+  const jsonUser = JSON.parse(user)
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [updateRoleMessage, setUpdateRoleMessage] = useState('');
+
+  const [otpDialogOpen, setOtpDialogOpen] = useState(false);
 
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
 
+  const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
   const navigate = useNavigate()
 
-  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  const uploader = Uploader({ apiKey: "public_kW15bfw7HM9PmAu3eqEkeP4eD6aN" });
+
+  const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
+  const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`
 
 
-  const isValidImageURL = async (url) => {
+  const handleOtpInputChange = (event) => {
+    setOtpError(false);
+  };
+
+  const handleOpenOtpDialog = () => {
+    handleOtpSubmit();
+    setOtpDialogOpen(true);
+    setOtpValue('');
+    setOtpError(false);
+  };
+
+
+  const handleOtpSubmit = () => {
+    axios
+      .put(confirm, null, { headers: { Authorization: `Bearer ${token}` } })
+      .then((response) => {
+        // If the API response has no error, proceed to update the user's role
+        setOtpError(false);
+        setUpdateRoleMessage('');
+        // return handleUpgradeToAuctioneer();
+      })
+      .catch((error) => {
+        setOtpError(true);
+        setUpdateRoleMessage('');
+      });
+  };
+
+
+  const handleDialogClose1 = () => {
+    setOtpDialogOpen(false);
+    setDialogOpen(false);
+    setUpdateRoleMessage(''); // If needed to clear the updateRoleMessage state
+  };
+
+  const onFileSelected = async (event, setImageState) => {
+    const [file] = event.target.files;
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const response = await axios.get(url, {
-        responseType: 'blob',
+      const response = await axios.post('https://bids-online.azurewebsites.net/api/Users', formData, {
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onProgress({ progress });
+        },
       });
 
-      const image = new Image();
-      image.src = URL.createObjectURL(response.data);
-
-      return new Promise((resolve, reject) => {
-        image.onload = () => {
-          URL.revokeObjectURL(image.src);
-
-          const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-          const isTypeAllowed = allowedTypes.includes(image.type);
-          const isSizeValid = response.headers['content-length'] <= MAX_FILE_SIZE;
-
-          resolve(isTypeAllowed && isSizeValid);
-        };
-
-        image.onerror = () => {
-          reject(new Error('Failed to load the image.'));
-        };
-      });
+      alert(`File uploaded: ${response.data.fileUrl}`);
+      setImageState(response.data.fileUrl);
     } catch (error) {
-      return false; // Return false if there was an error fetching the image
+      console.error('Error uploading file:', error);
+    }
+  };
+  const onProgress = ({ progress }) => {
+    console.log(`File uploading: ${progress}% complete.`)
+  }
+
+
+  const handleUpgradeToAuctioneer = async () => {
+    const otpValue = otpInputRef.current.value;
+  
+    try {
+      const response = await axios.put(
+        UpdateRoleApi,
+        {
+          email,
+          code: otpValue,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+  
+      if (response.status === 200) {
+        setRoleUpgradeSuccess(true);
+        setUpdateRoleMessage('Xác Thực Email Thành Công');
+        setOtpError(false);
+      } else {
+        setRoleUpgradeSuccess(false);
+        setOtpError(true);
+      }
+    } catch (error) {
+      setRoleUpgradeSuccess(false);
+      setOtpError(true);
     }
   };
 
@@ -85,20 +155,6 @@ const SignUpForm = () => {
       return;
     }
 
-    if (!isValidImageURL(avatar)) {
-      setError('Hình ảnh đại diện không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
-
-    if (!isValidImageURL(cccdfrontImage)) {
-      setError('Hình ảnh mặt trước CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
-
-    if (!isValidImageURL(cccdbackImage)) {
-      setError('Hình ảnh mặt sau CCCD không hợp lệ. Vui lòng chỉ chấp nhận ảnh có định dạng JPG, JPEG, PNG và dung lượng không quá 23MB.');
-      return;
-    }
 
     const date = format(new Date(dateOfBirth), 'MM-dd-yyyy')
     console.log(date)
@@ -172,6 +228,12 @@ const SignUpForm = () => {
     }
   };
 
+  const handleCloseOtpDialog = () => {
+    setOtpDialogOpen(false);
+    setOtpValue('');
+    setOtpError(false);
+  };
+
   const handleSuccessDialogClose = () => {
     navigate('/home', { replace: true });
     setSuccessDialogOpen(false);
@@ -218,6 +280,15 @@ const SignUpForm = () => {
         sx={{ width: '100%' }}
         id="email"
       />
+      <Button
+        variant="outlined"
+        color="primary"
+        sx={{ marginTop: '10px', width: '100%' }}
+        onClick={handleOpenOtpDialog}
+      >
+        Xác Thực Email
+      </Button>
+
       <TextField
         label="Mật Khẩu"
         type="password"
@@ -227,6 +298,7 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="password"
+        disabled={!roleUpgradeSuccess}
       />
       <TextField
         label="Nhập Lại Mật Khẩu"
@@ -237,6 +309,7 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="rePassword"
+        disabled={!roleUpgradeSuccess}
       />
       <TextField
         label="Địa Chỉ"
@@ -247,6 +320,7 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="address"
+        disabled={!roleUpgradeSuccess}
       />
       <TextField
         label="Số Điện Thoại"
@@ -257,6 +331,7 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="phone"
+        disabled={!roleUpgradeSuccess}
       />
       <TextField
         label=" Tháng, Ngày, Năm Sinh"
@@ -270,6 +345,7 @@ const SignUpForm = () => {
         InputLabelProps={{
           shrink: true
         }}
+        disabled={!roleUpgradeSuccess}
       />
       <TextField
         label="Số CCCD"
@@ -280,6 +356,7 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="cccdnumber"
+        disabled={!roleUpgradeSuccess}
       />
       <h2>Ảnh Đại Diện</h2>
       <UploadDropzone uploader={uploader}       // Required.
@@ -294,7 +371,9 @@ const SignUpForm = () => {
             const avatarimg = files.map(f => f.fileUrl).join("\n");
             setAvatar(avatarimg);
           }
-        }} />
+        }} 
+        
+        />
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -308,7 +387,7 @@ const SignUpForm = () => {
             const frontimg = files.map(f => f.fileUrl).join("\n");
             setFrontImage(frontimg);
           }
-        }} />
+        }}disabled={!roleUpgradeSuccess} />
       <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
@@ -322,12 +401,48 @@ const SignUpForm = () => {
             const backimg = files.map(f => f.fileUrl).join("\n");
             setBackImage(backimg);
           }
-        }} />
+        }} 
+        />
       {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
           {err}
         </Typography>
       )}
+
+
+      <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
+        <DialogContent>
+          <DialogTitle>Xác Thực Email (Vui lòng kiểm tra gmail)</DialogTitle>
+          <TextField
+            label="OTP"
+            fullWidth
+            inputRef={otpInputRef}
+            onChange={handleOtpInputChange}
+            error={otpError}
+            helperText={otpError ? 'Kiểm Tra Lại Mã OTP' : ''}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseOtpDialog} color="secondary">
+            Thoát
+          </Button>
+          <Button onClick={handleUpgradeToAuctioneer} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+      <Dialog open={!!updateRoleMessage} onClose={handleDialogClose1}>
+        <DialogContent>
+          <p>{updateRoleMessage}</p>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose1} color="primary">
+            Đóng
+          </Button>
+        </DialogActions>
+      </Dialog>
 
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
@@ -350,7 +465,7 @@ const SignUpForm = () => {
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
-      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }}>
+      <Button type="submit" variant="contained" color="primary" sx={{ marginTop: '20px' }} disabled={!roleUpgradeSuccess}>
         Đăng Kí
       </Button>
     </Box>

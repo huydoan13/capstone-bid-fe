@@ -41,7 +41,7 @@ function SessionCreate() {
     itemId: '',
     sessionRuleId: '',
     beginTime: null,
-    endTime: null,
+    // endTime: null,
   });
 
   const [sessionRules, setSessionRules] = useState([]);
@@ -91,12 +91,12 @@ function SessionCreate() {
 
     try {
       const localBeginTime = sessionData.beginTime.local().format('YYYY-MM-DDTHH:mm:ss');
-      const localEndTime = sessionData.endTime.local().format('YYYY-MM-DDTHH:mm:ss');
+      // const localEndTime = sessionData.endTime.local().format('YYYY-MM-DDTHH:mm:ss');
 
       const formattedSessionData = {
         ...sessionData,
         beginTime: localBeginTime,
-        endTime: localEndTime,
+        // endTime: localEndTime,
       };
       const response = await createSession(formattedSessionData, itemId);
       // setSessionName('');
@@ -182,7 +182,7 @@ function SessionCreate() {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={12} sm={6}>
+              {/* <Grid item xs={12} sm={6}>
                 <LocalizationProvider fullWidth dateAdapter={AdapterMoment}>
                   <DateTimePicker
                     label="Thời gian kết thúc"
@@ -194,7 +194,7 @@ function SessionCreate() {
                     renderInput={(params) => <TextField {...params} />}
                   />
                 </LocalizationProvider>
-              </Grid>
+              </Grid> */}
             </Grid>
             {/* <LocalizationProvider dateAdapter={AdapterMoment}>
               <DateTimePicker

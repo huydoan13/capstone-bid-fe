@@ -35,7 +35,7 @@ export default function AppbarDesktop({ matches }) {
                 </Link>
             </AppbarHeader>
             <MyList type="row">
-                <ListItemText primary="Tài Sản Đấu Giá" />
+                {/* <ListItemText primary="Tài Sản Đấu Giá" /> */}
                 {/* Add the dropdown for "Cuộc Đấu Giá" */}
                 <ListItemButton onClick={handleMenuOpen}>
                     <ListItemText primary="Cuộc Đấu Giá" />
@@ -63,7 +63,7 @@ export default function AppbarDesktop({ matches }) {
                     </MenuItem>
                 </Menu>
                 {/* Continue with other list items */}
-                {role === "Auctioneer" ? (
+                {role === "User" ? (
                     <>
                         <ListItemButton component="a" href="/addproduct">
                             <ListItemText primary="Thêm Sản Phẩm Đấu Giá" />
@@ -71,7 +71,7 @@ export default function AppbarDesktop({ matches }) {
                         <ListItemButton component="a" href="/myproduct">
                             <ListItemText primary="Sản Phẩm Của Tôi" />
                         </ListItemButton>
-                        <ListItemButton component="a" href="/auctionhistory">
+                        <ListItemButton component="a" href="/myhistory">
                             <ListItemText primary="Lịch Sử Đấu Giá" />
                         </ListItemButton>
                     </>

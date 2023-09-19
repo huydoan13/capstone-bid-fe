@@ -9,6 +9,7 @@ export const Product = styled(Box)(({ theme }) => ({
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
+    width : "100%",
     [theme.breakpoints.up('md')]: {
         position: 'relative'
     },
@@ -32,7 +33,7 @@ export const ProductImage = styled('img')(({ src, theme }) => ({
 export const ProductDetailImage = styled('img')(({ src, theme }) => ({
 
     src: `url(${src})`,
-    width: '550px',
+    width: '100%',
     height: '500px',
     background: Colors.light_gray,
     padding: '10px',

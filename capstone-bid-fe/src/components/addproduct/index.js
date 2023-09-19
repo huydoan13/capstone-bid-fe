@@ -1,11 +1,25 @@
-
-
 import React, { useState, useEffect } from 'react';
-import { Uploader } from "uploader";
-import { UploadDropzone } from "react-uploader";
-import axios from 'axios';
-import { Box, TextField, Button, Select, MenuItem, FormControl, InputLabel, Typography, InputAdornment, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Uploader } from 'uploader';
+import { UploadDropzone } from 'react-uploader';
+
+import {
+  Box,
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Typography,
+  InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
 import styled from '@emotion/styled';
+import axios from 'axios';
 
 const AddProductForm = () => {
   const [itemName, setItemName] = useState('');
@@ -16,8 +30,11 @@ const AddProductForm = () => {
   const [quantity, setQuantity] = useState('');
   const [firstPrice, setFirstPrice] = useState('');
   const [stepPrice, setStepPrice] = useState('');
+  const [auctionHour, setAuctionHour] = useState('');
+  const [auctionMinute, setAuctionMinute] = useState('');
+  const [typeOfSession, setTypeOfSession] = useState('');
   const [image, setProductImage] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   const [selectedCategoryDescriptions, setSelectedCategoryDescriptions] = useState([]);
   const [descriptionValues, setDescriptionValues] = useState({});
 
@@ -26,9 +43,10 @@ const AddProductForm = () => {
   const [error, setError] = useState();
   const token = localStorage.getItem('token');
   const user = localStorage.getItem('loginUser');
-  const jsonUser = JSON.parse(user)
+  const jsonUser = JSON.parse(user);
+  const [calculatedStepPrice, setCalculatedStepPrice] = useState('');
 
-  const uploader = Uploader({ apiKey: "public_kW15bZBDGpnmYn4xuNbK1ftXgweC" });
+  const uploader = Uploader({ apiKey: 'public_kW15bfw7HM9PmAu3eqEkeP4eD6aN' });
   const uploaderOptions = {
     multi: true,
 
@@ -38,19 +56,16 @@ const AddProductForm = () => {
 
     styles: {
       colors: {
-        primary: "#377dff"
-      }
-    }
-  }
-
-
-
-
+        primary: '#377dff',
+      },
+    },
+  };
 
   useEffect(() => {
-    axios.get('https://bids-online.azurewebsites.net/api/Categorys', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    axios
+      .get('https://bids-online.azurewebsites.net/api/Categorys', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         setCategories(response.data);
       })
@@ -67,6 +82,17 @@ const AddProductForm = () => {
       setSelectedCategoryName('');
     }
   }, [categoryId, categories]);
+
+  useEffect(() => {
+    // Calculate the step price based on firstPrice
+    if (firstPrice) {
+      const lowerBound = 0.05 * parseFloat(firstPrice);
+      const upperBound = 0.1 * parseFloat(firstPrice);
+      setCalculatedStepPrice(`${lowerBound.toLocaleString('vi-VN')} ₫ - ${upperBound.toLocaleString('vi-VN')} ₫`);
+    } else {
+      setCalculatedStepPrice('');
+    }
+  }, [firstPrice]);
 
   const handleCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
@@ -98,9 +124,10 @@ const AddProductForm = () => {
       [descriptionName]: newValue,
     }));
   };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-
+    setLoading(true);
     // Perform further processing or API call with the form data
     const formData = {
       userId: jsonUser.Id,
@@ -108,16 +135,21 @@ const AddProductForm = () => {
       description,
       categoryId,
       quantity,
+      auctionHour,
+      auctionMinute,
+      typeOfSession,
       image,
       firstPrice,
       stepPrice,
+
     };
 
     // api = `api/${userId}`
 
-    axios.post('https://bids-online.azurewebsites.net/api/Items', formData, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    axios
+      .post('https://bids-online.azurewebsites.net/api/Items', formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
       .then((response) => {
         console.log('Data successfully posted:', response.data);
         const itemId = response.data[0].itemId;
@@ -136,37 +168,44 @@ const AddProductForm = () => {
           .then(() => {
             console.log('Item descriptions successfully posted.');
 
-          // Now upload the image to the new API endpoint
-          const imageUrls = image.split('\n');
-          
-          // Create an array to store the promises for image uploads
-          const imageUploadPromises = imageUrls.map((imageUrl) => {
-            const imageFormData = {
-              itemId,
-              detailImage: imageUrl,
-            };
-            return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-          });
-          Promise.all(imageUploadPromises)
-            .then(() => {
-              console.log('Image uploaded successfully.');
+            // Now upload the image to the new API endpoint
+            const imageUrls = image.split('\n');
 
-              setSuccessDialogOpen(true);
-              // Reset form fields
-              setItemName('');
-              setDescription('');
-              setCategoryId('');
-              setQuantity('');
-              // setProductImage(null);
-              setFirstPrice('');
-              setStepPrice('');
-            })
-            .catch((error) => {
-              console.error('Error uploading image:', error);
-              setErrorDialogOpen(true);
+            // Create an array to store the promises for image uploads
+            const imageUploadPromises = imageUrls.map((imageUrl) => {
+              const imageFormData = {
+                itemId,
+                detailImage: imageUrl,
+              };
+              return axios.post('https://bids-online.azurewebsites.net/api/Images', imageFormData, {
+                headers: { Authorization: `Bearer ${token}` },
+              });
             });
+            Promise.all(imageUploadPromises)
+              .then(() => {
+                console.log('Image uploaded successfully.');
+
+                setSuccessDialogOpen(true);
+                // Reset form fields
+                setItemName('');
+                setDescription('');
+                setCategoryId('');
+                setQuantity('');
+                setAuctionHour('');
+                setAuctionMinute('');
+                setTypeOfSession('');
+                // setProductImage(null);
+                setFirstPrice('');
+                setStepPrice('');
+                setLoading(false);
+              })
+              .catch((error) => {
+                console.error('Error uploading image:', error);
+                setErrorDialogOpen(true);
+              })
+              .finally(() => {
+                // Set loading back to false after the response is received
+              });
           })
           .catch((error) => {
             console.error('Error posting item descriptions:', error);
@@ -182,7 +221,7 @@ const AddProductForm = () => {
         // setFirstPrice('');
         // setStepPrice('');
       })
-      .catch(error => {
+      .catch((error) => {
         // Handle error
         if (error.response) {
           // The request was made, and the server responded with an error status code (4xx, 5xx)
@@ -194,6 +233,7 @@ const AddProductForm = () => {
             error = setError(errorMessage);
             // Now you can save the errorMessage to your frontend state to display it on the UI
             // this.setState({ errorMessage });
+            setLoading(false);
           } else {
             // Other error handling for different status codes
           }
@@ -204,7 +244,6 @@ const AddProductForm = () => {
         setErrorDialogOpen(true);
       });
   };
-
 
   const handleSuccessDialogClose = () => {
     setSuccessDialogOpen(false);
@@ -239,23 +278,9 @@ const AddProductForm = () => {
         margin="normal"
       />
 
-      <TextField
-        label="Mô Tả Sản Phẩm"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-      />
-
       <FormControl fullWidth required margin="normal">
         <InputLabel>Thể Loại Sản Phẩm</InputLabel>
-        <Select
-          value={categoryId}
-          onChange={handleCategoryChange}
-
-          label="Category"
-        >
+        <Select value={categoryId} onChange={handleCategoryChange} label="Category">
           {categories.map((category) => (
             <MenuItem key={category.categoryId} value={category.categoryId}>
               {category.categoryName}
@@ -264,20 +289,28 @@ const AddProductForm = () => {
         </Select>
       </FormControl>
 
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', maxWidth: 'calc(4 * (100% - 10px) / 4)' }}>
-  {selectedCategoryDescriptions.map((description) => (
-    <TextField
-      key={description.name}
-      label={description.name}
-      value={descriptionValues[description.name]}
-      onChange={(event) => handleDescriptionChange(description.name, event)}
-      fullWidth
-      required
-      margin="normal"
-      sx={{ flex: '1 0 calc(25% - 10px)' }} // This will ensure each TextField takes up 25% of the container width minus 10px for the gap.
-    />
-  ))}
-</Box>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '10px',
+          flexWrap: 'wrap',
+          maxWidth: 'calc(4 * (100% - 10px) / 4)',
+        }}
+      >
+        {selectedCategoryDescriptions.map((description) => (
+          <TextField
+            key={description.name}
+            label={description.name}
+            value={descriptionValues[description.name]}
+            onChange={(event) => handleDescriptionChange(description.name, event)}
+            fullWidth
+            required
+            margin="normal"
+            sx={{ flex: '1 0 calc(25% - 10px)' }} // This will ensure each TextField takes up 25% of the container width minus 10px for the gap.
+          />
+        ))}
+      </Box>
 
       <TextField
         label="Số Lượng"
@@ -288,25 +321,37 @@ const AddProductForm = () => {
         margin="normal"
         type="number"
       />
+      <FormControl fullWidth required margin="normal">
+        <InputLabel id="demo-simple-select-label">Loại Phiên đấu giá</InputLabel>
+        <Select
+          value={typeOfSession}
+          onChange={(event) => setTypeOfSession(event.target.value)}
+          label="status"
+          name="status"
+        >
+          <MenuItem value="5">Đấu giá ngay</MenuItem>
+          <MenuItem value="1">Đấu giá sau</MenuItem>
+        </Select>
+      </FormControl>
 
-      <description>Hình Ảnh Sản Phẩm</description>
-      <UploadDropzone uploader={uploader}       // Required.
-        width="100%"             // Optional.
-        height="375px"
-        options={uploaderOptions}
-        onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
-        onComplete={files => {      // Optional.
-          if (files.length === 0) {
-            console.log('No files selected.')
-          } else {
-            console.log('Files uploaded:');
-            console.log(files.map(f => f.fileUrl).join("\n"));
-            const img = files.map(f => f.fileUrl).join("\n");
-            setProductImage(img);
-          }
-        }} />
-
-
+      <TextField
+        label="Thời gian đấu giá (giờ)"
+        value={auctionHour}
+        onChange={(event) => setAuctionHour(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        type="number"
+      />
+      <TextField
+        label="Thời gian đấu giá (phút)"
+        value={auctionMinute}
+        onChange={(event) => setAuctionMinute(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        type="number"
+      />
       <TextField
         label="Giá Ban Đầu (VND)"
         value={firstPrice}
@@ -323,7 +368,7 @@ const AddProductForm = () => {
       />
 
       <TextField
-        label="Bước Giá(5-10% giá ban đầu) (VND)"
+        label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
         value={stepPrice}
         onChange={(event) => setStepPrice(event.target.value)}
         fullWidth
@@ -337,10 +382,43 @@ const AddProductForm = () => {
         }}
       />
 
+      <description>Hình Ảnh Sản Phẩm</description>
+      <UploadDropzone
+        uploader={uploader} // Required.
+        width="100%" // Optional.
+        height="375px"
+        options={uploaderOptions}
+        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
+        onComplete={(files) => {
+          // Optional.
+          if (files.length === 0) {
+            console.log('No files selected.');
+          } else {
+            console.log('Files uploaded:');
+            console.log(files.map((f) => f.fileUrl).join('\n'));
+            const img = files.map((f) => f.fileUrl).join('\n');
+            setProductImage(img);
+          }
+        }}
+      />
+
+      <TextField
+        label="Mô Tả Sản Phẩm"
+        value={description}
+        onChange={(event) => setDescription(event.target.value)}
+        fullWidth
+        required
+        margin="normal"
+        multiline
+        rows={4}
+      />
+
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
         <DialogTitle>Thành Công</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">Tạo sản phẩm thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm của bạn. </Typography>
+          <Typography variant="body1">
+            Tạo sản phẩm thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm của bạn.{' '}
+          </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleSuccessDialogClose}>OK</Button>
@@ -358,6 +436,11 @@ const AddProductForm = () => {
         </DialogActions>
       </Dialog>
 
+      {/* {loading && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <CircularProgress color="primary" />
+        </div>
+      )} */}
 
       <Button
         variant="contained"
@@ -365,10 +448,15 @@ const AddProductForm = () => {
         size="large"
         type="submit"
         sx={{ display: 'block', mx: 'auto', mt: 4 }}
+        disabled={loading}
       >
-        Thêm Sản Phẩm
-      </Button>
+        {loading ? (
+          <CircularProgress color="inherit" size={24} />
+        ) : (
+          'Thêm Sản Phẩm'
+        )}
 
+      </Button>
     </Box>
   );
 };

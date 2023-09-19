@@ -34,6 +34,7 @@ import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@m
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserById, getStatusLabel, getRoleLabel } from '../../../services/user-actions';
 import { unBanUser } from '../../../services/staff-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 const UserBanDetail = () => {
   const { userId } = useParams();
@@ -129,12 +130,28 @@ const UserBanDetail = () => {
   };
 
   useEffect(() => {
-    getUserById(userId).then((res) => {
-      setUserDetail(res.data);
-      console.log(res.data);
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/users/by_id', {
+        params: { id: userId },
+      });
+      console.log(response);
+      setUserDetail(response.data);
       setLoading(false);
-    });
+      }
+      catch (error) {
+        console.log(error);
+      }
+    })();
   }, [userId]);
+
+  // useEffect(() => {
+  //   getUserById(userId).then((res) => {
+  //     setUserDetail(res.data);
+  //     console.log(res.data);
+  //     setLoading(false);
+  //   });
+  // }, [userId]);
 
   if (loading) {
     return <div>Loading...</div>;

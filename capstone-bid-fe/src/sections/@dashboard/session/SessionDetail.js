@@ -31,6 +31,7 @@ import {
 import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getSessionsById, getStatusLabel } from '../../../services/session-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 const SessionDetail = () => {
   const { sessionId } = useParams();
@@ -101,11 +102,19 @@ const SessionDetail = () => {
   };
 
   useEffect(() => {
-    getSessionsById(sessionId).then((res) => {
-      setSessionDetail(res.data);
-      console.log(res.data);
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/sessions/by_id', {
+        params: { id: sessionId },
+      });
+      console.log(response);
+      setSessionDetail(response.data);
       setLoading(false);
-    });
+      }
+      catch (error) {
+        console.log(error);
+      }
+    })();
   }, [sessionId]);
 
   if (loading) {
@@ -119,185 +128,198 @@ const SessionDetail = () => {
         <CardHeader title="Thông tin chi tiết phiên đấu giá" />
         <CardContent>
           <Box sx={{ p: 2 }}>
-            {sessionDetail.map((item) => (
-              <div key={item.sessionId}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phiên đấu giá"
-                      defaultValue={item.sessionName}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phân khúc"
-                      defaultValue={item.feeName}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="Tên sản phẩm"
-                      defaultValue={item.itemName}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="Loại sản phẩm"
-                      defaultValue={item.categoryName}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <TextField
-                      fullWidth
-                      label="Trạng thái"
-                      defaultValue={getStatusLabel(item.status)}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                  <Grid item md={12} xs={12}>
-                    <TextField
-                      fullWidth
-                      multiline
-                      label="Mô tả chi tiết"
-                      defaultValue={item.description}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
-                  </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                  {item.descriptions.map((desc, index) => (
-                    <Grid item xs={12} sm={6} key={index}>
+            {sessionDetail &&
+              sessionDetail?.map((item) => (
+                <div key={item.sessionId}>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
-                        label={desc.description}
-                        defaultValue={desc.detail}
+                        label="Phiên đấu giá"
+                        defaultValue={item.sessionName}
                         variant="outlined"
-                        // sx={{ marginBottom: '30px' }}
+                        sx={{ marginBottom: '20px' }}
                       />
                     </Grid>
-                  ))}
-                </Grid>
-                <Grid container spacing={2}>
-                  {item.images.map((imageObj, index) => (
-                    <Grid item xs={12} sm={3} key={index}>
-                      {/* Button to select the image */}
-                      <Button onClick={() => handleSelectImage(imageObj)}>
-                        <CardMedia
-                          component="img"
-                          src={imageObj.detail}
-                          alt={`Image ${index + 1}`}
-                          className={classes.smallCardMedia}
-                        />
-                      </Button>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Phân khúc"
+                        defaultValue={item.feeName}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
                     </Grid>
-                  ))}
-                </Grid>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Đặt cọc"
-                      defaultValue={item.deposit ? 'Có' : 'Không'}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phí đặt cọc"
-                      defaultValue={item.depositFee}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Tên sản phẩm"
+                        defaultValue={item.itemName}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Loại sản phẩm"
+                        defaultValue={item.categoryName}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid container spacing={2}>
+                  <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Phí tham gia"
-                      defaultValue={item.participationFee.toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
+                      <TextField
+                        fullWidth
+                        label="Trạng thái"
+                        defaultValue={getStatusLabel(item.status)}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Người chiến thắng"
+                        defaultValue={item.status}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Bước nhảy"
-                      defaultValue={item.stepPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    <Grid item md={12} xs={12}>
+                      <TextField
+                        fullWidth
+                        multiline
+                        label="Mô tả chi tiết"
+                        rows={4}
+                        defaultValue={item.description}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Giá khởi đầu"
-                      defaultValue={item.firstPrice.toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    {item.descriptions.map((desc, index) => (
+                      <Grid item xs={12} sm={6} key={index}>
+                        <TextField
+                          fullWidth
+                          label={desc.description}
+                          defaultValue={desc.detail}
+                          variant="outlined"
+                          // sx={{ marginBottom: '30px' }}
+                        />
+                      </Grid>
+                    ))}
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Giá cuối cùng"
-                      defaultValue={item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px', marginTop: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    {item.images.map((imageObj, index) => (
+                      <Grid item xs={12} sm={3} key={index}>
+                        {/* Button to select the image */}
+                        <Button onClick={() => handleSelectImage(imageObj)}>
+                          <CardMedia
+                            component="img"
+                            src={imageObj.detail}
+                            alt={`Image ${index + 1}`}
+                            className={classes.smallCardMedia}
+                          />
+                        </Button>
+                      </Grid>
+                    ))}
                   </Grid>
-                </Grid>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Ngày bắt đầu"
-                      defaultValue={formatDate(item.beginTime)}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Đặt cọc"
+                        defaultValue={item.deposit ? 'Có' : 'Không'}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Phí đặt cọc"
+                        defaultValue={item.depositFee}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      label="Ngày kết thúc"
-                      defaultValue={formatDate(item.endTime)}
-                      variant="outlined"
-                      sx={{ marginBottom: '20px' }}
-                    />
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Phí tham gia"
+                        defaultValue={item.participationFee.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Bước nhảy"
+                        defaultValue={item.stepPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
                   </Grid>
-                </Grid>
-              </div>
-            ))}
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Giá khởi đầu"
+                        defaultValue={item.firstPrice.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Giá cuối cùng"
+                        defaultValue={item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px', marginTop: '20px' }}
+                      />
+                    </Grid>
+                  </Grid>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Ngày bắt đầu"
+                        defaultValue={formatDate(item.beginTime)}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Ngày kết thúc"
+                        defaultValue={formatDate(item.endTime)}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
+                  </Grid>
+                </div>
+              ))}
           </Box>
         </CardContent>
       </Card>

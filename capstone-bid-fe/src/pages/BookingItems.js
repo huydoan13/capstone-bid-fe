@@ -49,6 +49,7 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 import SessionCreate from '../sections/@dashboard/session/SessionCreate';
+import axiosInstance from '../services/axios-instance';
 
 // ----------------------------------------------------------------------
 
@@ -169,11 +170,25 @@ export default function BookingItems() {
 
   // lay du lieu tat ca user
   useEffect(() => {
-    getBookingItemWaiting(user.Email).then((response) => {
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/bookingitems/by_staff_watting', {
+        params: { email: user.Email },
+      });
+      console.log(response);
       setBookingItem(response.data);
-      console.log(response.data);
-    });
-  }, []);
+      }
+      catch (error) {
+        console.log(error);
+      }
+    })();
+  }, [user.Email]);
+  // useEffect(() => {
+  //   getBookingItemWaiting(user.Email).then((response) => {
+  //     setBookingItem(response.data);
+  //     console.log(response.data);
+  //   });
+  // }, []);
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);

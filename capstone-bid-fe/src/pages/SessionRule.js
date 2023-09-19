@@ -199,11 +199,11 @@ export default function SessionRule() {
   const handleCancelButton = () => {
     setModalOpen(false);
     handleCloseMenu();
-  }
+  };
 
   const handleCreateButton = () => {
     navigate('/dashboard/session-rule-create');
-  }
+  };
 
   const handleOpenModalWithSessionRule = (sessionRuleId) => {
     console.log('edit');
@@ -335,9 +335,9 @@ export default function SessionRule() {
 
                         <TableCell align="left">{name}</TableCell>
                         {/* <TableCell align="left">{increaseTime}</TableCell> */}
-                        <TableCell align="left">{freeTime}</TableCell>
-                        <TableCell align="left">{delayTime}</TableCell>
-                        <TableCell align="left">{delayFreeTime}</TableCell>
+                        <TableCell align="left">{`${freeTime.hour}:${freeTime.minute}:${freeTime.second}`}</TableCell>
+                        <TableCell align="left">{`${delayTime.hour}:${delayTime.minute}:${delayTime.second}`}</TableCell>
+                        <TableCell align="left">{`${delayFreeTime.hour}:${delayFreeTime.minute}:${delayFreeTime.second}`}</TableCell>
                         {/* <TableCell align="left">{`${createDate.day}/${createDate.month}/${createDate.year} ${createDate.hours}:${createDate.minute}`}</TableCell>
                         <TableCell align="left">{`${updateDate.day}/${updateDate.month}/${updateDate.year} ${updateDate.hours}:${updateDate.minute}`}</TableCell> */}
                         <TableCell align="left">
@@ -454,11 +454,7 @@ export default function SessionRule() {
                 <Card>
                   <CardHeader title="Thông tin chi tiết luật đấu giá" />
                   <CardContent>
-                    <Grid container spacing={3}>
-                      {/* <Grid item md={6} xs={12}>
-                        <TextField label="Mã tài khoản" defaultValue={upUser.userId} disabled />
-                      </Grid> */}
-                      <Grid item md={12} xs={12}>
+                    <Grid container spacing={2}>
                         <Grid item md={12} xs={12}>
                           <TextField
                             fullWidth
@@ -466,14 +462,165 @@ export default function SessionRule() {
                             label="Luật đấu giá"
                             value={sessionRuleDetail.name}
                             onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, name: e.target.value })}
+                            sx={{ mb: 3 }}
                           />
-                        </Grid>
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <TextField fullWidth multiline label="Số lần tăng giá" defaultValue={sessionRuleDetail.increaseTime} />
                       </Grid> */}
-                      <Grid item md={12} xs={12}>
-                        <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime} onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, freeTime: e.target.value })} />
+                      <Typography variant="h8" paragraph>Thời gian tự do</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giờ"
+                            defaultValue={sessionRuleDetail.freeTime.hour}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                freeTime: {
+                                  ...sessionRuleDetail.freeTime,
+                                  hour: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Phút"
+                            defaultValue={sessionRuleDetail.freeTime.minute}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                freeTime: {
+                                  ...sessionRuleDetail.freeTime,
+                                  minute: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giây"
+                            defaultValue={sessionRuleDetail.freeTime.second}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                freeTime: {
+                                  ...sessionRuleDetail.freeTime,
+                                  second: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                      </Grid>
+
+                      <Typography variant="h8" paragraph>Đếm ngược đấu giá</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giờ"
+                            defaultValue={sessionRuleDetail.delayTime.hour}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayTime: {
+                                  ...sessionRuleDetail.delayTime,
+                                  hour: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Phút"
+                            defaultValue={sessionRuleDetail.delayTime.minute}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayTime: {
+                                  ...sessionRuleDetail.delayTime,
+                                  minute: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giây"
+                            defaultValue={sessionRuleDetail.delayTime.second}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayTime: {
+                                  ...sessionRuleDetail.delayTime,
+                                  second: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                      </Grid>
+                      <Typography variant="h8" paragraph>Đếm ngược tự do</Typography>
+                      <Grid container spacing={2}>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giờ"
+                            defaultValue={sessionRuleDetail.delayFreeTime.hour}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayFreeTime: {
+                                  ...sessionRuleDetail.delayFreeTime,
+                                  hour: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Phút"
+                            defaultValue={sessionRuleDetail.delayFreeTime.minute}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayFreeTime: {
+                                  ...sessionRuleDetail.delayFreeTime,
+                                  minute: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
+                        <Grid item md={4} xs={12}>
+                          <TextField
+                            multiline
+                            label="Giây"
+                            defaultValue={sessionRuleDetail.delayFreeTime.second}
+                            onChange={(event) =>
+                              setSessionRuleDetail({
+                                ...sessionRuleDetail,
+                                delayFreeTime: {
+                                  ...sessionRuleDetail.delayFreeTime,
+                                  second: parseInt(event.target.value, 10),
+                                },
+                              })
+                            }
+                          />
+                        </Grid>
                       </Grid>
                       {/* <Grid item md={12} xs={12}>
                         <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.days} />
@@ -487,12 +634,27 @@ export default function SessionRule() {
                       <Grid item md={12} xs={12}>
                         <TextField multiline label="Thời gian tự do" defaultValue={sessionRuleDetail.freeTime?.seconds} />
                       </Grid> */}
-                      <Grid item md={12} xs={12}>
-                        <TextField multiline label="Đếm ngược đấu giá" defaultValue={sessionRuleDetail.delayTime} onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, delayTime: e.target.value })} />
+
+                      
+
+                      {/* <Grid item md={12} xs={12}>
+                        <TextField
+                          multiline
+                          label="Đếm ngược đấu giá"
+                          defaultValue={sessionRuleDetail.delayTime}
+                          onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, delayTime: e.target.value })}
+                        />
                       </Grid>
                       <Grid item md={12} xs={12}>
-                        <TextField multiline label="Đếm ngược tự do" defaultValue={sessionRuleDetail.delayFreeTime} onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, delayFreeTime: e.target.value })} />
-                      </Grid>
+                        <TextField
+                          multiline
+                          label="Đếm ngược tự do"
+                          defaultValue={sessionRuleDetail.delayFreeTime}
+                          onChange={(e) =>
+                            setSessionRuleDetail({ ...sessionRuleDetail, delayFreeTime: e.target.value })
+                          }
+                        />
+                      </Grid> */}
                       <Grid item md={12} xs={12}>
                         <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                         <Select
@@ -518,11 +680,7 @@ export default function SessionRule() {
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={handleCancelButton}
-                        >
-                          Hủy
-                        </Button>
+                        <Button onClick={handleCancelButton}>Hủy</Button>
                       </Grid>
                     </Grid>
                   </CardContent>

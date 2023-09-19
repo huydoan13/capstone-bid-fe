@@ -10,6 +10,7 @@ import AppDrawer from '../components/drawer';
 import { UIProvider } from '../context/ui';
 import SearchBox from '../components/search';
 import FinishProducts from '../components/products-finish/Finish-product';
+import Cart from '../components/cart';
 
 
 
@@ -28,6 +29,7 @@ function HomePage() {
                     <Typography  variant="h4">Tài Sản Đã đấu giá</Typography>
                 </Box>
                 <FinishProducts />
+                <Cart/>
                 <Footer />
                 <AppDrawer />
                 <SearchBox/>

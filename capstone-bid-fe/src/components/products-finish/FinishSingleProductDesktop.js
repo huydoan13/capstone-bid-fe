@@ -31,8 +31,8 @@ export default function StageSingleProductDesktop({ product, matches }) {
 
     useEffect(() => {
         // Extract the first image URL from the server response
-        if (product.images && product.images.length > 0) {
-            setFirstImage(product.images[0].detail);
+        if (product?.sessionResponseCompletes?.images && product?.sessionResponseCompletes?.images.length > 0) {
+            setFirstImage(product?.sessionResponseCompletes?.images[0].detail);
         }
     }, [product]);
     return (

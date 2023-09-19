@@ -34,14 +34,18 @@ import { ArrowBack as ArrowBackIcon, ArrowForward as ArrowForwardIcon } from '@m
 import { useParams, useNavigate } from 'react-router-dom';
 import { getUserById, getStatusLabel, getRoleLabel } from '../../../services/user-actions';
 import { acceptUserWaiting, denyUserWaiting } from '../../../services/staff-actions';
+import axiosInstance from '../../../services/axios-instance';
 
 const UserWaitingDetail = () => {
   const { userId } = useParams();
   const [userDetail, setUserDetail] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [reason, setReason] = useState('');
+
   const navigate = useNavigate();
 
   const styleModal = {
@@ -54,7 +58,6 @@ const UserWaitingDetail = () => {
     boxShadow: 24,
     p: 5,
     display: 'flex',
-
   };
 
   const imageContainerStyle = {
@@ -94,10 +97,29 @@ const UserWaitingDetail = () => {
   }));
   const classes = useStyles();
 
+  const handleInputModalOpen = () => {
+    setIsInputModalOpen(true);
+  };
+
+  const handleInputModalClose = () => {
+    setIsInputModalOpen(false);
+    setReason('');
+  };
+
+  const handleInputChange = (event) => {
+    setReason(event.target.value);
+  };
+
+  const handleInputSubmit = () => {
+    // Handle your input submission logic here
+    console.log('User input:', reason);
+    handleInputModalClose();
+  };
+
   const handleImageClick = (imageUrl, index) => {
     setSelectedImage(imageUrl);
     setCurrentImageIndex(index);
-    setIsModalOpen(true);
+    setIsImageModalOpen(true);
   };
 
   const handleNextImage = () => {
@@ -128,8 +150,9 @@ const UserWaitingDetail = () => {
     navigate('/dashboard/user-waiting');
   };
 
-  const handleDenyUser = (userId) => {
-    denyUserWaiting(userId);
+  const handleDenyUser = (userId, reason) => {
+    denyUserWaiting(userId, reason);
+    console.log(reason);
     toast.success('Từ chối người dùng thành công!', {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
@@ -138,11 +161,18 @@ const UserWaitingDetail = () => {
   };
 
   useEffect(() => {
-    getUserById(userId).then((res) => {
-      setUserDetail(res.data);
-      console.log(res.data);
-      setLoading(false);
-    });
+    (async () => {
+      try {
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/users/by_id', {
+          params: { id: userId },
+        });
+        console.log(response);
+        setUserDetail(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
   }, [userId]);
 
   if (loading) {
@@ -335,6 +365,9 @@ const UserWaitingDetail = () => {
                 </Button>
               </Grid>
               <Grid item md={6} xs={12}>
+                <Button onClick={handleInputModalOpen}>Từ Chối</Button>
+              </Grid>
+              {/* <Grid item md={6} xs={12}>
                 <Button
                   onClick={() => {
                     handleDenyUser(userDetail.userId);
@@ -342,12 +375,29 @@ const UserWaitingDetail = () => {
                 >
                   Từ Chối
                 </Button>
-              </Grid>
+              </Grid> */}
             </Grid>
           </Box>
         </CardContent>
       </Card>
-      <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)}>
+
+      <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
+        <Box sx={styleModal}>
+          <TextField
+            label="Nhập lý do từ chối"
+            variant="outlined"
+            value={reason}
+            onChange={handleInputChange}
+            fullWidth
+            multiline
+            sx={{ marginBottom: '20px' }}
+          />
+          <Button onClick={() => handleDenyUser(userDetail.userId, reason)}>Submit</Button>
+          <Button onClick={handleInputModalClose}>Cancel</Button>
+        </Box>
+      </Modal>
+
+      <Modal open={isImageModalOpen} onClose={() => setIsImageModalOpen(false)}>
         <Box sx={styleModal}>
           {selectedImage && (
             <Box sx={imageContainerStyle}>
