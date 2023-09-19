@@ -214,14 +214,16 @@ const SessionHistory = () => {
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const {
                       sessionDetailId,
-                      feeName,
+                      price,
                       sessionName,
+                      itemName,
+                      userName,
                       beginTime,
                       auctionTime,
                       endTime,
                       finalPrice,
                       status,
-                    } = row.sessionResponseCompletes;
+                    } = row;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -229,13 +231,19 @@ const SessionHistory = () => {
                         <TableCell padding="checkbox">
                           <Checkbox checked={selectedUser} onChange={(event) => handleClick(event, sessionName)} />
                         </TableCell>
+                        <TableCell align="left">{userName}</TableCell>
+                        <TableCell align="left">{itemName}</TableCell>
                         <TableCell align="left">{sessionName}</TableCell>
-                        <TableCell align="left">{feeName}</TableCell>
-                        <TableCell align="left">{beginTime}</TableCell>
-                        <TableCell align="left">{endTime}</TableCell>
                         <TableCell align="left">
-                          {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                          {price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                         </TableCell>
+                        <TableCell align="left">
+                        <Chip
+                            label={status ? 'True' : 'False'}
+                            color={status ? 'success' : 'error'}
+                          />
+                          </TableCell>
+                        {/* <TableCell align="left">{endTime}</TableCell> */}
                         {/* <TableCell align="left">{address}</TableCell> */}
                         {/* <TableCell align="left">{phone}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}

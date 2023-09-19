@@ -152,7 +152,7 @@ const SessionDetail = () => {
                     </Grid>
                   </Grid>
                   <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         label="Tên sản phẩm"
@@ -161,7 +161,7 @@ const SessionDetail = () => {
                         sx={{ marginBottom: '20px' }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         label="Loại sản phẩm"
@@ -170,11 +170,22 @@ const SessionDetail = () => {
                         sx={{ marginBottom: '20px' }}
                       />
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                  </Grid>
+                  <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         label="Trạng thái"
                         defaultValue={getStatusLabel(item.status)}
+                        variant="outlined"
+                        sx={{ marginBottom: '20px' }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        label="Người chiến thắng"
+                        defaultValue={item.status}
                         variant="outlined"
                         sx={{ marginBottom: '20px' }}
                       />
@@ -186,6 +197,7 @@ const SessionDetail = () => {
                         fullWidth
                         multiline
                         label="Mô tả chi tiết"
+                        rows={4}
                         defaultValue={item.description}
                         variant="outlined"
                         sx={{ marginBottom: '20px' }}

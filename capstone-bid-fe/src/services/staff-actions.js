@@ -19,7 +19,7 @@ export async function getStaffById(id) {
 }
 
 export async function getNotificationById(id) {
-  const url = `${BASE_URL}/staffnotificationdetail/by_id`;
+  const url = `${BASE_URL}/staffnotificationdetail/by_id?id=${id}`;
   try {
     axiosInstance.get(url, { data: { id } });
   } catch (error) {

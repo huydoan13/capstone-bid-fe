@@ -296,7 +296,7 @@ export default function SessionSuccess() {
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
                     const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
-                      row;
+                      row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
