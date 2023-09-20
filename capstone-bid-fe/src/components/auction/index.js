@@ -6,6 +6,7 @@ import moment from 'moment';
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import GavelIcon from '@mui/icons-material/Gavel';
 import {
   Container,
@@ -416,6 +417,17 @@ const AuctionForm = () => {
     };
   }, [isIntervalActive, auctionData]);
 
+
+  const styles = {
+    TaskAltIcon: {
+        fontSize: '150px',
+        color: '#C3E1AE'
+    },
+    errorIcon: {
+        fontSize: '150px',
+        color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+};
   const handleDialogClose = async () => {
     await makeApiCall();
     sendMessage();
@@ -812,8 +824,11 @@ const AuctionForm = () => {
         <>
           {isWinner ? (
             <Dialog open onClose={() => { }}>
+              <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
               <DialogTitle align='center' variant='h4'>Xin chúc mừng</DialogTitle>
-              <DialogContent>
+              <DialogContent align='center' variant='subtitle1'>
                 <Typography>Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
               </DialogContent>
               <DialogActions>
@@ -831,7 +846,10 @@ const AuctionForm = () => {
             </Dialog>
           ) : (
             <Dialog open onClose={() => { }}>
-              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Cuộc đấu giá đã kết thúc</DialogTitle>
+              <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle >
+              <DialogTitle variant='h4' align='center'>Cuộc đấu giá đã kết thúc</DialogTitle>
               <DialogContent>
                 <Typography>Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
               </DialogContent>

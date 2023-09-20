@@ -29,7 +29,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [errMsg, setErrMsg] = useState('');
   const [success, setSuccess] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -51,7 +51,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     try {
       const response = await axiosInstance.post(
         'https://bids-online.azurewebsites.net/api/Login/login',
@@ -74,14 +74,14 @@ export default function LoginForm() {
       setPassword('');
       setSuccess(true);
       switch (decoded.Role) {
-          case 'Admin':
-            return navigate('/dashboard/app', { replace: true });
-          case 'User':
-            return navigate('/home', { replace: true });
-          case 'Staff':
-            return navigate('/dashboard/app', { replace: true });
-          default:
-            return null;
+        case 'Admin':
+          return navigate('/dashboard/app', { replace: true });
+        case 'User':
+          return navigate('/home', { replace: true });
+        case 'Staff':
+          return navigate('/dashboard/app', { replace: true });
+        default:
+          return null;
       }
     } catch (err) {
       if (!err?.response) {
@@ -98,6 +98,8 @@ export default function LoginForm() {
       }
       errRef.current.focus();
       navigate('/login', { replace: true });
+    } finally {
+      setLoading(false); // Reset loading state when API call is done
     }
     return null;
   };
@@ -138,7 +140,14 @@ export default function LoginForm() {
           </Link>
         </Stack>
 
-        <LoadingButton fullWidth size="large" type="submit" variant="contained" onClick={handleSubmit}>
+        <LoadingButton
+          fullWidth
+          size="large"
+          type="submit"
+          variant="contained"
+          onClick={handleSubmit}
+          loading={loading} // Use the loading prop to control the loading state
+        >
           Đăng nhập
         </LoadingButton>
       </form>

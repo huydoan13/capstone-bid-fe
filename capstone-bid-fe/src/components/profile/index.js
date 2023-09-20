@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Avatar, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
+import { Avatar, Box, Button, Card, CardContent, Dialog, DialogActions, DialogContent, DialogTitle, Grid, IconButton, InputAdornment, TextField, Typography } from '@mui/material';
 import SyncLockOutlinedIcon from '@mui/icons-material/SyncLockOutlined';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import CircularProgress from '@mui/material/CircularProgress';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import axios from 'axios';
 import styled from '@emotion/styled';
 
@@ -10,45 +13,26 @@ const ProfilePage = () => {
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user)
     const [open, setOpen] = useState(false);
-
-    const [passwordError, setPasswordError] = useState(false);
-
-    const [otpDialogOpen, setOtpDialogOpen] = useState(false);
-    const [otpValue, setOtpValue] = useState('');
-    const [otpError, setOtpError] = useState(false);
-    const [updateRoleMessage, setUpdateRoleMessage] = useState('');
-
-
-    const [dialogOpen, setDialogOpen] = useState(false);
     const [dialogMessage, setDialogMessage] = useState('');
-    const [dialogOpen2, setDialogOpen2] = useState(false); // Rename the state variable
-    const [dialogMessage2, setDialogMessage2] = useState('');
+    const [passwordError, setPasswordError] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [error, setError] = useState();
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
     const oldPasswordRef = useRef('');
     const newPasswordRef = useRef('');
-    const otpInputRef = useRef('');
+    const reUserName = useRef('');
+    const reAddress = useRef('');
+    const rePhone = useRef('');
+    const rePaypalAccount = useRef('');
+    const [maxWidth, setMaxWidth] = React.useState('sm');
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    const ChangePasswordApi = `https://bids-online.azurewebsites.net/api/Users/update_password/${jsonUser.Id}`
+
+    const ChangePasswordApi = `https://bids-online.azurewebsites.net/api/Users/update_password`
     const api = `https://bids-online.azurewebsites.net/api/Users/by_id?id=${jsonUser.Id}`
-    const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${jsonUser.Email}`
-    const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
+    const apiUpdateInfo = `https://bids-online.azurewebsites.net/api/Users`
+    const apiUpdatePaypal = `https://bids-online.azurewebsites.net/api/UserPaymentInformation`
 
-
-    const handleOpenOtpDialog = () => {
-        handleOtpSubmit();
-        setOtpDialogOpen(true);
-        setOtpValue('');
-        setOtpError(false);
-    };
-
-    const handleCloseOtpDialog = () => {
-        setOtpDialogOpen(false);
-        setOtpValue('');
-        setOtpError(false);
-    };
-
-    const handleOtpInputChange = (event) => {
-        setOtpError(false);
-    };
 
     const Product = styled(Card)(({ theme }) => ({
 
@@ -68,6 +52,11 @@ const ProfilePage = () => {
 
 
 
+    const handleErrorDialogClose = () => {
+        setErrorDialogOpen(false);
+
+    };
+
     const handleOpenDialog = () => {
         setOpen(true);
         setPasswordError(false);
@@ -78,14 +67,94 @@ const ProfilePage = () => {
         // setPasswordError(false);
     };
 
-    const handleDialogClose1 = () => {
+    const handleOpenSuccessDialog = () => {
+        setDialogOpen(true);
+    };
+
+    const handleCloseSuccessDialog = () => {
+        fetchProfileData();
         setDialogOpen(false);
-        setUpdateRoleMessage(''); // If needed to clear the updateRoleMessage state
-      };
+        // setPasswordError(false);
+    };
 
-    const isAuctioneer = profileData.role === 'Auctioneer';
+    const styles = {
+        TaskAltIcon: {
+            fontSize: '150px',
+            color: '#C3E1AE'
+        },
+        errorIcon: {
+            fontSize: '150px',
+            color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+        },
+    };
+
+    const handleSubmit = () => {
+        handleUpdatePalpay();
+        handleUpdateInfo();
+    }
 
 
+    const handleUpdatePalpay = () => {
+        const userId = jsonUser.Id;
+        const payPalAccount = rePaypalAccount.current.value;
+        console.log(payPalAccount);
+        const requestbody = {
+            userId, payPalAccount,
+        };
+        axios
+            .put(apiUpdatePaypal, requestbody, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+                // Handle the response (success or failure)
+                // You can add your logic here, e.g., show a success message
+                setDialogMessage("Thông tin cá nhân của bạn đã được cập nhật thành công");
+                setDialogOpen(true);
+                console.log('PUT request successful:', response);
+                setIsUpdating(false);
+            })
+            .catch((error) => {
+                // Set the error message in the state
+                setError(error?.response?.data || 'An error occurred.');
+
+                // Open the error dialog
+                setErrorDialogOpen(true);
+                setIsUpdating(false);
+                console.error('Error making PUT request:', error);
+            });
+    }
+
+    const handleUpdateInfo = () => {
+        setIsUpdating(true);
+        const userId = jsonUser.Id;
+        const userName = reUserName.current.value;
+        const address = reAddress.current.value;
+        const phone = rePhone.current.value;
+        const password = profileData?.password;
+        const avatar = profileData?.avatar;
+        const requestBody = {
+            userId, userName, password, address, phone, avatar
+        };
+        axios
+            .put(apiUpdateInfo, requestBody, {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+                // Handle the response (success or failure)
+                // You can add your logic here, e.g., show a success message
+                // handleUpdatePalpay();
+                console.log('PUT request successful:', response);
+            })
+            .catch((error) => {
+                // Set the error message in the state
+                setError(error?.response?.data || 'An error occurred.');
+
+                // Open the error dialog
+                setErrorDialogOpen(true);
+                setIsUpdating(false);
+                console.error('Error making PUT request:', error);
+            });
+    }
 
     const formatProfileData = (data) => {
         const formattedDateOfBirth = formatDate(data.dateOfBirth);
@@ -109,21 +178,6 @@ const ProfilePage = () => {
 
         return `${year}-${month}-${day}`;
     };
-    const handleOtpSubmit = () => {
-        axios
-            .put(confirm, null, { headers: { Authorization: `Bearer ${token}` } })
-            .then((response) => {
-                // If the API response has no error, proceed to update the user's role
-                setOtpError(false);
-                setUpdateRoleMessage('');
-                // return handleUpgradeToAuctioneer();
-            })
-            .catch((error) => {
-                setOtpError(true);
-                setUpdateRoleMessage('');
-            });
-    };
-
 
     useEffect(() => {
         fetchProfileData();
@@ -146,44 +200,12 @@ const ProfilePage = () => {
         }
     };
 
-    const handleUpgradeToAuctioneer = async () => {
-        const otpValue = otpInputRef.current.value; // Get the OTP value from the ref
-
-        try {
-            // Make the PUT request to upgrade the user's role to "Auctioneer"
-            const response = await axios.put(
-                UpdateRoleApi,
-                {
-                    email: jsonUser.Email,
-                    code: otpValue,
-                },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-
-            if (response.status === 200) {
-                // After the successful API call, update the profileData to reflect the new role
-                // setProfileData((prevData) => ({ ...prevData, role: 'Auctioneer' }));
-                setUpdateRoleMessage('Xác Thực Email Thành Công');
-                fetchProfileData();
-                setOtpError(false); // Reset the error state if there was a previous error
-            } else {
-                // setUpdateRoleMessage('Error updating role. Please try again.');
-                setOtpError(true); // Set the error state to show the error message
-            }
-        } catch (error) {
-            // setUpdateRoleMessage('Error updating role. Please try again.');
-            setOtpError(true); // Set the error state to show the error message
-        }
-    };
-
 
 
 
     const handleChangePassword = async () => {
 
         try {
-
-
             const oldPasswordValue = oldPasswordRef.current.value;
             const newPasswordValue = newPasswordRef.current.value;
             // Validate the old password before making the API call
@@ -206,108 +228,103 @@ const ProfilePage = () => {
             setDialogMessage('Mật khẩu đã thay đổi thành công!');
             setDialogOpen(true);
         } catch (error) {
-            setDialogMessage('Không đổi được mật khẩu. Vui lòng thử lại.');
+            setError('Không đổi được mật khẩu. Vui lòng thử lại.');
+            setErrorDialogOpen(true)
             console.log('Lỗi đổi mật khẩu:', error);
             setDialogOpen(true);
         }
     };
 
 
-    return (
+    return profileData && (
         <Product >
             <CardContent>
                 <Box display="flex" alignItems="center" justifyContent="center" mb={3}>
                     <Avatar src={profileData.avatar} alt="Avatar" sx={{ width: 150, height: 150, borderRadius: '50%' }} />
                 </Box>
                 <Grid container spacing={3}>
-                    <Grid item xs={12}>
-                        <TextField label="Tên Tài Khoản" fullWidth value={profileData.userName || ''} />
+
+                    <Grid container spacing={3} sx={{ marginTop: "25px", marginLeft: "2px" }}>
+                        <Grid item xs={6}>
+                            <TextField inputRef={reUserName}
+                                label="Tên Tài Khoản"
+                                fullWidth
+                                defaultValue={profileData.userName || ''} />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField label="Email" fullWidth value={profileData.email || ''} />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Email" fullWidth value={profileData.email || ''} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Role" fullWidth value={profileData.role || ''} />
+
+                    <Grid container spacing={3} sx={{ marginTop: "5px", marginLeft: "2px" }}>
+                        <Grid item xs={6}>
+                            <TextField label="Role" disabled fullWidth value={profileData.role || ''} />
+                        </Grid>
+
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Password"
+                                type="password"
+                                fullWidth
+                                value={profileData.password || ''}
+                                InputProps={{
+                                    readOnly: true,
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            {/* "Đổi mật khẩu" Icon Button */}
+                                            <IconButton onClick={handleOpenDialog} size="small">
+                                                <SyncLockOutlinedIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Grid>
                     </Grid>
 
                     <Grid item xs={12}>
                         <TextField
-                            label="Password"
-                            type="password"
+                            label="Tài Khoản Paypal"
                             fullWidth
-                            value={profileData.password || ''}
-                            InputProps={{
-                                readOnly: true,
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        {/* "Đổi mật khẩu" Icon Button */}
-                                        <IconButton onClick={handleOpenDialog} size="small">
-                                            <SyncLockOutlinedIcon />
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
-                            }}
+                            defaultValue={profileData?.payPalAccount?.[0]?.payPalAccount || ''}
+                            inputRef={rePaypalAccount}
+                            
+                        />
+
+                    </Grid>
+
+                    <Grid container spacing={3} sx={{ marginTop: "5px", marginLeft: "2px" }}>
+                        <Grid item xs={6}>
+                            <TextField
+                                label="Số Điện Thoại"
+                                fullWidth
+                                defaultValue={profileData.phone || ''}
+                                inputRef={rePhone}
+                            />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField label="Số CCCD" fullWidth value={profileData.cccdnumber || ''} />
+                        </Grid>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                        <TextField
+                            label="Địa Chỉ"
+                            multiline rows={4}
+                            fullWidth
+                            defaultValue={profileData.address || ''}
+                            inputRef={reAddress}
                         />
                     </Grid>
-                    <Dialog open={open} onClose={handleCloseDialog}>
-                        <DialogContent>
-                            <DialogTitle>Thay Đổi Mật Khẩu</DialogTitle>
-                            <TextField
-                                label="Mật Khẩu cũ"
-                                type="password"
-                                fullWidth
-                                inputRef={oldPasswordRef}
-                                error={passwordError}
-                                helperText={passwordError ? 'Mật khẩu cũ không đúng' : ''}
-                                sx={{ marginBottom: '16px' }}
-                            />
-                            <TextField
-                                label="Mật Khẩu mới"
-                                type="password"
-                                fullWidth
-                                inputRef={newPasswordRef}
-                                sx={{ marginBottom: '16px' }}
-                            />
-                        </DialogContent>
-
-                        <DialogActions>
-                            <Button onClick={handleCloseDialog} color="secondary">
-                                Cancel
-                            </Button>
-                            <Button onClick={handleChangePassword} color="primary">
-                                Save
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-                    {/* <Dialog open={dialogOpen} onClose={handleDialogClose}>
-                        <DialogContent>
-                            <p>{dialogMessage}</p>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleDialogClose} color="primary">
-                                Đóng
-                            </Button>
-                        </DialogActions>
-                    </Dialog> */}
-
-
-
-                    <Grid item xs={12}>
-                        <TextField label="Địa Chỉ" multiline rows={4} fullWidth value={profileData.address || ''} />
+                    <Grid container spacing={3} sx={{ marginTop: "5px", marginLeft: "2px" }}>
+                        <Grid item xs={6}>
+                            <TextField label="Ngày Sinh" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.dateOfBirth || ''} />
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField disabled label="Ngày Tạo" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.createDate || ''} />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Số Điện Thoại" fullWidth value={profileData.phone || ''} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Ngày Sinh" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.dateOfBirth || ''} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Ngày Tạo" InputLabelProps={{ shrink: true }} type="date" fullWidth value={profileData.createDate || ''} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <TextField label="Số CCCD" fullWidth value={profileData.cccdnumber || ''} />
-                    </Grid>
+
                     <Grid item xs={12} sm={6}>
                         <img
                             src={profileData.cccdfrontImage}
@@ -322,10 +339,81 @@ const ProfilePage = () => {
                             style={{ width: '100%', height: '250px', border: '1px dashed #ccc', borderRadius: '4px', padding: '4px' }}
                         />
                     </Grid>
+                    <Grid item xs={12}>
+                        <Button
+                            onClick={handleSubmit}
+                            sx={{ marginLeft: "40%" }}
+                            variant='contained'
+                            color="primary"
+                            style={{width: "150px"}}
+                            disabled={isUpdating} // Disable the button when updating
+                        >
+                            {isUpdating ? <CircularProgress size={24} color="inherit" /> : 'Cập Nhập'}
+                        </Button>
+                    </Grid>
 
-                    
                 </Grid>
             </CardContent>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={dialogOpen} onClose={handleCloseSuccessDialog}>
+                <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+                <DialogTitle align='center' variant='h4'>Thành Công</DialogTitle>
+                <DialogContent>
+                    <Typography align='center' variant="subtitle2">{dialogMessage}</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseSuccessDialog} color="primary">
+                        Đóng
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog open={open} onClose={handleCloseDialog}>
+                <DialogContent>
+                    <DialogTitle align='center' variant='h4'>Thay Đổi Mật Khẩu</DialogTitle>
+                    <TextField
+                        label="Mật Khẩu cũ"
+                        type="password"
+                        fullWidth
+                        inputRef={oldPasswordRef}
+                        error={passwordError}
+                        helperText={passwordError ? 'Mật khẩu cũ không đúng' : ''}
+                        sx={{ marginBottom: '16px' }}
+                    />
+                    <TextField
+                        label="Mật Khẩu mới"
+                        type="password"
+                        fullWidth
+                        inputRef={newPasswordRef}
+                        sx={{ marginBottom: '16px' }}
+                    />
+                </DialogContent>
+
+                <DialogActions>
+                    <Button onClick={handleCloseDialog} color="secondary">
+                        Thoát
+                    </Button>
+                    <Button onClick={handleChangePassword} color="primary">
+                        Đồng ý
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={errorDialogOpen} onClose={handleErrorDialogClose}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant='h3' align='center' >Đã có lỗi xảy ra lỗi </DialogTitle>
+                <DialogContent>
+                    <Typography Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>
+                        {error}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleErrorDialogClose}>OK</Button>
+                </DialogActions>
+            </Dialog>
+
         </Product>
     );
 };

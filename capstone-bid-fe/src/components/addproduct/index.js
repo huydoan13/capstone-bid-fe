@@ -381,7 +381,7 @@ const AddProductForm = () => {
             type="text"  // Change type to "text" to prevent non-numeric input
           />
         </Grid>
-        <Grid xs={6} paddingLeft={"125px"}>
+        <Grid xs={6} paddingLeft={"10%"}>
           <Box sx={{ width: '50%' }}>
             <InputLabel>Yêu cầu đặt cọc</InputLabel>
             <RadioGroup
@@ -523,37 +523,6 @@ const AddProductForm = () => {
             <InputAdornment position="start">{parseFloat(stepPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
           ) : null,
         }}
-      />
-
-      <description>Hình Ảnh Sản Phẩm</description>
-      <UploadDropzone
-        uploader={uploader} // Required.
-        width="100%" // Optional.
-        height="375px"
-        options={uploaderOptions}
-        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
-        onComplete={(files) => {
-          // Optional.
-          if (files.length === 0) {
-            console.log('No files selected.');
-          } else {
-            console.log('Files uploaded:');
-            console.log(files.map((f) => f.fileUrl).join('\n'));
-            const img = files.map((f) => f.fileUrl).join('\n');
-            setProductImage(img);
-          }
-        }}
-      />
-
-      <TextField
-        label="Mô Tả Sản Phẩm"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-        multiline
-        rows={4}
       />
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>

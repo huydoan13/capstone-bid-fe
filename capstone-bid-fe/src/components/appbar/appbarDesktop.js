@@ -1,12 +1,22 @@
 import { Link, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem } from "@mui/material";
+import styled from "@emotion/styled";
 import SearchIcon from "@mui/icons-material/Search";
 import { useState } from "react"; // Import useState hook
 import { AppbarContainer, AppbarHeader, MyList } from "../../style/appbar";
 import Actions from "./actions";
 import { useUIContext } from "../../context/ui";
+import { Colors } from "../../style/theme";
 
 
+const StyledLink = styled(Link)`
+  color: inherit; /* Use the default text color */
+  text-decoration: none; /* Remove underline */
+  transition: color 0.3s; /* Smooth color transition on hover */
 
+  &:hover {
+    color: ${Colors.secondary}; /* Change color on hover (you can use any color you like) */
+  }
+`;
 
 export default function AppbarDesktop({ matches }) {
     const { setShowSearchBox } = useUIContext();
@@ -26,19 +36,22 @@ export default function AppbarDesktop({ matches }) {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
+      
 
     return (
-        <AppbarContainer>
+        <AppbarContainer >
             <AppbarHeader>
-                <Link underline="none" href="/home">
+                <StyledLink underline="none" href="/home">
                     Online Bids
-                </Link>
+                </StyledLink>
             </AppbarHeader>
             <MyList type="row">
                 {/* <ListItemText primary="Tài Sản Đấu Giá" /> */}
                 {/* Add the dropdown for "Cuộc Đấu Giá" */}
                 <ListItemButton onClick={handleMenuOpen}>
-                    <ListItemText primary="Cuộc Đấu Giá" />
+                    <StyledLink >
+                        <ListItemText  primary="Cuộc Đấu Giá" />
+                    </StyledLink>
                 </ListItemButton>
                 <Menu
                     anchorEl={anchorEl}
@@ -47,32 +60,38 @@ export default function AppbarDesktop({ matches }) {
                 >
                     {/* Add the dropdown items */}
                     <MenuItem onClick={handleMenuClose}>
-                        <Link component="a" href="/prepare" underline="none" color="inherit">
+                        <StyledLink component="a" href="/prepare" underline="none" color="inherit">
                             Cuộc Đấu Giá Sắp Bắt Đầu
-                        </Link>
+                        </StyledLink>
                     </MenuItem>
                     <MenuItem onClick={handleMenuClose}>
-                        <Link component="a" href="/instage" underline="none" color="inherit">
+                        <StyledLink component="a" href="/instage" underline="none" color="inherit">
                             Cuộc Đấu Giá Đang Diễn Ra
-                        </Link>
+                        </StyledLink>
                     </MenuItem>
                     <MenuItem onClick={handleMenuClose}>
-                        <Link component="a" href="/404" underline="none" color="inherit">
+                        <StyledLink component="a" href="/404" underline="none" color="inherit">
                             Cuộc Đấu Giá Đã Kết Thúc
-                        </Link>
+                        </StyledLink>
                     </MenuItem>
                 </Menu>
                 {/* Continue with other list items */}
                 {role === "User" ? (
                     <>
-                        <ListItemButton component="a" href="/addproduct">
-                            <ListItemText sx={{fontWeight : "bold"}} primary="Thêm Tài Sản Đấu Giá" />
+                        <ListItemButton >
+                            <StyledLink component="a" href="/addproduct" underline="none" color="inherit">
+                                <ListItemText primary="Thêm Tài Sản Đấu Giá" />
+                            </StyledLink>
                         </ListItemButton>
-                        <ListItemButton component="a" href="/myitem">
-                            <ListItemText primary="Tài Sản Của Tôi" />
+                        <ListItemButton >
+                            <StyledLink component="a" href="/myitem" underline="none" color="inherit">
+                                <ListItemText primary="Tài Sản Của Tôi" />
+                            </StyledLink>
                         </ListItemButton>
-                        <ListItemButton component="a" href="/myhistory">
-                            <ListItemText primary="Lịch Sử Đấu Giá" />
+                        <ListItemButton  >
+                            <StyledLink component="a" href="/myhistory" underline="none" color="inherit">
+                                <ListItemText primary="Lịch Sử Đấu Giá" />
+                            </StyledLink>
                         </ListItemButton>
                     </>
                 ) : (
@@ -89,6 +108,23 @@ export default function AppbarDesktop({ matches }) {
                 </ListItemButton>
             </MyList>
             <Actions matches={matches} />
+            <style>
+                {`
+                    .css-pwhq7a-MuiTypography-root {
+                        font-weight: 500;
+                        font-size: 18px;
+                        white-space: nowrap;
+                        
+                    }
+                    .css-17y8q3l-MuiButtonBase-root-MuiListItemButton-root:hover {
+                        -webkit-text-decoration: none;
+                        text-decoration: none;
+                        background-color: #fff;
+                    }
+                `
+                
+                }
+            </style>
         </AppbarContainer>
     );
 }

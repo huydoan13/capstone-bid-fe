@@ -43,6 +43,7 @@ const SignUpForm = () => {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
+  const [maxWidth, setMaxWidth] = React.useState('sm');
   const navigate = useNavigate()
   const theme = useTheme();
   const uploader = Uploader({ apiKey: "public_kW15bhNGeEwXXtjm51C1xufEVTUm" });
@@ -485,11 +486,11 @@ const SignUpForm = () => {
           }
         }}
       />
-      {err && (
+      {/* {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
           {err}
         </Typography>
-      )}
+      )} */}
 
       <FormControlLabel
         control={
@@ -509,7 +510,7 @@ const SignUpForm = () => {
       <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
         
         
-        <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+        <DialogTitle fullWidth maxWidth={maxWidth} sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
           <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
           <DialogContent>
           <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Hãy nhập mã OTP đã được gửi về địa chỉ email mà bạn đã đăng kí </Typography>
@@ -533,9 +534,9 @@ const SignUpForm = () => {
       </Dialog>
 
 
-      <Dialog open={!!updateRoleMessage} onClose={handleDialogClose1}>
+      <Dialog  open={!!updateRoleMessage} onClose={handleDialogClose1}>
         <DialogContent>
-          <p>{updateRoleMessage}</p>
+          <Typography align='center'>{updateRoleMessage}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose1} color="primary">
@@ -545,7 +546,7 @@ const SignUpForm = () => {
       </Dialog>
 
 
-      <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
+      <Dialog fullWidth maxWidth={maxWidth} open={successDialogOpen} onClose={handleSuccessDialogClose}>
       <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
         <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí tài Khoản.</DialogTitle>
         <DialogContent>
@@ -557,7 +558,7 @@ const SignUpForm = () => {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
+      <Dialog fullWidth maxWidth={maxWidth} open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
         <DialogTitle>Error</DialogTitle>
         <DialogContent>
           <Typography variant="body1">{checkboxError ? 'Bạn cần chấp nhận điều khoản và điều kiện.' : err}</Typography>
@@ -569,6 +570,8 @@ const SignUpForm = () => {
       
       <Button
         endIcon={<PersonAddIcon />}
+        
+        style={{width:"200px"}}
         type="submit"
         variant="contained"
         color="primary"

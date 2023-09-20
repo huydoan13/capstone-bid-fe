@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { MessageText, PromotionsContainer } from "../../style/promotions";
 
 
-const message = ["Tự hào là một trong những nhà đấu giá lớn nhất tại Việt Nam",
+const message = ["Chúng tôi tự hào là một trong những nhà đấu giá lớn nhất tại Việt Nam",
  "Online Bids luôn là đơn vị tiên phong ứng dụng công nghệ thông tin vào hoạt động đấu giá.","Với phương châm hoạt động: “Đem lại hiệu quả kinh tế vượt trội”","Chúng tôi hy vọng sẽ làm hài lòng Quý Khách và mong được đồng hành cùng Quý Khách hàng trong quá trình phát triển."]
 
 export default function Promotions() {
