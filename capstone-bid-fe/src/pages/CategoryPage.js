@@ -463,7 +463,7 @@ export default function CaterogyPage() {
           >
             <Box sx={styleModal}>
               <Card>
-                <CardHeader subheader="The information can be edited" title="Category Information" />
+                <CardHeader title="Thông tin loại đấu giá" />
                 <CardContent>
                   <Grid container spacing={3}>
                     {/* <Grid item md={12} xs={12}>

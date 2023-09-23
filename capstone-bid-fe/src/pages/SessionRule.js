@@ -50,7 +50,7 @@ import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/sess
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Luật đấu giá', alignRight: false },
+  { id: 'name', label: 'Cấu hình thời gian đấu giá', alignRight: false },
   // { id: 'increaseTime', label: 'Số lần tăng giá', alignRight: false },
   { id: 'freeTime', label: 'Thời gian tự do', alignRight: false },
   { id: 'delayTime', label: 'Đếm ngược đấu giá', alignRight: false },
@@ -274,13 +274,13 @@ export default function SessionRule() {
   return (
     <>
       <Helmet>
-        <title> Luật Đấu Giá | BIDS </title>
+        <title> Cấu hình thời gian đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Luật đấu giá
+            Cấu hình thời gian đấu giá
           </Typography>
           <Button onClick={handleCreateButton} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới luật
