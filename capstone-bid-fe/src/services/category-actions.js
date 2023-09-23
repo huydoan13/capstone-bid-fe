@@ -22,6 +22,21 @@ export async function createCategory(newCategory) {
     }
 }
 
+export async function createDescription(categoryId, descriptionName) {
+    const url = `${BASE_URL}/Description`;
+    const data = {
+        categoryId,
+        detail: descriptionName
+    }
+
+    try{
+        axiosInstance.post(url, data);
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
 
 export async function updateCategory(upCategory) {
     const url = `${BASE_URL}/categorys`;

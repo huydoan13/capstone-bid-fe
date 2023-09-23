@@ -47,6 +47,8 @@ export default function DashboardAppPage() {
   const [endDate, setEndDate] = useState(null);
   const [startDateUser, setStartDateUser] = useState(null);
   const [endDateUser, setEndDateUser] = useState(null);
+  const [startDatePayment, setStartDatePayment] = useState(null);
+  const [endDatePayment, setEndDatePayment] = useState(null);
   const [total, setTotal] = useState({});
   const [totalPayment, setTotalPayment] = useState({});
   const [totalCategory, setTotalCategory] = useState({});
@@ -55,6 +57,67 @@ export default function DashboardAppPage() {
   const [chartData, setChartData] = useState([]);
   const [chartCategoryData, setChartCategoryData] = useState([]);
   const [chartUserData, setChartUserData] = useState([]);
+
+
+  const mapLabelsToColors = (labels) => {
+    const colorMap = {
+      'Chưa bắt đầu': '#ff5722',
+      'Đang diễn ra': '#3f51b5',
+      'Chưa thanh toán': '#F7803B',
+      'Thành công': '#1FEE26',
+      'Thất bại': '#F2041E',
+      'Đã nhận hàng': '#2196f3',
+      'Nhận hàng lỗi': '#ff9800',
+      'Đã xóa': '#795548',
+    };
+  
+    return labels.map((label) => colorMap[label]);
+  };
+
+  const mapUserLabelsToColors = (labels) => {
+    const colorMap = {
+      'Đã chấp nhận': '#1FEE26',
+      'Bị cấm': '#F2041E',
+      'Đã từ chối': '#F7803B',
+      'Đang chờ duyệt': '#ff9800',
+    };
+  
+    return labels.map((label) => colorMap[label]);
+  };
+
+  // Inside your DashboardAppPage component
+const labelsPayment = [
+  'Chưa bắt đầu',
+  'Đang diễn ra',
+  'Chưa thanh toán',
+  'Thành công',
+  'Thất bại',
+  'Đã nhận hàng',
+  'Nhận hàng lỗi',
+  'Đã xóa',
+];
+
+const labelsCategory = [
+  'Chưa bắt đầu',
+  'Đang diễn ra',
+  'Chưa thanh toán',
+  'Thành công',
+  'Thất bại',
+  'Đã nhận hàng',
+  'Nhận hàng lỗi',
+  'Đã xóa',
+];
+
+const labelsUser = [
+  'Đã chấp nhận',
+  'Bị cấm',
+  'Đã từ chối',
+  'Đang chờ duyệt',
+];
+
+const chartColorsPayment = mapLabelsToColors(labelsPayment);
+const chartColorsCategory = mapLabelsToColors(labelsCategory); // Define labelsCategory based on your data
+const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser based on your data
 
   useEffect(() => {
     (async () => {
@@ -82,89 +145,118 @@ export default function DashboardAppPage() {
     })();
   }, []);
 
-  useEffect(() => {
-    if (selectedCategoryId) {
-      (async () => {
-        try {
-          const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_category', {
-            params: {
-              categoryId: selectedCategoryId,
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-            },
-          });
-          console.log(response);
-          setTotalCategory(response.data);
-        } catch (error) {
-          console.log('Failed to fetch: ', error);
+  // useEffect(() => {
+  //   if (selectedCategoryId) {
+  //     (async () => {
+  //       try {
+  //         const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_category', {
+  //           params: {
+  //             categoryId: selectedCategoryId,
+  //             startDate: startDate.toISOString(),
+  //             endDate: endDate.toISOString(),
+  //           },
+  //         });
+  //         console.log(response);
+  //         setTotalCategory(response.data);
+  //       } catch (error) {
+  //         console.log('Failed to fetch: ', error);
+  //       }
+  //     })();
+  //   }
+  // }, [selectedCategoryId, startDate, endDate]);
+
+  // useEffect(() => {
+  //   (async () => {
+  //     try {
+  //       // Calculate the start and end dates based on the selected menu item
+  //       const currentDate = new Date();
+  //       const currentYear = currentDate.getFullYear();
+  //       let startMonth;
+  //       let endMonth;
+
+  //       switch (selectedMenuItem) {
+  //         case 'Quy1':
+  //           startMonth = 0; // January
+  //           endMonth = 2; // March
+  //           break;
+  //         case 'Quy2':
+  //           startMonth = 3; // April
+  //           endMonth = 5; // June
+  //           break;
+  //         case 'Quy3':
+  //           startMonth = 6; // July
+  //           endMonth = 8; // September
+  //           break;
+  //         case 'Quy4':
+  //           startMonth = 9; // October
+  //           endMonth = 11; // December
+  //           break;
+  //         default:
+  //           startMonth = 0;
+  //           endMonth = 11;
+  //       }
+
+  //       const startDate = new Date(currentYear, startMonth, 1);
+  //       const endDate = new Date(currentYear, endMonth + 1, 0);
+
+  //       const response = await axiosInstance.get(
+  //         `https://bids-online.azurewebsites.net/api/Login/report_session_total_by_date`,
+  //         {
+  //           params: {
+  //             startDate: startDate.toISOString(),
+  //             endDate: endDate.toISOString(),
+  //           },
+  //         }
+  //       );
+
+  //       console.log(response);
+  //       setTotalPayment(response.data);
+  //       const updatedChartData = [
+  //         { label: 'totalCountNotStart', value: response.data.totalCountNotStart },
+  //         { label: 'totalCountInStage', value: response.data.totalCountInStage },
+  //         { label: 'totalCountHaventTranfer', value: response.data.totalCountHaventTranfer },
+  //         { label: 'totalCountComplete', value: response.data.totalCountComplete },
+  //         { label: 'totalCountFail', value: response.data.totalCountFail },
+  //         { label: 'totalCountReceived', value: response.data.totalCountReceived },
+  //         { label: 'totalCountErrorItem', value: response.data.totalCountErrorItem },
+  //         { label: 'totalCountDelete', value: response.data.totalCountDelete },
+  //       ];
+
+  //       setChartData(updatedChartData);
+  //     } catch (error) {
+  //       console.log('Failed to fetch: ', error);
+  //     }
+  //   })();
+  // }, [selectedMenuItem]);
+
+  const handleSubmitPayment = async (event) => {
+    event.preventDefault();
+
+    try{
+      const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_session_total_by_date', {
+        params: {
+          startDate: startDatePayment.toISOString(),
+          endDate: endDatePayment.toISOString()
         }
-      })();
+      });
+      console.log(response)
+      setTotalPayment(response.data);
+      const updatedChartData = [
+        { label: 'Chưa bắt đầu', value: response.data.totalCountNotStart },
+        { label: 'Đang diễn ra', value: response.data.totalCountInStage },
+        { label: 'Chưa thanh toán', value: response.data.totalCountHaventTranfer },
+        { label: 'Thành công', value: response.data.totalCountComplete },
+        { label: 'Thất bại', value: response.data.totalCountFail },
+        { label: 'Đã nhận hàng', value: response.data.totalCountReceived },
+        { label: 'Nhận hàng lỗi', value: response.data.totalCountErrorItem },
+        { label: 'Đã xóa', value: response.data.totalCountDelete },
+      ];
+      setChartData(updatedChartData);
     }
-  }, [selectedCategoryId, startDate, endDate]);
-
-  useEffect(() => {
-    (async () => {
-      try {
-        // Calculate the start and end dates based on the selected menu item
-        const currentDate = new Date();
-        const currentYear = currentDate.getFullYear();
-        let startMonth;
-        let endMonth;
-
-        switch (selectedMenuItem) {
-          case 'Quy1':
-            startMonth = 0; // January
-            endMonth = 2; // March
-            break;
-          case 'Quy2':
-            startMonth = 3; // April
-            endMonth = 5; // June
-            break;
-          case 'Quy3':
-            startMonth = 6; // July
-            endMonth = 8; // September
-            break;
-          case 'Quy4':
-            startMonth = 9; // October
-            endMonth = 11; // December
-            break;
-          default:
-            startMonth = 0;
-            endMonth = 11;
-        }
-
-        const startDate = new Date(currentYear, startMonth, 1);
-        const endDate = new Date(currentYear, endMonth + 1, 0);
-
-        const response = await axiosInstance.get(
-          `https://bids-online.azurewebsites.net/api/Login/report_session_total_by_date`,
-          {
-            params: {
-              startDate: startDate.toISOString(),
-              endDate: endDate.toISOString(),
-            },
-          }
-        );
-
-        console.log(response);
-        setTotalPayment(response.data);
-        const updatedChartData = [
-          { label: 'totalCountNotStart', value: response.data.totalCountNotStart },
-          { label: 'totalCountInStage', value: response.data.totalCountInStage },
-          { label: 'totalCountHaventTranfer', value: response.data.totalCountHaventTranfer },
-          { label: 'totalCountComplete', value: response.data.totalCountComplete },
-          { label: 'totalCountFail', value: response.data.totalCountFail },
-          { label: 'totalCountReceived', value: response.data.totalCountReceived },
-          { label: 'totalCountErrorItem', value: response.data.totalCountErrorItem },
-          { label: 'totalCountDelete', value: response.data.totalCountDelete },
-        ];
-
-        setChartData(updatedChartData);
-      } catch (error) {
-        console.log('Failed to fetch: ', error);
-      }
-    })();
-  }, [selectedMenuItem]);
+    catch(error) {
+      console.log('Failed to fetch: ', error);
+    }
+  }
 
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
@@ -182,14 +274,14 @@ export default function DashboardAppPage() {
 
       // Update chartData with the new data from the API response
       const updatedChartData = [
-        { label: 'totalCountNotStart', value: response.data.totalCountNotStart },
-        { label: 'totalCountInStage', value: response.data.totalCountInStage },
-        { label: 'totalCountHaventTranfer', value: response.data.totalCountHaventTranfer },
-        { label: 'totalCountComplete', value: response.data.totalCountComplete },
-        { label: 'totalCountFail', value: response.data.totalCountFail },
-        { label: 'totalCountReceived', value: response.data.totalCountReceived },
-        { label: 'totalCountErrorItem', value: response.data.totalCountErrorItem },
-        { label: 'totalCountDelete', value: response.data.totalCountDelete },
+        { label: 'Chưa bắt đầu', value: response.data.totalCountNotStart },
+        { label: 'Đang diễn ra', value: response.data.totalCountInStage },
+        { label: 'Chưa thanh toán', value: response.data.totalCountHaventTranfer },
+        { label: 'Thành công', value: response.data.totalCountComplete },
+        { label: 'Thất bại', value: response.data.totalCountFail },
+        { label: 'Đã nhận hàng', value: response.data.totalCountReceived },
+        { label: 'Nhận hàng lỗi', value: response.data.totalCountErrorItem },
+        { label: 'Đã xóa', value: response.data.totalCountDelete },
       ];
 
       setChartCategoryData(updatedChartData);
@@ -201,29 +293,29 @@ export default function DashboardAppPage() {
   const handleSubmitUser = async (event) => {
     event.preventDefault();
 
-    try{
+    try {
       const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_user', {
         params: {
           startDate: startDateUser.toISOString(),
           endDate: endDateUser.toISOString(),
-        }
+        },
       });
       console.log(response);
-      setTotalUser(response.data)
+      setTotalUser(response.data);
 
       const updatedChartData = [
-        { label: 'totalAccountAccepted', value: response.data.totalAccountAccepted },
-        { label: 'totalAccountBanned', value: response.data.totalAccountBanned },
-        { label: 'totalAccountRejected', value: response.data.totalAccountRejected },
-        { label: 'totalAccountWaiting', value: response.data.totalAccountWaiting },
-        { label: 'totalCount', value: response.data.totalCount },
+        { label: 'Đã chấp nhận', value: response.data.totalAccountAccepted },
+        { label: 'Bị cấm', value: response.data.totalAccountBanned },
+        { label: 'Đã từ chối', value: response.data.totalAccountRejected },
+        { label: 'Đang chờ duyệt', value: response.data.totalAccountWaiting },
+        // { label: 'totalCount', value: response.data.totalCount },
       ];
 
       setChartUserData(updatedChartData);
     } catch (error) {
       console.log('Failed to fetch: ', error);
     }
-  }
+  };
 
   return (
     <>
@@ -239,7 +331,7 @@ export default function DashboardAppPage() {
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={3}>
             <AppWidgetSummary
-              title="Tổng Phiên đấu giá"
+              title="Tổng số các phiên đấu giá"
               total={total.totalCount}
               color="primary"
               icon={'mingcute:auction-fill'}
@@ -247,15 +339,15 @@ export default function DashboardAppPage() {
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tổng nhận" total={total.totalReceive} color="info" icon={'dashicons:money-alt'} />
+            <AppWidgetSummary title="Tổng số tiền nhận qua giao dịch" total={total.totalReceive} color="info" icon={'dashicons:money-alt'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tổng tiền" total={total.totalPrice} color="info" icon={'dashicons:money-alt'} />
+            <AppWidgetSummary title="Tổng tiền các phiên đấu giá" total={total.totalPrice} color="info" icon={'dashicons:money-alt'} />
           </Grid>
 
           <Grid item xs={12} sm={6} md={3}>
-            <AppWidgetSummary title="Tổng đã gửi" total={total.totalSend} color="warning" icon={'ph:package'} />
+            <AppWidgetSummary title="Tổng tiền gửi cho người dùng" total={total.totalSend} color="warning" icon={'ph:package'} />
           </Grid>
 
           {/* <Grid item xs={12} md={6} lg={8}>
@@ -298,34 +390,37 @@ export default function DashboardAppPage() {
             />
           </Grid> */}
           <Grid item xs={12} md={12}>
-            <Select
-              value={selectedMenuItem}
-              onChange={(e) => setSelectedMenuItem(e.target.value)}
-              label="Select Quy"
-              sx={{ minWidth: 120 }}
-            >
-              <MenuItem value="Quy1">Quy1</MenuItem>
-              <MenuItem value="Quy2">Quy2</MenuItem>
-              <MenuItem value="Quy3">Quy3</MenuItem>
-              <MenuItem value="Quy4">Quy4</MenuItem>
-            </Select>
+            <form onSubmit={handleSubmitPayment}>
+              <LocalizationProvider dateAdapter={AdapterMoment}>
+                <DatePicker
+                  label="Ngày bắt đầu"
+                  value={startDatePayment}
+                  onChange={(date) => setStartDatePayment(date)}
+                  renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                />
+                <DatePicker
+                  label="Ngày kết thúc"
+                  value={endDatePayment}
+                  onChange={(date) => setEndDatePayment(date)}
+                  renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                />
+              </LocalizationProvider>
+              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
+                Xong
+              </Button>
+            </form>
           </Grid>
           <Grid item xs={12} md={12}>
             <AppCurrentVisits
-              title="Report After Payment"
+              title="Thống kê tổng số phiên đấu giá"
               chartData={chartData} // Update chartData with the state variable
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.info.main,
-                theme.palette.warning.main,
-                theme.palette.error.main,
-              ]}
+              chartColors={chartColorsPayment}
             />
           </Grid>
           <Grid item xs={12} md={12}>
             <form onSubmit={handleSubmitCategory}>
               <FormControl fullWidth required margin="normal" sx={{ mb: 3 }}>
-                <InputLabel>Select Category</InputLabel>
+                <InputLabel>Chọn loại đấu giá</InputLabel>
                 <Select
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
@@ -342,66 +437,56 @@ export default function DashboardAppPage() {
               </FormControl>
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <DatePicker
-                  label="Start Date"
+                  label="Ngày bắt đầu"
                   value={startDate}
                   onChange={(date) => setStartDate(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
                 <DatePicker
-                  label="End Date"
+                  label="Ngày kết thúc"
                   value={endDate}
                   onChange={(date) => setEndDate(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
               </LocalizationProvider>
-              <Button type="submit" variant="contained" color="primary">
-                Submit
+              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
+                Xong
               </Button>
             </form>
           </Grid>
           <Grid item xs={12} md={12}>
             <AppCurrentVisits
-              title="Report Category"
+              title="Thống kê theo thể loại"
               chartData={chartCategoryData} // Update chartData with the state variable
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.info.main,
-                theme.palette.warning.main,
-                theme.palette.error.main,
-              ]}
+              chartColors={chartColorsCategory}
             />
           </Grid>
           <Grid item xs={12} md={12}>
             <form onSubmit={handleSubmitUser}>
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <DatePicker
-                  label="Start Date"
+                  label="Ngày bắt đầu"
                   value={startDateUser}
                   onChange={(date) => setStartDateUser(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
                 <DatePicker
-                  label="End Date"
+                  label="Ngày kết thúc"
                   value={endDateUser}
                   onChange={(date) => setEndDateUser(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
               </LocalizationProvider>
-              <Button type="submit" variant="contained" color="primary">
-                Submit
+              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
+                Xong
               </Button>
             </form>
           </Grid>
           <Grid item xs={12} md={12}>
             <AppCurrentVisits
-              title="Report User"
+              title="Thống kê người dùng"
               chartData={chartUserData} // Update chartData with the state variable
-              chartColors={[
-                theme.palette.primary.main,
-                theme.palette.info.main,
-                theme.palette.warning.main,
-                theme.palette.error.main,
-              ]}
+              chartColors={chartColorsUser}
             />
           </Grid>
           {/* <Grid item xs={12} sm={12}>
