@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { TablePagination,Button, Container, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from '@mui/material';
+import { TablePagination, Button, Container, Divider, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import axios from 'axios';
+import CircularProgress from '@mui/material/CircularProgress';
 import SearchIcon from '@mui/icons-material/Search';
 
 
@@ -13,6 +14,9 @@ const PaymentHistoryForm = () => {
   const token = localStorage.getItem('token');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   let dateRangeText = '';
   if (startDate && endDate) {
     const start = new Date(startDate);
@@ -21,6 +25,10 @@ const PaymentHistoryForm = () => {
     dateRangeText = `${dateDiff} ngày `;
   }
 
+
+  const handleCloseErrorDialog = () => {
+    setErrorDialogOpen(false);
+  };
 
   const handleStartDateChange = (event) => {
     setStartDate(event.target.value);
@@ -41,12 +49,30 @@ const PaymentHistoryForm = () => {
 
   const fetchPaymentHistory = async () => {
     try {
+      if (!startDate || !endDate) {
+        // Check if either start date or end date is empty
+        setErrorMessage('Ngày Bắt Đầu Hoặc Kết Thúc Không Được Bỏ Trống');
+        setErrorDialogOpen(true);
+      }
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+
+      if (endDateObj <= startDateObj) {
+        // Check if end date is not greater than start date
+        setErrorMessage('Ngày Kết Thúc Phải bằng Hoặc Lớn Hơn Ngày Bắt Đầu');
+        setErrorDialogOpen(true);
+        return;
+      }
+      setIsLoading(true);
       const response = await axios.get(
         `https://bids-online.azurewebsites.net/api/Login/report_payment_user?userId=${jsonUser.Id}&start=${startDate}&end=${endDate}`, { headers: { Authorization: `Bearer ${token}` } }
       );
       setPaymentHistory(response.data);
     } catch (error) {
+      
       console.error('Error fetching payment history:', error);
+    }finally {
+      setIsLoading(false); // Set loading state to false when done
     }
   };
 
@@ -62,7 +88,7 @@ const PaymentHistoryForm = () => {
             <Grid container sx={{ textAlign: "center" }}>
               <Grid item xs={12}>
                 <Typography margin={"1%"} variant="subtitle" >
-                Tổng Số Tiền Đã Chi Tiêu Trong : {dateRangeText}
+                  Tổng Số Tiền Đã Chi Tiêu Trong : {dateRangeText}
                 </Typography>
               </Grid>
               <Grid item xs={12}>
@@ -106,8 +132,15 @@ const PaymentHistoryForm = () => {
           InputLabelProps={{ shrink: true }}
           fullWidth
         />
-        <Button variant="contained" color="primary" onClick={fetchPaymentHistory}>
-          <SearchIcon />
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={fetchPaymentHistory}
+          disabled={isLoading} // Disable the button when loading
+        >
+          {isLoading ? <CircularProgress size={24} color="inherit" /> : <SearchIcon /> }
+          {/* Show loading spinner when isLoading is true */}
+          
         </Button>
 
       </Stack>
@@ -128,38 +161,38 @@ const PaymentHistoryForm = () => {
             </TableHead>
             <TableBody>
               {paymentHistory.paymentReport &&
-          paymentHistory.paymentReport.length > 0 ? (
-            paymentHistory.paymentReport
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Pagination logic
-              .map((payment, index) => (
-                  <TableRow
-                    key={index}
-                    style={{
-                      boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
-                      marginBottom: '8px',
-                      color: payment.isReceive ? 'green' : 'red', // Change font color
-                    }}
-                  >
-                    <TableCell>{payment.paymentID}</TableCell>
-                    <TableCell>{payment.payPalAccount}</TableCell>
-                    <TableCell
+                paymentHistory.paymentReport.length > 0 ? (
+                paymentHistory.paymentReport
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) // Pagination logic
+                  .map((payment, index) => (
+                    <TableRow
+                      key={index}
                       style={{
+                        boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
+                        marginBottom: '8px',
                         color: payment.isReceive ? 'green' : 'red', // Change font color
                       }}
                     >
-                      {payment.isReceive ? '+' : '-'}{payment.paymentTotal.toLocaleString('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND',
-                      })}
-                    </TableCell>
-                    <TableCell>{new Date(payment.paymentTime).toLocaleString()}</TableCell>
-                    <TableCell>{payment.sessionName}</TableCell>
-                  </TableRow>
-                ))
+                      <TableCell>{payment.paymentID}</TableCell>
+                      <TableCell>{payment.payPalAccount}</TableCell>
+                      <TableCell
+                        style={{
+                          color: payment.isReceive ? 'green' : 'red', // Change font color
+                        }}
+                      >
+                        {payment.isReceive ? '+' : '-'}{payment.paymentTotal.toLocaleString('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        })}
+                      </TableCell>
+                      <TableCell>{new Date(payment.paymentTime).toLocaleString()}</TableCell>
+                      <TableCell>{payment.sessionName}</TableCell>
+                    </TableRow>
+                  ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} align="center">
-                  Không có lịch sử thanh toán có sẵn.
+                    Không có lịch sử thanh toán có sẵn.
                   </TableCell>
                 </TableRow>
               )}
@@ -176,6 +209,25 @@ const PaymentHistoryForm = () => {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
+
+      <Dialog
+        open={errorDialogOpen}
+        onClose={handleCloseErrorDialog}
+        aria-labelledby="error-dialog-title"
+        aria-describedby="error-dialog-description"
+      >
+        <DialogTitle id="error-dialog-title">Error</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="error-dialog-description">
+            {errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseErrorDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

@@ -83,7 +83,7 @@ const ShoppingCartForm = () => {
 
             justifyContent={"center"}
             alignItems={"center"}>
-            <TableContainer sx={{ width: matches? '100%':'50%'}} component={Paper}>
+            <TableContainer sx={{ width: matches? '100%':'60%'}} component={Paper}>
                 <Table sx={{ maxWidth: '100%' }} aria-label="spanning table">
                     <TableHead>
                         <TableRow>
@@ -117,14 +117,14 @@ const ShoppingCartForm = () => {
                 </Table>
             </TableContainer>
             <Dialog fullWidth maxWidth={maxWidth} open={dialogOpen} onClose={closeDialog}>
-                <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+                <DialogTitle align='center' variant='h3'>Chi Tiết Đơn Hàng</DialogTitle>
                 <DialogContent>
                     {selectedItem && (
                         <>
-                            <Grid marginTop={"50px"} marginBottom={"50px"} container sx={12}>
+                            <Grid marginTop={"30px"} marginBottom={"30px"} container sx={12}>
                                 <Grid margin={1}>
                                     {selectedItem.images && selectedItem.images.length > 0 && (
-                                        <img src={selectedItem.images[0].detail} alt="Product" style={{ height:matches ?"50px" : '100px', width: matches ?"50px" : '100px' }} />
+                                        <img src={selectedItem.images[0].detail} alt="Product" style={{ height:matches ?"50px" : "100px", width: matches ?"50px" : '100px' }} />
                                     )}
                                 </Grid>
                                 <Grid margin={1}>

@@ -593,6 +593,7 @@ export default function ProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
+            
             <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
                 <DialogTitle>Thông Báo</DialogTitle>
                 <DialogContent>

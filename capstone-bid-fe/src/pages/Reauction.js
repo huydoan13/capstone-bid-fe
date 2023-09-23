@@ -4,14 +4,14 @@ import Footer from "../components/footer";
 import { UIProvider } from '../context/ui';
 import AppDrawer from "../components/drawer";
 import SearchBox from "../components/search";
-import AddProductForm from "../components/addproduct";
+import ReAuctionForm from "../components/reauction";
 
 
 
 
 
-export default function addProduct(){
-    return(
+export default function Reauction() {
+    return (
         <Container
             maxWidth="xl"
             sx={{
@@ -22,11 +22,9 @@ export default function addProduct(){
                 <Appbar />
 
                 <Box display={"flex"} flexDirection={'column'} alignItems="center" justifyContent={"center"} sx={{ p: 4 }}>
-                    <Typography variant="h4">Đăng Kí Tài Sản Đấu Giá </Typography>
-
+                    <Typography variant="h4">Đăng Kí đấu giá lại tài sản </Typography>
                 </Box>
-
-                <AddProductForm/>
+                <ReAuctionForm />
                 <Box display={"flex"} justifyContent={"center"} sx={{ p: 0.5 }}>
                     <Typography variant="h7"> </Typography>
                 </Box>

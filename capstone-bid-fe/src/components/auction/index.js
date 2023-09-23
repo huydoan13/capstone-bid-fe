@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from "@mui/material/styles";
 import axios from 'axios';
 import moment from 'moment';
-
+import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -26,12 +26,17 @@ import {
   DialogActions,
   TextField,
   Stack,
+  DialogContentText,
+  Divider,
+  CircularProgress
 } from '@mui/material';
 import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
 import { Colors } from "../../style/theme";
 import { Product, ProductDetailImage, ProductImage } from "../../style/Products";
 import Scrollbar from '../scrollbar/Scrollbar';
+import startConnection from './signalr';
+import { Notify } from './sampleSignalr';
 
 const BidDialogContext = createContext();
 
@@ -58,18 +63,29 @@ const AuctionForm = () => {
   const [isIntervalActive, setIsIntervalActive] = useState(true);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
   const token = localStorage.getItem('token');
-  const sessionId = localStorage.getItem('sessionId');
+  // const sessionId = localStorage.getItem('sessionId');
+  const { sessionId } = useParams();
   const user = localStorage.getItem('loginUser');
   const jsonUser = JSON.parse(user);
   const [sessionDetails, setSessionDetails] = useState([]);
   const [showDescriptions, setShowDescriptions] = useState(false);
   const [shouldResetCountdown, setShouldResetCountdown] = useState(false);
 
+  const [connection, setConnection] = useState(null);
+  const [inputText, setInputText] = useState("");
+  const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState("");
+  const [feeDialogOpen, setFeeDialogOpen] = useState(false);
+  const [link, setPaymentlink] = useState();
+  const [maxWidth, setMaxWidth] = React.useState('xs');
+  const [hasServerResponse, setHasServerResponse] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const api = `https://bids-online.azurewebsites.net/api/Sessions/by_id?id=${sessionId}`
   const IncreaseApi = `https://bids-online.azurewebsites.net/api/SessionDetails/increase_price`
   const NotPayApi = `https://bids-online.azurewebsites.net/api/Sessions/session_status_to_haven't_pay`
   const sessionDetailAPI = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session?id=${sessionId}`
+  const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlhttps://capstone-bid-fe.vercel.app/payment-fail`
 
   // useEffect(() => {
   //   const interval = setInterval(() => {
@@ -84,15 +100,94 @@ const AuctionForm = () => {
 
   useEffect(() => {
     fetchSessionDetails();
+    fetchAuctionData();
   }, []);
 
   useEffect(() => {
     localStorage.setItem('currentDelayTime', currentDelayTime);
   }, [currentDelayTime]);
 
+  // useEffect(() => {
+  //   const connection = startConnection((data) => {
+  //     setAuctionData(data);
+  //   });
+
+  //   // Fetch initial data
+  //   fetchAuctionData();
+  //   fetchSessionDetails();
+
+  //   return () => {
+  //     connection.stop();
+  //   };
+  // }, []);
+
+
+  // Real time
+
+  useEffect(() => {
+    const connect = new HubConnectionBuilder()
+      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
+      .withAutomaticReconnect()
+      .build();
+
+    setConnection(connect);
+  }, []);
+
+  useEffect(() => {
+    if (connection) {
+      connection
+        .start()
+        .then(() => {
+          connection.on("ReceiveMessage", (message) => {
+            fetchAuctionData();
+            fetchSessionDetails();
+          });
+        })
+        .catch((error) => console.log(error));
+    }
+  }, [connection]);
+
+  const sendMessage = async () => {
+    if (connection) await connection.send("SendMessage", inputText);
+    setInputText("");
+  };
+
+  // end realtime
+
+  const closeDialog = () => {
+    setFeeDialogOpen(false);
+  };
+
+  const closeJonningDialog = () => {
+
+    setFeeDialogOpen(true); // Set the selected item first
+    // handlePayment();
+    setIsErrorDialogOpen(false)
+  };
+
   function formatToVND(price) {
     return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
   }
+
+  const handlePayment = async () => {
+
+    try {
+      const response = await axios.post(paymentAPI, null, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Assuming the API response contains the payment link
+      const paymentLink = response.data;
+      setPaymentlink(paymentLink);
+      // Redirect the user to the payment link
+      window.location.href = paymentLink;
+
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      // Handle error, show a message to the user, etc.
+    }
+
+  };
 
   const fetchSessionDetails = async () => {
     try {
@@ -112,7 +207,7 @@ const AuctionForm = () => {
       if (response.data.length > 0) {
         const remainingTime = moment(response.data[0]?.endTime, "YYYY-MM-DD HH:mm:ss").diff(moment(), 'seconds');
 
-        if (remainingTime <= response.data[0]?.freeTime) {
+        if (remainingTime <= convertTimeToSeconds(response.data[0]?.freeTime)) {
           setCurrentDelayTime(response.data[0]?.delayFreeTime);
         } else {
           setCurrentDelayTime(response.data[0]?.delayTime);
@@ -128,12 +223,23 @@ const AuctionForm = () => {
       const response = await axios.post(IncreaseApi, { userId: jsonUser.Id, sessionId }, { headers: { Authorization: `Bearer ${token}` } });
       // The price update via setInterval will automatically reflect here
     } catch (error) {
-      console.error('Error calling API:', error);
+      if (error.response && error.response.status === 400 && error.response.data) {
+
+
+        setIsErrorDialogOpen(true);
+        setDialogMessage(error.response.data);
+
+
+      } else {
+        setIsErrorDialogOpen(true);
+        setDialogMessage("Đã có lỗi xảy ra");
+      }
     }
   };
 
   const handleGoBack = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.put(NotPayApi, { sessionID: sessionId }, { headers: { Authorization: `Bearer ${token}` } });
       console.log("API response:", response.data);
 
@@ -146,9 +252,14 @@ const AuctionForm = () => {
       } else {
         setIsWinner(false);
       }
-
+      setIsLoading(false);
       setWinnerData(response.data); // Store the winner data from the API response
+
+      // Set the flag to indicate that the server response has been received
+      setHasServerResponse(true);
+
     } catch (error) {
+      setIsLoading(false);
       console.error('Error updating session status:', error);
       // Handle error if needed
     }
@@ -181,12 +292,12 @@ const AuctionForm = () => {
             return updatedTime;
           }
 
-          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
+          const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
 
           if (prevTime <= 0 && fiveMinutesBeforeEndTime <= 0) {
 
-            window.localStorage.removeItem('currentDelayTime');
-            window.localStorage.removeItem('countdownTime');
+            // window.localStorage.removeItem('currentDelayTime');
+            // window.localStorage.removeItem('countdownTime');
             const delayFreeTime = auctionData[0]?.delayFreeTime;
             if (delayFreeTime) {
               setCurrentDelayTime(delayFreeTime);
@@ -244,7 +355,7 @@ const AuctionForm = () => {
             // Disable the button if the current time is after the auction end time
             disabled={isCountdownRunning || moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").isBefore(currentTime)}
           >
-            Tăng Giá
+            Tăng Giá : {formatToVND(auctionData[0]?.finalPrice + auctionData[0]?.stepPrice)}
           </Button>
         </Grid>
       </Grid>
@@ -294,21 +405,22 @@ const AuctionForm = () => {
 
     if (isIntervalActive) {
       interval = setInterval(() => {
-        fetchAuctionData();
-        fetchSessionDetails();
-        checkAuctionEnd(); // Check if the auction has ended on each interval
+        // fetchAuctionData();
+        // fetchSessionDetails();
+        checkAuctionEnd();
       }, 5000);
     }
 
     return () => {
-      clearInterval(interval); // Clear the interval on cleanup
+      clearInterval(interval);
     };
   }, [isIntervalActive, auctionData]);
 
   const handleDialogClose = async () => {
     await makeApiCall();
-    fetchAuctionData();
-    fetchSessionDetails();
+    sendMessage();
+    // fetchAuctionData();
+    // fetchSessionDetails();
     setIsDialogOpen(false);
     setIsCountdownRunning(true);
 
@@ -332,7 +444,7 @@ const AuctionForm = () => {
   });
 
   const ProductDetailImage1 = styled('img')(({ theme }) => ({
-    width: '750px',
+    width: '650px',
     height: '500px',
     background: Colors.light_gray,
     padding: '10px',
@@ -417,6 +529,7 @@ const AuctionForm = () => {
 
   return (
     <>
+      {/* <Notify/> */}
       <ProductDetailWrapper display={"flex"} flexDirection={matches ? "column" : "row"}>
         <Product sx={{ mr: 2 }}>
           {renderProductImages()}
@@ -598,13 +711,110 @@ const AuctionForm = () => {
       </BidDialogContext.Provider>
 
       {/* popupdialog */}
-      {isAuctionOver && (
+
+      <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+        <DialogTitle align='center' variant='h4'>Thông Báo</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {dialogMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => closeJonningDialog()} color="primary">
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog fullWidth maxWidth={maxWidth} open={feeDialogOpen} onClose={closeDialog}>
+        <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+        <DialogContent>
+          {auctionData && (
+            <>
+              <Grid marginTop={"50px"} marginBottom={"50px"} >
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Tham Gia Đấu Giá</Typography>
+                  <Typography margin={'1%'} align="right" variant="subtitle1">
+                    {formatToVND(
+                      Math.min(
+                        Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                        200000
+                      )
+                    )}
+
+                  </Typography>
+                </Typography>
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
+                  <Typography margin={'1%'} align="right" variant="subtitle1"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)}</Typography>
+                </Typography>
+              </Grid>
+              <Divider variant="inset" />
+              <Typography marginTop={"50px"} marginBottom={"50px"}>
+
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
+                  <Typography margin={'1%'} align="right" variant="subtitle1">
+
+                    {formatToVND(
+                      Math.min(
+                        Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                        200000
+                      ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                    )}
+
+                  </Typography>
+                </Typography>
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
+                  <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
+                </Typography>
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Thuế</Typography>
+                  <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
+                </Typography>
+                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} color={"#4688F4"} align="inherit" variant="subtitle1">Khuyến Mãi/ Mã Quà Tặng </Typography>
+                </Typography>
+              </Typography>
+
+              <Divider variant="inset" />
+              <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
+                <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
+                  Math.min(
+                    Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                    200000
+                  ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                )}   </Typography>
+              </Typography>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog} color="primary">
+            Thoát
+          </Button>
+          <Button onClick={handlePayment} color="primary">
+            Thanh toán bằng PayPal
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog fullWidth maxWidth={maxWidth} open={isLoading} onClose={() => { }}>
+        <DialogContent align='center'>
+          <CircularProgress color="primary" size={60} />
+          <Typography>Đang Tải ...</Typography>
+        </DialogContent>
+      </Dialog>
+
+      {isAuctionOver && hasServerResponse && (
         <>
           {isWinner ? (
             <Dialog open onClose={() => { }}>
-              <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Xin chúc mừng</DialogTitle>
+              <DialogTitle align='center' variant='h4'>Xin chúc mừng</DialogTitle>
               <DialogContent>
-                <Typography  >Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
+                <Typography>Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
               </DialogContent>
               <DialogActions>
                 <Link to="/home" style={{ textDecoration: 'none' }}>
@@ -623,7 +833,7 @@ const AuctionForm = () => {
             <Dialog open onClose={() => { }}>
               <DialogTitle sx={{ display: 'flex', alignItems: "center" }}>Cuộc đấu giá đã kết thúc</DialogTitle>
               <DialogContent>
-                <Typography  >Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
+                <Typography>Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
               </DialogContent>
               <DialogActions>
                 <Link to="/home" style={{ textDecoration: 'none' }}>
