@@ -823,7 +823,7 @@ const AuctionForm = () => {
       {isAuctionOver && hasServerResponse && (
         <>
           {isWinner ? (
-            <Dialog open onClose={() => { }}>
+            <Dialog fullWidth maxWidth={maxWidth} open onClose={() => { }}>
               <DialogTitle sx={{ textAlign: 'center' }}>
                     <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
                 </DialogTitle>
@@ -845,7 +845,7 @@ const AuctionForm = () => {
               </DialogActions>
             </Dialog>
           ) : (
-            <Dialog open onClose={() => { }}>
+            <Dialog fullWidth maxWidth={maxWidth} open onClose={() => { }}>
               <DialogTitle sx={{ textAlign: 'center' }}>
                     <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
                 </DialogTitle >

@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 
 const ProfilePage = () => {
     const [profileData, setProfileData] = useState({});
+    const [passwordMatchError, setPasswordMatchError] = useState(false);
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user)
@@ -20,6 +21,7 @@ const ProfilePage = () => {
     const [errorDialogOpen, setErrorDialogOpen] = useState(false);
     const oldPasswordRef = useRef('');
     const newPasswordRef = useRef('');
+    const reNewPassword = useRef('');
     const reUserName = useRef('');
     const reAddress = useRef('');
     const rePhone = useRef('');
@@ -208,9 +210,28 @@ const ProfilePage = () => {
         try {
             const oldPasswordValue = oldPasswordRef.current.value;
             const newPasswordValue = newPasswordRef.current.value;
+            const reNewPasswordValue = reNewPassword.current.value;
+
+            // Validate that the new password matches the re-entered password
+            if (newPasswordValue !== reNewPasswordValue) {
+                setPasswordMatchError(true);
+                return;
+            }
+
+            if (newPasswordValue.length < 8) {
+                setPasswordMatchError(false); // Reset the match error
+                setPasswordError(true); // Set a new error for password length
+                return;
+            }
             // Validate the old password before making the API call
             if (oldPasswordValue !== profileData.password) {
                 setPasswordError(true);
+                return;
+            }
+            if (!oldPasswordValue || !newPasswordValue || !reNewPasswordValue) {
+                // Handle the case where any of the fields are empty
+                // You can display an error message or handle it as needed
+                // For now, let's just return and do nothing
                 return;
             }
 
@@ -288,7 +309,7 @@ const ProfilePage = () => {
                             fullWidth
                             defaultValue={profileData?.payPalAccount?.[0]?.payPalAccount || ''}
                             inputRef={rePaypalAccount}
-                            
+
                         />
 
                     </Grid>
@@ -345,7 +366,7 @@ const ProfilePage = () => {
                             sx={{ marginLeft: "40%" }}
                             variant='contained'
                             color="primary"
-                            style={{width: "150px"}}
+                            style={{ width: "150px" }}
                             disabled={isUpdating} // Disable the button when updating
                         >
                             {isUpdating ? <CircularProgress size={24} color="inherit" /> : 'Cập Nhập'}
@@ -386,6 +407,24 @@ const ProfilePage = () => {
                         fullWidth
                         inputRef={newPasswordRef}
                         sx={{ marginBottom: '16px' }}
+                        error={passwordError || passwordMatchError} // Highlight the field for both errors
+                        helperText={
+                            passwordError
+                                ? 'Mật khẩu phải có ít nhất 8 ký tự'
+                                : passwordMatchError
+                                    ? 'Mật khẩu không khớp'
+                                    : ''
+                        }
+                    />
+
+                    <TextField
+                        label="Nhập lại Mật Khẩu mới"
+                        type="password"
+                        fullWidth
+                        inputRef={reNewPassword}
+                        sx={{ marginBottom: '16px' }}
+                        error={passwordMatchError} // Highlight the field if there's a match error
+                        helperText={passwordMatchError ? 'Mật khẩu không khớp' : ''}
                     />
                 </DialogContent>
 

@@ -81,7 +81,7 @@ export default function Router() {
     // ), },
     { path: 'auction/:sessionId', element: <AuctionPage /> },
     { path: 'signup', element: <SignUp /> },
-    { path: 'addproduct', element: <AddProduct /> },
+    { path: 'additem', element: <AddProduct /> },
     { path: 'profile', element: <Profile /> },
     { path: 'home', element: <HomePage />},
     { path: 'prepare', element: <PrepareSession />},

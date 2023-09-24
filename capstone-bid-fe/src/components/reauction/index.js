@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import CircularProgress from '@mui/material/CircularProgress';
 import { useParams, useNavigate } from "react-router-dom";
 
 
@@ -38,6 +39,7 @@ const ReAuctionForm = () => {
   const [successDialogOpen, setSuccessDialogOpen] = useState(false);
   const [maxWidth, setMaxWidth] = React.useState('sm');
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Calculate the step price based on firstPrice
@@ -61,6 +63,7 @@ const ReAuctionForm = () => {
   }
 
   const handleReauction = () => {
+    setIsLoading(true);
     const itemName = reItemName.current.value;
     const description = reDescription.current.value;
     const quantity = reQuantity.current.value;
@@ -122,13 +125,15 @@ const ReAuctionForm = () => {
       .then((response) => {
         // Handle the response (success or failure)
         // You can add your logic here, e.g., show a success message
+        setIsLoading(false);
         setSuccessDialogOpen(true);
         console.log('PUT request successful:', response);
+        
       })
       .catch((error) => {
         // Set the error message in the state
         setError(error?.response?.data || 'An error occurred.');
-
+        setIsLoading(false);
         // Open the error dialog
         setErrorDialogOpen(true);
 
@@ -137,6 +142,7 @@ const ReAuctionForm = () => {
   }
   useEffect(() => {
     // Define the API URL
+    setIsLoading(true);
     const apiUrl = `https://bids-online.azurewebsites.net/api/Items/by_id?id=${itemId}`;
 
     // Fetch data from the API using Axios
@@ -152,11 +158,15 @@ const ReAuctionForm = () => {
 
         const defaultCategoryId = findCategoryIdByCategoryName(categories, categoryNameFromItemData);
         setCategoryId(defaultCategoryId);
+        setIsLoading(false);
       })
       .catch((error) => {
+        setIsLoading(false);
         console.error("Error fetching data:", error);
       });
   }, []);
+
+  
 
 
   useEffect(() => {
@@ -232,6 +242,8 @@ const ReAuctionForm = () => {
     },
   };
   return (
+
+    
     itemData && <Box
       component="form"
       sx={{
@@ -246,6 +258,18 @@ const ReAuctionForm = () => {
         borderRadius: '4px',
       }}
     >
+
+{isLoading && (
+    <Dialog fullWidth maxWidth={maxWidth} open={isLoading}>
+        <DialogTitle align='center'>Đang tải</DialogTitle>
+        <DialogContent>
+            {/* You can customize the loading message or add a spinner here */}
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <CircularProgress color="primary" size={60} />
+            </div>
+        </DialogContent>
+    </Dialog>
+)}
       <TextField
         label="Tên Sản Phẩm"
         defaultValue={itemData ? itemData[0]?.itemName : ''}
@@ -315,96 +339,93 @@ const ReAuctionForm = () => {
 
       <Grid container >
         <Grid xs={6}>
-          <TextField
-            label="Thời gian đấu giá (giờ)"
-            value={auctionHour}
-            onChange={(event) => {
-              event.target.value = event.target.value.replace(/[^0-9]/g, '');
-              const newValue = event.target.value;
-              setAuctionHour(newValue);
+        <TextField
+      label="Thời gian đấu giá (giờ)"
+      value={auctionHour}
+      onChange={(event) => {
+        const newValue = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+        setAuctionHour(newValue);
 
-              // Validate the input value (not negative and between 0 - 10)
-              if (newValue < 0 || newValue > 10) {
-                setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
-              } else {
-                setAuctionHourError('');
-              }
-            }}
-            fullWidth
-            required
-            margin="normal"
-            type="number"
-            error={!!auctionHourError}
-            helperText={auctionHourError}
-          />
-        </Grid>
-        <Grid xs={6} paddingLeft={"15px"}>
-          <TextField
-            label="Thời gian đấu giá (phút)"
-            value={auctionMinute}
-            onChange={(event) => {
-              event.target.value = event.target.value.replace(/[^0-9]/g, '');
-              const newValue = event.target.value;
-              setAuctionMinute(newValue);
+        // Validate the input value (not negative and between 0 - 10)
+        if (newValue < 0 || newValue > 10) {
+          setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+        } else {
+          setAuctionHourError('');
+        }
+      }}
+      fullWidth
+      required
+      margin="normal"
+      type="text" // Change the type to "text"
+      error={!!auctionHourError}
+      helperText={auctionHourError}
+    />
+  </Grid>
+  <Grid xs={6} paddingLeft={"15px"}>
+    <TextField
+      label="Thời gian đấu giá (phút)"
+      value={auctionMinute}
+      onChange={(event) => {
+        const newValue = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+        setAuctionMinute(newValue);
 
-              // Validate the input value (not negative and between 0 - 60)
-              if (newValue < 0 || newValue > 59) {
-                setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 59');
-              } else {
-                setAuctionMinuteError('');
-              }
-            }}
-            fullWidth
-            required
-            margin="normal"
-            type="number"
-            error={!!auctionMinuteError}
-            helperText={auctionMinuteError}
-          />
+        // Validate the input value (not negative and between 0 - 59)
+        if (newValue < 0 || newValue > 59) {
+          setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 59');
+        } else {
+          setAuctionMinuteError('');
+        }
+      }}
+      fullWidth
+      required
+      margin="normal"
+      type="text" // Change the type to "text"
+      error={!!auctionMinuteError}
+      helperText={auctionMinuteError}
+    />
         </Grid>
+
       </Grid>
       <Grid container >
         <Grid xs={6}>
-          <TextField
-            label="Giá Ban Đầu (VND)"
-            value={reFirstPriceValue} // Use state variable here
-            onChange={(event) => {
-              event.target.value = event.target.value.replace(/[^0-9]/g, '');
-              const newValue = event.target.value;
-              setReFirstPriceValue(newValue); // Update state variable
-            }}
-            inputRef={reFirstPrice}
-            fullWidth
-            required
-            margin="normal"
-            type="number"
-            InputProps={{
-              endAdornment: reFirstPriceValue ? (
-                <InputAdornment position="end">{parseFloat(reFirstPriceValue).toLocaleString('vi-VN')} ₫</InputAdornment>
-              ) : null,
-            }}
-          />
-        </Grid>
-        <Grid xs={6} paddingLeft={"15px"}>
-          <TextField
-            label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
-            value={reStepPriceValue} // Use state variable here
-            onChange={(event) => {
-              event.target.value = event.target.value.replace(/[^0-9]/g, '');
-              const newValue = event.target.value;
-              setReStepPriceValue(newValue); // Update state variable
-            }}
-            inputRef={reStepPrice}
-            fullWidth
-            required
-            margin="normal"
-            type="number"
-            InputProps={{
-              endAdornment: reStepPriceValue ? (
-                <InputAdornment position="start">{parseFloat(reStepPriceValue).toLocaleString('vi-VN')} ₫</InputAdornment>
-              ) : null,
-            }}
-          />
+        <TextField
+      label="Giá Ban Đầu (VND)"
+      value={reFirstPriceValue}
+      onChange={(event) => {
+        const newValue = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+        setReFirstPriceValue(newValue);
+      }}
+      inputRef={reFirstPrice}
+      fullWidth
+      required
+      margin="normal"
+      type="text" // Change the type to "text"
+      InputProps={{
+        endAdornment: reFirstPriceValue ? (
+          <InputAdornment position="end">{parseFloat(reFirstPriceValue).toLocaleString('vi-VN')} ₫</InputAdornment>
+        ) : null,
+      }}
+    />
+  </Grid>
+  <Grid xs={6} paddingLeft={"15px"}>
+    <TextField
+      label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
+      value={reStepPriceValue}
+      onChange={(event) => {
+        const newValue = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+        setReStepPriceValue(newValue);
+      }}
+      inputRef={reStepPrice}
+      fullWidth
+      required
+      margin="normal"
+      type="text" // Change the type to "text"
+      InputProps={{
+        endAdornment: reStepPriceValue ? (
+          <InputAdornment position="start">{parseFloat(reStepPriceValue).toLocaleString('vi-VN')} ₫</InputAdornment>
+        ) : null,
+      }}
+    />
         </Grid>
       </Grid>
 

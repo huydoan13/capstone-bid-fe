@@ -79,7 +79,7 @@ export default function AppbarDesktop({ matches }) {
                 {role === "User" ? (
                     <>
                         <ListItemButton >
-                            <StyledLink component="a" href="/addproduct" underline="none" color="inherit">
+                            <StyledLink component="a" href="/additem" underline="none" color="inherit">
                                 <ListItemText primary="Thêm Tài Sản Đấu Giá" />
                             </StyledLink>
                         </ListItemButton>
@@ -110,13 +110,13 @@ export default function AppbarDesktop({ matches }) {
             <Actions matches={matches} />
             <style>
                 {`
-                    .css-pwhq7a-MuiTypography-root {
+                    .css-juqb2d {
                         font-weight: 500;
                         font-size: 18px;
                         white-space: nowrap;
                         
                     }
-                    .css-17y8q3l-MuiButtonBase-root-MuiListItemButton-root:hover {
+                    .css-10ddaq7:hover {
                         -webkit-text-decoration: none;
                         text-decoration: none;
                         background-color: #fff;

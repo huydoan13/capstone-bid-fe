@@ -12,12 +12,14 @@ import {
     Stack,
     Grid,
     Divider,
+    CircularProgress,
 } from "@mui/material";
 
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
-
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -77,13 +79,24 @@ const ProductDetailInfoWrapper = styled(Box)(() => ({
 
 }));
 
+const styles = {
+    TaskAltIcon: {
+        fontSize: '150px',
+        color: '#C3E1AE'
+    },
+    errorIcon: {
+        fontSize: '150px',
+        color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+};
+
 export default function ProductDetail({ open, onClose, product }) {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     const [isDialogOpen, setDialogOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(
         product.images.length > 0 ? product.images[0].detail : "/assets/images/covers/auction-hammer.jpg"
-      );
+    );
     const Image = "https://images.unsplash.com/photo-1528127269322-539801943592?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1yZWxhdGVkfDJ8fHxlbnwwfHx8fHw%3D&auto=format&fit=crop&w=500&q=60"
     const [AuctionDetailDialog, showAuctionDetailDialog, closeProductDialog] =
         useDialogModal(AuctionForm);
@@ -95,7 +108,7 @@ export default function ProductDetail({ open, onClose, product }) {
     const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
     const [dialogMessage, setDialogMessage] = useState("");
     const [successgMessage, setSuccessDialogMessage] = useState("");
-
+    const [isLoading, setLoading] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const navigate = useNavigate();
 
@@ -107,7 +120,7 @@ export default function ProductDetail({ open, onClose, product }) {
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning';
     const autoApi = 'https://bids-online.azurewebsites.net/api/Sessions/session_status_to_in_stage';
     const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
-    
+
     const [link, setPaymentlink] = useState();
 
 
@@ -132,12 +145,13 @@ export default function ProductDetail({ open, onClose, product }) {
         handlePayment();
         setIsErrorDialogOpen(false)
     };
-    
+
     const handleImageClick = (image) => {
         setSelectedImage(image);
     };
 
     const joinAuction = () => {
+        setLoading(true);
         const requestData = {
             sessionId: product.sessionId,
             userId: jsonUser.Id
@@ -147,6 +161,7 @@ export default function ProductDetail({ open, onClose, product }) {
             .then(response => {
                 // Handle the response from the API if needed.
                 // For example, you can show a success message or refresh the page.
+                setLoading(false);
 
             })
             .catch(error => {
@@ -156,14 +171,17 @@ export default function ProductDetail({ open, onClose, product }) {
                     if (error.response.data === "Bạn đã tham gia vào cuộc đấu giá này trước đó, vui lòng kiểm tra lại email để nắm bắt thông tin của cuộc đấu giá.") {
                         setIsSuccessDialogOpen(true)
                         setSuccessDialogMessage(error.response.data)
+                        setLoading(false);
                     } else {
                         setIsErrorDialogOpen(true);
                         setDialogMessage(error.response.data);
+                        setLoading(false);
                     }
 
                 } else {
                     setIsErrorDialogOpen(true);
                     setDialogMessage("Đã có lỗi xảy ra");
+                    setLoading(false);
                 }
             });
     };
@@ -190,7 +208,7 @@ export default function ProductDetail({ open, onClose, product }) {
             }
         }
     };
-    
+
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown(getTimeRemaining(product.beginTime));
@@ -522,8 +540,15 @@ export default function ProductDetail({ open, onClose, product }) {
                                         </>
                                     )}
                                 </Typography>
-                                <Button startIcon={<GavelIcon />} size="large" color="primary" variant="contained" onClick={() => openDialog(product)}>
-                                    Đăng Kí Đấu Giá.
+                                <Button
+                                    startIcon={<GavelIcon />}
+                                    size="large"
+                                    color="primary"
+                                    variant="contained"
+                                    onClick={() => openDialog(product)}
+                                    disabled={isLoading} // Disable the button when loading
+                                >
+                                    {isLoading ? <CircularProgress size={24} color="inherit" /> : "Đăng Kí Đấu Giá."}
                                 </Button>
                             </Stack>
                             {/* <Box
@@ -563,8 +588,11 @@ export default function ProductDetail({ open, onClose, product }) {
                 </DialogContent>
             </Dialog>
             <AuctionDetailDialog product={product} />
-            <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-                <DialogTitle>Không Thể Tham Gia Đấu Giá</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isDialogOpen} onClose={handleDialogClose}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Không Thể Tham Gia Đấu Giá</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Bạn cần đăng nhập trước để đăng kí tham gia đấu giá.
@@ -580,10 +608,13 @@ export default function ProductDetail({ open, onClose, product }) {
                 </DialogActions>
             </Dialog>
 
-            <Dialog open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
-                <DialogTitle>Thành Công</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thành Công</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText align="center">
                         {successgMessage}
                     </DialogContentText>
                 </DialogContent>
@@ -593,11 +624,14 @@ export default function ProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            
-            <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
-                <DialogTitle>Thông Báo</DialogTitle>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thông Báo</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText align="center">
                         {dialogMessage}
                     </DialogContentText>
                 </DialogContent>
@@ -609,7 +643,7 @@ export default function ProductDetail({ open, onClose, product }) {
             </Dialog>
 
             <Dialog fullWidth maxWidth={maxWidth} open={feeDialogOpen} onClose={closeDialog}>
-                <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+                <DialogTitle variant="h4" align="center">Chi tiết đơn hàng</DialogTitle>
                 <DialogContent>
                     {selectedItem && (
                         <>
@@ -617,14 +651,14 @@ export default function ProductDetail({ open, onClose, product }) {
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Tham Gia Đấu Giá</Typography>
                                     <Typography margin={'1%'} align="right" variant="subtitle1">
-                                    {formatToVND(
+                                        {formatToVND(
                                             Math.min(
                                                 Math.max(product.participationFee * product.firstPrice, 10000),
                                                 200000
                                             )
                                         )}
-                                        
-                                        </Typography>
+
+                                    </Typography>
                                 </Typography>
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
@@ -637,15 +671,15 @@ export default function ProductDetail({ open, onClose, product }) {
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
                                     <Typography margin={'1%'} align="right" variant="subtitle1">
-                                        
-                                    {formatToVND(
+
+                                        {formatToVND(
                                             Math.min(
                                                 Math.max(product.participationFee * product.firstPrice, 10000),
                                                 200000
                                             ) + (selectedItem?.depositFee * selectedItem?.firstPrice)
                                         )}
-                                        
-                                         </Typography>
+
+                                    </Typography>
                                 </Typography>
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
@@ -664,11 +698,11 @@ export default function ProductDetail({ open, onClose, product }) {
                             <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
                                 <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
                                 <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
-                                            Math.min(
-                                                Math.max(product.participationFee * product.firstPrice, 10000),
-                                                200000
-                                            ) + (selectedItem?.depositFee * selectedItem?.firstPrice)
-                                        )}   </Typography>
+                                    Math.min(
+                                        Math.max(product.participationFee * product.firstPrice, 10000),
+                                        200000
+                                    ) + (selectedItem?.depositFee * selectedItem?.firstPrice)
+                                )}   </Typography>
                             </Typography>
                         </>
                     )}
