@@ -90,13 +90,9 @@ const ProfilePage = () => {
         },
     };
 
-    const handleSubmit = () => {
-        handleUpdatePalpay();
-        handleUpdateInfo();
-    }
-
 
     const handleUpdatePalpay = () => {
+        setIsUpdating(true);
         const userId = jsonUser.Id;
         const payPalAccount = rePaypalAccount.current.value;
         console.log(payPalAccount);
@@ -110,7 +106,7 @@ const ProfilePage = () => {
             .then((response) => {
                 // Handle the response (success or failure)
                 // You can add your logic here, e.g., show a success message
-                setDialogMessage("Thông tin cá nhân của bạn đã được cập nhật thành công");
+                setDialogMessage("Tài Khoản paypal của bạn đã được cập nhật thành công");
                 setDialogOpen(true);
                 console.log('PUT request successful:', response);
                 setIsUpdating(false);
@@ -145,6 +141,10 @@ const ProfilePage = () => {
                 // Handle the response (success or failure)
                 // You can add your logic here, e.g., show a success message
                 // handleUpdatePalpay();
+                setDialogMessage("Thông tin cá nhân của bạn đã được cập nhật thành công");
+                setDialogOpen(true);
+                console.log('PUT request successful:', response);
+                setIsUpdating(false);
                 console.log('PUT request successful:', response);
             })
             .catch((error) => {
@@ -303,16 +303,32 @@ const ProfilePage = () => {
                         </Grid>
                     </Grid>
 
-                    <Grid item xs={12}>
-                        <TextField
-                            label="Tài Khoản Paypal"
-                            fullWidth
-                            defaultValue={profileData?.payPalAccount?.[0]?.payPalAccount || ''}
-                            inputRef={rePaypalAccount}
 
-                        />
+                    <Grid container sx={{marginTop:"25px" , marginLeft:"3%"}}>
+                        <Grid xs={8}>
+                            <TextField
+                                label="Tài Khoản Paypal"
+                                fullWidth
+                                defaultValue={profileData?.payPalAccount?.[0]?.payPalAccount || ''}
+                                inputRef={rePaypalAccount}
 
+                            />
+
+                        </Grid>
+                        <Grid xs={4}>
+                            <Button
+                                onClick={handleUpdatePalpay}
+                                sx={{ marginLeft: "5%" , marginTop:"3%"}}
+                                variant='contained'
+                                color="primary"
+                                style={{ width: "150px" }}
+                                disabled={isUpdating} // Disable the button when updating
+                            >
+                                {isUpdating ? <CircularProgress size={24} color="inherit" /> : 'Cập Nhập'}
+                            </Button>
+                        </Grid>
                     </Grid>
+
 
                     <Grid container spacing={3} sx={{ marginTop: "5px", marginLeft: "2px" }}>
                         <Grid item xs={6}>
@@ -362,7 +378,7 @@ const ProfilePage = () => {
                     </Grid>
                     <Grid item xs={12}>
                         <Button
-                            onClick={handleSubmit}
+                            onClick={handleUpdateInfo}
                             sx={{ marginLeft: "40%" }}
                             variant='contained'
                             color="primary"
