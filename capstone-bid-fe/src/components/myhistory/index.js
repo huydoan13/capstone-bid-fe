@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios, { CancelToken } from 'axios';
 import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer, Stack, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
 import MoreOutlinedIcon from '@mui/icons-material/MoreOutlined';
@@ -39,6 +40,7 @@ const MyHistoryForm = () => {
     const [selectedReason, setSelectedReason] = useState(''); // State to store the selected reason
     const [sessionIdToError, setSessionIdToError] = useState(null); // State to store the session ID for the PUT request
     const [cancelToken, setCancelToken] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); 
 
     // const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
     // const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
@@ -188,6 +190,7 @@ const MyHistoryForm = () => {
         setIsPopupOpen(false);
     };
     const loadItems = (selectedOption) => {
+        setIsLoading(true);
         setLoading(true);
 
         if (cancelToken) {
@@ -216,12 +219,17 @@ const MyHistoryForm = () => {
                 headers: { Authorization: `Bearer ${token}` },
                 cancelToken: source.token, // Use the new cancel token
             })
-            .then((response) => setItems(response.data))
+            .then(response => {
+                setIsLoading(false);
+                setItems(response.data);
+            })
             .catch((error) => {
                 if (axios.isCancel(error)) {
                     // Request was canceled, no need to handle this as an error
+                    setIsLoading(false);
                     console.log('Request canceled:', error.message);
                 } else {
+                    setIsLoading(false);
                     console.error('Error fetching items:', error);
                 }
             })
@@ -291,6 +299,17 @@ const MyHistoryForm = () => {
     };
     return (
         <Product>
+            {isLoading && (
+                <Dialog fullWidth maxWidth={maxWidth} open={isLoading}>
+                    <DialogTitle align='center'>Đang tải</DialogTitle>
+                    <DialogContent>
+                        {/* You can customize the loading message or add a spinner here */}
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <CircularProgress color="primary" size={60} />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
             <Box sx={{ width: '100%' }} display="flex" flexDirection={isScreenMd ? 'column' : 'row'} mt={3}>
                 <Paper
                     elevation={3}

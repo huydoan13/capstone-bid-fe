@@ -420,11 +420,11 @@ const AuctionForm = () => {
 
   const styles = {
     TaskAltIcon: {
-        fontSize: '150px',
+        fontSize: '100px',
         color: '#C3E1AE'
     },
     errorIcon: {
-        fontSize: '150px',
+        fontSize: '100px',
         color: '#B5E4EB' // Adjust the size as needed // To center it vertically
     },
 };
@@ -522,10 +522,13 @@ const AuctionForm = () => {
     const { isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice } = useBidDialog();
 
     return (
-      <Dialog Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle>Bạn Có Muốn Tăng Giá</DialogTitle>
+      <Dialog fullWidth maxWidth={maxWidth} Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle >
+        <DialogTitle align='center' variant='h4'>Bạn Có Muốn Tăng Giá</DialogTitle>
         <DialogContent>
-          <Typography>Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
+          <Typography align='center' variant='subtitle2'>Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setIsDialogOpen(false)} color="primary">

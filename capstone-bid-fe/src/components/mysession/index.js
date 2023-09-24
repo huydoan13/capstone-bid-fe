@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios, { CancelToken } from 'axios';
 import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +33,8 @@ const MySessionForm = () => {
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     const [cancelToken, setCancelToken] = useState(null);
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(true); 
+    const [maxWidth, setMaxWidth] = React.useState('sm');
     function SlideTransition(props) {
         return <Slide direction="down" {...props} />;
     }
@@ -68,7 +71,7 @@ const MySessionForm = () => {
         setIsPopupOpen(false);
     };
     const loadItems = (selectedOption) => {
-        setLoading(true);
+        setIsLoading(true);
         if (cancelToken) {
             cancelToken.cancel('Operation canceled by the user.');
           }
@@ -95,13 +98,19 @@ const MySessionForm = () => {
 
         axios
             .get(apiUrl, { headers: { Authorization: `Bearer ${token}` },cancelToken: source.token,})
-            .then((response) => setItems(response.data))
+            .then(response => {
+                setIsLoading(false);
+                setItems(response.data);
+            })
+            
             .catch((error) => {
                 if (axios.isCancel(error)) {
                   // Request was canceled, no need to handle this as an error
                   console.log('Request canceled:', error.message);
+                  setIsLoading(false);
                 } else {
                   console.error('Error fetching items:', error);
+                  setIsLoading(false);
                 }
               })
             .finally(() => {
@@ -232,6 +241,17 @@ const MySessionForm = () => {
 
     return (
         <Product>
+            {isLoading && (
+                <Dialog fullWidth maxWidth={maxWidth} open={isLoading}>
+                    <DialogTitle align='center'>Đang tải</DialogTitle>
+                    <DialogContent>
+                        {/* You can customize the loading message or add a spinner here */}
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <CircularProgress color="primary" size={60} />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
             <Box sx={{ width: '100%' }} display="flex" flexDirection={isScreenMd ? 'column' : 'row'} mt={3}>
                 <Paper
                     elevation={3}
@@ -257,7 +277,7 @@ const MySessionForm = () => {
                         <ListOptionItem button selected={selectedOption === 'fail'} onClick={() => setSelectedOption('fail')}>
                             <ListItemText primary="Phiên Đấu giá thất bại" />
                         </ListOptionItem>
-                        <ListOptionItem button selected={selectedOption === 'apiReceived'} onClick={() => setSelectedOption('received')}>
+                        <ListOptionItem button selected={selectedOption === 'received'} onClick={() => setSelectedOption('received')}>
                             <ListItemText primary="Phiên Đấu giá đã nhận hàng" />
                         </ListOptionItem>
                         <ListOptionItem button selected={selectedOption === 'error'} onClick={() => setSelectedOption('error')}>
