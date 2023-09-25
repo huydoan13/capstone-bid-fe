@@ -127,7 +127,7 @@ const AuctionForm = () => {
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()
-      .withUrl("https://localhost:7039/sessiondetailhub", {
+      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub", {
         withCredentials: true,
       })
       .withAutomaticReconnect()
