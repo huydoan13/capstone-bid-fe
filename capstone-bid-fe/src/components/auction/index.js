@@ -127,7 +127,9 @@ const AuctionForm = () => {
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()
-      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
+      .withUrl("https://localhost:7039/sessiondetailhub", {
+        withCredentials: true,
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -420,14 +422,14 @@ const AuctionForm = () => {
 
   const styles = {
     TaskAltIcon: {
-        fontSize: '100px',
-        color: '#C3E1AE'
+      fontSize: '100px',
+      color: '#C3E1AE'
     },
     errorIcon: {
-        fontSize: '100px',
-        color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+      fontSize: '100px',
+      color: '#B5E4EB' // Adjust the size as needed // To center it vertically
     },
-};
+  };
   const handleDialogClose = async () => {
     await makeApiCall();
     sendMessage();
@@ -524,8 +526,8 @@ const AuctionForm = () => {
     return (
       <Dialog fullWidth maxWidth={maxWidth} Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
         <DialogTitle sx={{ textAlign: 'center' }}>
-                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
-                </DialogTitle >
+          <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+        </DialogTitle >
         <DialogTitle align='center' variant='h4'>Bạn Có Muốn Tăng Giá</DialogTitle>
         <DialogContent>
           <Typography align='center' variant='subtitle2'>Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
@@ -828,8 +830,8 @@ const AuctionForm = () => {
           {isWinner ? (
             <Dialog fullWidth maxWidth={maxWidth} open onClose={() => { }}>
               <DialogTitle sx={{ textAlign: 'center' }}>
-                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
-                </DialogTitle>
+                <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+              </DialogTitle>
               <DialogTitle align='center' variant='h4'>Xin chúc mừng</DialogTitle>
               <DialogContent align='center' variant='subtitle1'>
                 <Typography>Xin Chúc Mừng Bạn Là Người Chiến Thắng Với Số Tiền Là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
@@ -850,8 +852,8 @@ const AuctionForm = () => {
           ) : (
             <Dialog fullWidth maxWidth={maxWidth} open onClose={() => { }}>
               <DialogTitle sx={{ textAlign: 'center' }}>
-                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
-                </DialogTitle >
+                <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+              </DialogTitle >
               <DialogTitle variant='h4' align='center'>Cuộc đấu giá đã kết thúc</DialogTitle>
               <DialogContent>
                 <Typography>Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
