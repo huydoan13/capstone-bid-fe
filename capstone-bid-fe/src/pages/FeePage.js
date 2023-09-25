@@ -212,8 +212,13 @@ export default function FeePage() {
   const handleUpdateButton = () => {
     console.log('Update ne');
     updateFee(feeDetail);
+    toast.success('Cập nhật phân khúc thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     console.log(feeDetail);
     handleCloseModal();
+    navigate('/dashboard/fee');
   };
 
   const handleDeleteButton = (feeId) => {
@@ -222,6 +227,11 @@ export default function FeePage() {
         const updatedFee = fee.find((u) => u.feeId === feeId);
         console.log(updatedFee);
         setFee([...fee]);
+        toast.success('Xóa phân khúc thành công', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        });
+        navigate('/dashboard/fee');
       })
       .catch((err) => {
         console.log('Can not delete because:', err);

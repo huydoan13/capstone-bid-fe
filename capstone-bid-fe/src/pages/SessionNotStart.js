@@ -252,13 +252,13 @@ export default function SessionNotStart() {
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá đang diễn ra | BIDS </title>
+        <title> Phiên đấu giá chưa bắt đầu | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá đang diễn ra
+            Phiên đấu giá chưa bắt đầu
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User

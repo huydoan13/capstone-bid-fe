@@ -35,7 +35,7 @@ export default function AccountPopover() {
   
   const handleProfileClick = () => {
     handleClose(); // Close the popover
-    navigate('/staff-profile'); // Navigate to the Profile Page
+    navigate('/dashboard/staff-profile'); // Navigate to the Profile Page
   };
 
   const handleOpen = (event) => {

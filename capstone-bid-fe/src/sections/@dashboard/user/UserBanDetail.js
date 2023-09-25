@@ -124,7 +124,7 @@ const UserBanDetail = () => {
     unBanUser(userId);
     toast.success('Gỡ cấm người dùng thành công!', {
       position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+      autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
     });
     navigate('/dashboard/user-ban');
   };

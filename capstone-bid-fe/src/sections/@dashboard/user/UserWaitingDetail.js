@@ -242,7 +242,7 @@ const UserWaitingDetail = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Role"
+                  label="Vai trò"
                   defaultValue={getRoleLabel(userDetail.role)}
                   variant="outlined"
                   sx={{ marginBottom: '20px' }}
@@ -390,9 +390,10 @@ const UserWaitingDetail = () => {
             onChange={handleInputChange}
             fullWidth
             multiline
+            rows={4}
             sx={{ marginBottom: '20px' }}
           />
-          <Button onClick={() => handleDenyUser(userDetail.userId, reason)}>Submit</Button>
+          <Button onClick={() => handleDenyUser(userDetail.userId, reason)}>Xong</Button>
           <Button onClick={handleInputModalClose}>Cancel</Button>
         </Box>
       </Modal>
