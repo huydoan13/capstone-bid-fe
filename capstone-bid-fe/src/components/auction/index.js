@@ -127,9 +127,7 @@ const AuctionForm = () => {
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()
-      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub", {
-        withCredentials: true,
-      })
+      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
       .withAutomaticReconnect()
       .build();
 
@@ -142,6 +140,7 @@ const AuctionForm = () => {
         .start()
         .then(() => {
           connection.on("ReceiveMessage", (message) => {
+            console.log("check2")
             fetchAuctionData();
             fetchSessionDetails();
           });
@@ -152,6 +151,7 @@ const AuctionForm = () => {
 
   const sendMessage = async () => {
     if (connection) await connection.send("SendMessage", inputText);
+    console.log("check1")
     setInputText("");
   };
 
