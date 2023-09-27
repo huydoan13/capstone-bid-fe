@@ -20,7 +20,7 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { toast } from 'react-toastify';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getAllSessionRule } from '../../../services/session-rule-actions';
+import { getAllSessionRule, getSessionRuleValid } from '../../../services/session-rule-actions';
 import { createSession } from '../../../services/session-actions';
 import axiosInstance from '../../../services/axios-instance';
 
@@ -62,7 +62,7 @@ function SessionCreate() {
   const { itemId } = useParams();
 
   useEffect(() => {
-    getAllSessionRule().then((response) => {
+    getSessionRuleValid().then((response) => {
       setSessionRules(response.data);
       console.log(response.data);
     });
