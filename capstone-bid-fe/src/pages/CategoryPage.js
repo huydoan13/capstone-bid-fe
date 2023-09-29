@@ -195,6 +195,7 @@ export default function CaterogyPage() {
     try {
       const response = await createDescription(upCategory.categoryId, newDescriptionName);
       setNewDescriptionName('');
+      setCreateDialogOpen(false);
     } catch (error) {
       console.log('Failed to fetch', error);
     }
@@ -208,7 +209,7 @@ export default function CaterogyPage() {
     try {
       const response = await deleteDescription(descriptionIdToDelete);
       setDeleteDialogOpen(false);
-      toast.success('Description deleted successfully', {
+      toast.success('Miêu tả xóa thành công', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
       });
@@ -217,7 +218,7 @@ export default function CaterogyPage() {
       setDeleteDialogOpen(false);
 
       // Show an error message (optional)
-      toast.error('Failed to delete description', {
+      toast.error('Miêu tả xóa không thành công', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000,
       });
@@ -257,7 +258,7 @@ export default function CaterogyPage() {
         const updatedCategory = category.find((u) => u.categoryId === categoryId);
         updatedCategory.status = false;
         setCategory([...category]);
-        toast.success('Cấm người dùng thành công', {
+        toast.success('Xóa loại đấu giá thành công', {
           position: toast.POSITION.TOP_RIGHT,
           autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
         });
@@ -271,7 +272,7 @@ export default function CaterogyPage() {
   const handleUpdateButton = () => {
     console.log('Update ne');
     updateCategory(upCategory);
-    toast.success('Cấm người dùng thành công', {
+    toast.success('Cập nhật loại đấu giá thành công', {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
     });
