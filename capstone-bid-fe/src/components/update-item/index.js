@@ -7,7 +7,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useParams, useNavigate } from "react-router-dom";
 
 
-const ReAuctionForm = () => {
+const UpdateItemForm = () => {
   const { itemId } = useParams();
   const [itemData, setItemData] = useState(null);
 
@@ -110,8 +110,12 @@ const ReAuctionForm = () => {
       setErrorDialogOpen(true);
       return;
     }
-    
-    const apiReUrl = `https://bids-online.azurewebsites.net/api/Sessions/re_auction`;
+    // if (!categoryId) {
+    //   setError("Thể Loại sản Phẩm Không Được Bỏ Trống");
+    //   setErrorDialogOpen(true);
+    //   return;
+    // }
+    const apiReUrl = `https://bids-online.azurewebsites.net/api/Items`;
     const requestBody = {
       itemId, itemName, description, deposit, quantity, auctionHour, auctionMinute, firstPrice, stepPrice
     };
@@ -168,7 +172,7 @@ const ReAuctionForm = () => {
 
   useEffect(() => {
     axios
-      .get('https://bids-online.azurewebsites.net/api/Categorys/valid', {
+      .get('https://bids-online.azurewebsites.net/api/Categorys', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -201,7 +205,7 @@ const ReAuctionForm = () => {
 
 
   const handleSuccessDialogClose = () => {
-    navigate(`/mysession`);
+    navigate(`/myitem`);
     setSuccessDialogOpen(false);
   }
 
@@ -344,8 +348,8 @@ const ReAuctionForm = () => {
         setAuctionHour(newValue);
 
         // Validate the input value (not negative and between 0 - 10)
-        if (newValue < 0 || newValue > 10) {
-          setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+        if (newValue < 0 || newValue > 168) {
+          setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 168');
         } else {
           setAuctionHourError('');
         }
@@ -426,12 +430,12 @@ const ReAuctionForm = () => {
         </Grid>
       </Grid>
 
-      <Button variant="outlined" sx={{ width: "150px" }} onClick={handleReauction}>Đấu Giá lại</Button>
+      <Button variant="outlined" sx={{ width: "150px" }} onClick={handleReauction}>Cập Nhật</Button>
 
 
       <Dialog fullWidth maxWidth={maxWidth} open={successDialogOpen} onClose={handleSuccessDialogClose}>
         <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
-        <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí sản phẩm thành công.</DialogTitle>
+        <DialogTitle DialogTitle variant='h3' align='center'>Đã cập nhập thông tin sản phẩm thành công.</DialogTitle>
         <DialogContent>
           <Typography align='center' variant="subtitle2">Sản phẩm của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt sản phẩm  của bạn. </Typography>
         </DialogContent>
@@ -460,4 +464,4 @@ const ReAuctionForm = () => {
   );
 };
 
-export default ReAuctionForm;
+export default UpdateItemForm;

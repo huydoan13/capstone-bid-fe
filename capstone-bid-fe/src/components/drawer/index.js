@@ -67,9 +67,6 @@ export default function AppDrawer() {
                   <ListItemText >Cuộc Đấu Giá Đang Diễn Ra</ListItemText>
                 </ListItemButton>
                 <Divider variant="inset" />
-                <ListItemButton component="a" href="/404" underline="none" color="inherit">
-                  <ListItemText >Cuộc Đấu Giá Đã Kết Thúc</ListItemText>
-                </ListItemButton>
               </Box>
             </>
 
@@ -78,7 +75,7 @@ export default function AppDrawer() {
 
           {role === "User" ? (
             <>
-              <ListItemButton component="a" href="/addproduct">
+              <ListItemButton component="a" href="/additem">
                 <ListItemText sx={{ fontWeight: "bold" }} primary="Thêm Tài Sản Đấu Giá" />
               </ListItemButton>
               <ListItemButton component="a" href="/myitem">

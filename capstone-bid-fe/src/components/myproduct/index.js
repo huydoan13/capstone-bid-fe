@@ -65,10 +65,17 @@ const MyProductForm = () => {
         setIsPopupOpen(false);
     };
 
+
+    const handleUpdateItemClick = () => {
+        if (selectedItem) {
+            const itemId = selectedItem.itemId;
+            navigate(`/update-item/${itemId}`);
+        }
+    };
     const handleReAuctionClick = () => {
         if (selectedItem) {
             const itemId = selectedItem.itemId;
-            navigate(`/re-auction/${itemId}`);
+            navigate(`/re-item/${itemId}`);
         }
     };
 
@@ -506,6 +513,11 @@ const MyProductForm = () => {
                                     {selectedOption === 'cancelled' && (
                                         <Button variant='contained' onClick={handleReAuctionClick}>
                                             Đấu giá lại
+                                        </Button>
+                                    )}
+                                    {selectedOption === 'waiting' && (
+                                        <Button variant='contained' onClick={handleUpdateItemClick}>
+                                            Cập Nhật
                                         </Button>
                                     )}
                                 </Stack>

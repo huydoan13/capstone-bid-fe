@@ -97,7 +97,7 @@ const AddProductForm = () => {
 
   useEffect(() => {
     axios
-      .get('https://bids-online.azurewebsites.net/api/Categorys', {
+      .get('https://bids-online.azurewebsites.net/api/Categorys/valid', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -445,8 +445,8 @@ const AddProductForm = () => {
 
               // Validate the input value (not negative and between 0 - 10)
               const newValue = parseInt(event.target.value, 10); // Convert to integer
-              if (newValue < 0 || newValue > 10) {
-                setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+              if (newValue < 0 || newValue > 168) {
+                setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 168');
               } else {
                 setAuctionHourError('');
               }

@@ -8,6 +8,7 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import GavelIcon from '@mui/icons-material/Gavel';
+import { toast } from 'react-toastify';
 import {
   Container,
   Grid,
@@ -29,7 +30,10 @@ import {
   Stack,
   DialogContentText,
   Divider,
-  CircularProgress
+  CircularProgress,
+  Input,
+  TableHead,
+  TablePagination
 } from '@mui/material';
 import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
@@ -38,6 +42,7 @@ import { Product, ProductDetailImage, ProductImage } from "../../style/Products"
 import Scrollbar from '../scrollbar/Scrollbar';
 import startConnection from './signalr';
 import { Notify } from './sampleSignalr';
+
 
 const BidDialogContext = createContext();
 
@@ -73,7 +78,7 @@ const AuctionForm = () => {
   const [shouldResetCountdown, setShouldResetCountdown] = useState(false);
 
   const [connection, setConnection] = useState(null);
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState("Check");
   const [isErrorDialogOpen, setIsErrorDialogOpen] = useState(false);
   const [dialogMessage, setDialogMessage] = useState("");
   const [feeDialogOpen, setFeeDialogOpen] = useState(false);
@@ -81,6 +86,8 @@ const AuctionForm = () => {
   const [maxWidth, setMaxWidth] = React.useState('xs');
   const [hasServerResponse, setHasServerResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const api = `https://bids-online.azurewebsites.net/api/Sessions/by_id?id=${sessionId}`
   const IncreaseApi = `https://bids-online.azurewebsites.net/api/SessionDetails/increase_price`
@@ -100,8 +107,10 @@ const AuctionForm = () => {
   // }, []);
 
   useEffect(() => {
+    // sendMessage();
     fetchSessionDetails();
     fetchAuctionData();
+    
   }, []);
 
   useEffect(() => {
@@ -125,37 +134,58 @@ const AuctionForm = () => {
 
   // Real time
 
-  useEffect(() => {
-    const connect = new HubConnectionBuilder()
-      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
-      .withAutomaticReconnect()
-      .build();
+  // useEffect(() => {
+  //   const connect = new HubConnectionBuilder()
+  //     .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
+  //     .withAutomaticReconnect()
+  //     .build();
 
-    setConnection(connect);
-  }, []);
+  //   setConnection(connect);
+  // }, []);
 
-  useEffect(() => {
-    if (connection) {
-      connection
-        .start()
-        .then(() => {
-          connection.on("ReceiveMessage", (message) => {
-            console.log("check2")
-            fetchAuctionData();
-            fetchSessionDetails();
-          });
-        })
-        .catch((error) => console.log(error));
-    }
-  }, [connection]);
+  // useEffect(() => {
+  //   if (connection) {
+  //     connection
+  //       .start()
+  //       .then(async () => {
+  //         await connection.on("ReceiveMessage", async (message) => {
+  //           console.log("check2")
+  //           await fetchSessionDetails();
+  //           await fetchAuctionData();
+  //           console.log(message)
+           
 
-  const sendMessage = async () => {
-    if (connection) await connection.send("SendMessage", inputText);
-    console.log("check1")
-    setInputText("");
-  };
+  //         });
+  //       })
+  //       .catch((error) => console.log(error));
+  //   }
+  // }, [connection]);
+
+
+
+  // const sendMessage = async () => {
+  //   if (connection) {
+  //     await connection.send("SendMessage", inputText);
+  //     console.log("check1");
+  //     setInputText("send message");
+  //   }
+  // };
 
   // end realtime
+
+  const highestPrice = sessionDetails.reduce((maxPrice, detail) => {
+    return detail.price > maxPrice ? detail.price : maxPrice;
+  }, 0);
+
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
 
   const closeDialog = () => {
     setFeeDialogOpen(false);
@@ -169,7 +199,7 @@ const AuctionForm = () => {
   };
 
   function formatToVND(price) {
-    return price.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+    return price?.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
   }
 
   const handlePayment = async () => {
@@ -224,15 +254,12 @@ const AuctionForm = () => {
   const makeApiCall = async () => {
     try {
       const response = await axios.post(IncreaseApi, { userId: jsonUser.Id, sessionId }, { headers: { Authorization: `Bearer ${token}` } });
-      // The price update via setInterval will automatically reflect here
+
+
     } catch (error) {
       if (error.response && error.response.status === 400 && error.response.data) {
-
-
         setIsErrorDialogOpen(true);
         setDialogMessage(error.response.data);
-
-
       } else {
         setIsErrorDialogOpen(true);
         setDialogMessage("Đã có lỗi xảy ra");
@@ -276,8 +303,12 @@ const AuctionForm = () => {
   };
 
   const convertTimeToSeconds = (timeString) => {
-    const [hours, minutes, seconds] = timeString.split(":").map(Number);
-    return hours * 3600 + minutes * 60 + seconds;
+    if (timeString) {
+      const [hours, minutes, seconds] = timeString.split(":").map(Number);
+      return hours * 3600 + minutes * 60 + seconds;
+    }
+    // Handle the case where timeString is undefined or empty
+    return 0; // Or some other default value as needed
   };
 
   const RemainingTime = ({ endTime }) => {
@@ -338,6 +369,7 @@ const AuctionForm = () => {
 
     return (
 
+
       <Grid container margin={"1%"} sx={{ justifyContent: 'center' }}>
         <Grid item>
           <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -394,26 +426,36 @@ const AuctionForm = () => {
 
   useEffect(() => {
     const checkAuctionEnd = () => {
-      if (auctionData && auctionData[0]) { // Check if auctionData is not null and has at least one element
+      if (auctionData && auctionData[0]) {
         const currentTime = moment();
         const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
+        const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
+        
         if (auctionEndTime.isBefore(currentTime)) {
-          handleGoBack(); // Call the API to update the session status and check if the user is the winner
-          setIsIntervalActive(false); // Disable the interval once the auction ends
+          handleGoBack();
+          setIsIntervalActive(false);
+        } else if (currentTime.isAfter(fiveMinutesBeforeEndTime)) {
+          // Change the interval to 3 seconds (3000 milliseconds)
+          clearInterval(interval);
+          interval = setInterval(() => {
+            fetchAuctionData();
+            fetchSessionDetails();
+            checkAuctionEnd();
+          }, 3000);
         }
       }
     };
-
+  
     let interval = null;
-
+  
     if (isIntervalActive) {
       interval = setInterval(() => {
-        // fetchAuctionData();
-        // fetchSessionDetails();
+        fetchAuctionData();
+        fetchSessionDetails();
         checkAuctionEnd();
       }, 5000);
     }
-
+  
     return () => {
       clearInterval(interval);
     };
@@ -431,10 +473,13 @@ const AuctionForm = () => {
     },
   };
   const handleDialogClose = async () => {
+    // await sendMessage();
     await makeApiCall();
-    sendMessage();
-    // fetchAuctionData();
-    // fetchSessionDetails();
+    
+    setPage(0);
+    fetchAuctionData();
+    fetchSessionDetails();
+
     setIsDialogOpen(false);
     setIsCountdownRunning(true);
 
@@ -442,7 +487,8 @@ const AuctionForm = () => {
       localStorage.setItem('countdownTime', convertTimeToSeconds(currentDelayTime).toString());
     }
 
-    setShouldResetCountdown(false); // Reset the flag after countdown reset
+    setShouldResetCountdown(false);
+    // Reset the flag after countdown reset
   };
 
   if (!auctionData) {
@@ -536,7 +582,11 @@ const AuctionForm = () => {
           <Button onClick={() => setIsDialogOpen(false)} color="primary">
             Thoát
           </Button>
-          <Button onClick={handleDialogClose} color="primary">
+          <Button onClick={() => {
+            handleDialogClose();
+            
+
+          }} color="primary">
             Đồng Ý
           </Button>
         </DialogActions>
@@ -680,6 +730,7 @@ const AuctionForm = () => {
                 </Typography>
               ))
             }
+
             <Typography
               margin={"1%"}
               fontWeight={"bold"}
@@ -698,35 +749,67 @@ const AuctionForm = () => {
               )}
             </Typography>
 
-            <Grid item xs={12} sm={6}>
-              {/* Use the StyledScrollbar component to wrap the TextField */}
 
-              <TextField
-                fontFamily="Arial, sans-serif" // Adjust the font-family as needed
-                fontSize="15px" // Adjust the font size as needed // Use the primary text color from the theme
-                label="Lịch Sử Tăng Giá"
-                multiline
-                rows={6}
-                variant="outlined"
-                fullWidth
-                value={sessionDetails.map((detail) => ` Người Dùng : ${detail.userName} || Đã Tăng Lên: ${formatToVND(detail.price)} || Vào Lúc : ${formatCreateDate(detail.createDate)}`).join('\n')}
-              />
-
-            </Grid>
 
             <Box display="flex" alignItems="center" justifyContent="space-between">
               {auctionData[0]?.delayTime && (
                 <RemainingTime endTime={auctionData[0]?.endTime} />
               )}
             </Box>
+            
 
           </Stack>
         </ProductDetailInfoWrapper>
       </ProductDetailWrapper>
+      <Stack boxShadow={12}
+        marginTop={"2%"}
+      >
+        <>
+          <TableContainer component={Paper}>
+            <Table stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell align="center">Người Dùng</TableCell>
+                  <TableCell align="center">Giá</TableCell>
+                  <TableCell align="center">Vào Lúc</TableCell>
+                  <TableCell align="center">Trạng Thái</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sessionDetails.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((detail, index) => (
+                  <TableRow key={index}>
+                    <TableCell style={{ color: 'green' }} align="center">{detail.userName}</TableCell>
+                    <TableCell align="center">{formatToVND(detail.price)}</TableCell>
+                    <TableCell align="center">{formatCreateDate(detail.createDate)}</TableCell>
+                    <TableCell align="center">
+                      {detail.price === highestPrice ? (
+                        <Typography style={{ color: 'green' }}>Trả Giá Cao Nhất</Typography>
+                      ) : (
+                        <Typography style={{ color: 'red' }}>Trả Giá Thấp Hơn</Typography>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            component="div"
+            count={sessionDetails.length}
+            page={page}
+            onPageChange={handleChangePage}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Số hàng trên mỗi trang:"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} của ${count}`}
+          />
+        </>
+      </Stack>
+      
       <BidDialogContext.Provider value={{ isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice }}>
         <BidDialog />
       </BidDialogContext.Provider>
-
       {/* popupdialog */}
 
       <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
@@ -807,6 +890,8 @@ const AuctionForm = () => {
               </Typography>
             </>
           )}
+
+
         </DialogContent>
         <DialogActions>
           <Button onClick={closeDialog} color="primary">
@@ -856,7 +941,7 @@ const AuctionForm = () => {
               </DialogTitle >
               <DialogTitle variant='h4' align='center'>Cuộc đấu giá đã kết thúc</DialogTitle>
               <DialogContent>
-                <Typography>Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
+                <Typography align='center' >Rất tiếc, bạn đã không thắng cuộc đấu giá.   </Typography>
               </DialogContent>
               <DialogActions>
                 <Link to="/home" style={{ textDecoration: 'none' }}>

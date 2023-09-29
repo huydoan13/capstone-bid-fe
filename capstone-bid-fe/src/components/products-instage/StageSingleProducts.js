@@ -84,7 +84,7 @@ export default function StageSingleProducts({ product, matches }) {
                     </Stack>
                 </ProductActionsWrapper>
             </Product>
-            <ProductAddToCart onClick={handleAuctionButtonClick} variant="contained">Đấu Giá Ngay</ProductAddToCart>
+            <ProductAddToCart onClick={() => showProductDetailDialog()} variant="contained">Thông tin chi tiết</ProductAddToCart>
             <ProductDetailDialog product={product} />
         </>
     );

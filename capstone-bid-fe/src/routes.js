@@ -66,6 +66,8 @@ import SessionHistory from './sections/@dashboard/session/SessionHistory';
 import PaymentManage from './pages/PaymentManage';
 import PaymentUserDetail from './sections/@dashboard/user/PaymentUserDetail';
 import StaffProfile from './sections/staff/StaffProfile';
+import UpdateItem from './pages/UpdateItem';
+import ReItem from './pages/ReItem';
 
 
 // ----------------------------------------------------------------------
@@ -96,6 +98,8 @@ export default function Router() {
     { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: <TransactionHistoryPage />},
     { path: 're-auction/:itemId', element: <Reauction /> },
+    { path: 'update-item/:itemId', element: <UpdateItem /> },
+    { path: 're-item/:itemId', element: <ReItem /> },
     { path: 'test', element: <Test /> },
     {
       path: '/dashboard',
