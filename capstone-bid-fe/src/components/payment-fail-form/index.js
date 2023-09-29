@@ -1,7 +1,9 @@
-import React from 'react';
+import { useParams } from 'react-router-dom';
+import React, { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { styled } from '@mui/system';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import axios from 'axios';
 
 const CenteredBox = styled(Box)`
   display: flex;
@@ -40,6 +42,22 @@ const AnimatedXIcon = styled(CancelOutlinedIcon)`
 `;
 
 const PaymentFailForm = () => {
+  const { sessionId } = useParams(); // Retrieve the sessionId parameter
+  const user = localStorage.getItem('loginUser');
+    const jsonUser = JSON.parse(user);
+    const token = localStorage.getItem('token');
+
+  useEffect(() => {
+    // Make the API request
+    axios.put(`https://bids-online.azurewebsites.net/api/Sessions/check_and_update_order?userId=${jsonUser.Id}`,null,{headers: { Authorization: `Bearer ${token}` }})
+      .then(response => {
+        // Handle the API response here
+        console.log(response.data); // You can replace this with your logic
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+  }, [sessionId]);
   return (
     <CenteredBox>
       <Box textAlign="center">

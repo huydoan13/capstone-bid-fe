@@ -8,8 +8,18 @@ export async function getAllStaff() {
   return axiosInstance.get(url);
 }
 
+export async function getStaffById(id) {
+  const url = `${BASE_URL}/staffs/by_id?id=${id}`;
+  try {
+    axiosInstance.get(url, { data: { id } });
+  } catch (error) {
+    console.log(error);
+  }
+  return axiosInstance.get(url);
+}
+
 export async function getNotificationById(id) {
-  const url = `${BASE_URL}/staffnotificationdetail/by_id`;
+  const url = `${BASE_URL}/staffnotificationdetail/by_id?id=${id}`;
   try {
     axiosInstance.get(url, { data: { id } });
   } catch (error) {
@@ -85,11 +95,14 @@ export async function denyUserWaiting(id, reason) {
   }
 }
 
-export async function banUser(id) {
-  const url = `${BASE_URL}/staffs/ban?BanId=${id}`;
-//   const data = { BanID };
+export async function banUser(id, reason) {
+  const url = `${BASE_URL}/staffs/ban?BanID=${id}&Reason=${reason}`;
+  const data = {
+    id,
+    reason,
+  };
   try {
-    axiosInstance.put(url, { data: {id}} );
+    axiosInstance.put(url, data );
     console.log(`Ban User: ${id}`);
   } catch (error) {
     console.log(error);

@@ -145,12 +145,10 @@ export default function SessionNotPay() {
   };
 
   // lay du lieu tat ca user
-    useEffect(() => {
+  useEffect(() => {
     (async () => {
       try {
-        const response = await axiosInstance.get(
-          'https://bids-online.azurewebsites.net/api/sessions/by_havent_pay'
-        );
+        const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/sessions/by_havent_pay');
         console.log(response);
         setSession(response.data);
       } catch (error) {
@@ -309,7 +307,8 @@ export default function SessionNotPay() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } = row.sessionResponseCompletes;
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
+                      row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -332,6 +331,9 @@ export default function SessionNotPay() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
+                        <TableCell align="left">
+                          {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{finalPrice.toLocaleString("vi-VN", { style: "currency", currency: "VND" })}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
@@ -342,13 +344,50 @@ export default function SessionNotPay() {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
-                            <Button
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
-                          </Link>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => handleOpenMenu(event, sessionId)}
+                          >
+                            <Iconify icon={'eva:more-vertical-fill'} />
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 150,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem>
+                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                            <MenuItem>
+                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Lịch sử đấu giá
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                       </TableRow>
                     );

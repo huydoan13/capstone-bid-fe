@@ -5,7 +5,7 @@ import Footer from '../components/footer';
 import AppDrawer from '../components/drawer';
 import SearchBox from "../components/search";
 import ProfilePage from "../components/profile";
-
+import Cart from '../components/cart';
 
 
 
@@ -19,16 +19,19 @@ function Profile() {
                 background: '#fff'
             }}
         >
-
+<UIProvider>
                 <Appbar />
                 <Box display={"flex"} flexDirection={'column'} alignItems="center" justifyContent={"center"} sx={{ p: 4 }}>
                     <Typography variant="h4">Thông Tin Tài Khoản</Typography>
 
                 </Box>
                 <ProfilePage />
+                <Cart/>
+                <AppDrawer />
                 <Footer />
                 <AppDrawer />
                 <SearchBox />
+                </UIProvider>
 
 
         </Container>

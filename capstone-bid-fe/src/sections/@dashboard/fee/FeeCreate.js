@@ -95,9 +95,9 @@ function FeeCreate() {
       };
       const response = await createFee(numericFeeData);
       navigate('/dashboard/fee');
-      toast.success('Tạo phân khúc đấu giá thành công', {
+      toast.success('Tạo phân khúc thành công', {
         position: toast.POSITION.TOP_RIGHT,
-        autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
       });
       // } else {
       //   setErrMsg('Phien dau gia da ton tai');
@@ -162,7 +162,7 @@ function FeeCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <TextField
-                  label="Phí tham gia"
+                  label="Phí tham gia (%)"
                   value={feeData.participationFee}
                   onChange={(event) => setFeeData({ ...feeData, participationFee: event.target.value })}
                   fullWidth
@@ -174,7 +174,7 @@ function FeeCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <TextField
-                  label="Phí đặt cọc"
+                  label="Phí đặt cọc (%)"
                   value={feeData.depositFee}
                   onChange={(event) => setFeeData({ ...feeData, depositFee: event.target.value })}
                   fullWidth
@@ -186,7 +186,7 @@ function FeeCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <TextField
-                  label="Phí hoa hồng"
+                  label="Phí hoa hồng (%)"
                   value={feeData.surcharge}
                   onChange={(event) => setFeeData({ ...feeData, surcharge: event.target.value })}
                   fullWidth

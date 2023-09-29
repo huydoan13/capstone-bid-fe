@@ -43,6 +43,8 @@ const UserDetail = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
+  const [reason, setReason] = useState('');
   const navigate = useNavigate();
 
   const styleModal = {
@@ -97,6 +99,19 @@ const UserDetail = () => {
   const formatBirthDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
+  const handleInputModalOpen = () => {
+    setIsInputModalOpen(true);
+  };
+
+  const handleInputModalClose = () => {
+    setIsInputModalOpen(false);
+    setReason('');
+  };
+
+  const handleInputChange = (event) => {
+    setReason(event.target.value);
+  };
+
   const handleImageClick = (imageUrl, index) => {
     setSelectedImage(imageUrl);
     setCurrentImageIndex(index);
@@ -119,8 +134,9 @@ const UserDetail = () => {
     navigate('/dashboard/user');
   };
 
-  const handleBanUser = (userId) => {
-    banUser(userId);
+  const handleBanUser = (userId, reason) => {
+    banUser(userId, reason);
+    console.log('Reason: ', reason);
     toast.success('Cấm người dùng thành công', {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
@@ -136,13 +152,12 @@ const UserDetail = () => {
     (async () => {
       try {
         const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/users/by_id', {
-        params: { id: userId },
-      });
-      console.log(response);
-      setUserDetail(response.data);
-      setLoading(false);
-      }
-      catch (error) {
+          params: { id: userId },
+        });
+        console.log(response);
+        setUserDetail(response.data);
+        setLoading(false);
+      } catch (error) {
         console.log(error);
       }
     })();
@@ -223,7 +238,7 @@ const UserDetail = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Role"
+                  label="Vai trò"
                   defaultValue={getRoleLabel(userDetail.role)}
                   variant="outlined"
                   sx={{ marginBottom: '20px' }}
@@ -303,12 +318,7 @@ const UserDetail = () => {
                 </Grid> */}
             <Grid container spacing={2}>
               <Grid item md={6} xs={12}>
-                <Button
-                  onClick={() => {
-                    handleBanUser(userDetail.userId);
-                  }}
-                  sx={{ color: 'red' }}
-                >
+                <Button onClick={handleInputModalOpen} sx={{ color: 'red' }}>
                   Cấm người dùng
                 </Button>
               </Grid>
@@ -339,6 +349,23 @@ const UserDetail = () => {
               </Box>
             </Box>
           )}
+        </Box>
+      </Modal>
+
+      <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
+        <Box sx={styleModal}>
+          <TextField
+            label="Nhập lý do cấm người dùng"
+            variant="outlined"
+            value={reason}
+            onChange={handleInputChange}
+            fullWidth
+            multiline
+            rows={4}
+            sx={{ marginBottom: '20px' }}
+          />
+          <Button onClick={() => handleBanUser(userDetail.userId, reason)}>Xong</Button>
+          <Button onClick={handleInputModalClose}>Cancel</Button>
         </Box>
       </Modal>
     </Container>

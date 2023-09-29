@@ -33,6 +33,9 @@ import BookingItemsPage from './pages/BookingItems';
 import AllBookingItemPage from './pages/AllBookingItem';
 import SessionNotPayPage from './pages/SessionNotPay';
 import SessionOutOfDatePage from './pages/SessionOutOfDate';
+import SessionInStagePage from './pages/SessionInStage';
+import SessionErrorItemPage from './pages/SessionErrorItem';
+import SessionReceivedPage from './pages/SessionReceived';
 import SessionCreate from './sections/@dashboard/session/SessionCreate';
 import SessionSuccessPage from './pages/SessionSuccess';
 import SessionRulePage from './pages/SessionRule';
@@ -52,9 +55,20 @@ import ShoppingCartPage from './pages/ShoppingCartPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import PaymentFailPage from './pages/PaymentFailPage';
 import PaymentSuccessJoinPage from './pages/PaymentSuccessJoinPage';
+import TransactionHistoryPage from './pages/TransactionHistoryPage';
+import Reauction from './pages/Reauction';
+import Test from './pages/test';
 import BookingItemNow from './pages/BookingItemNow';
 import SessionCreateNow from './sections/@dashboard/session/SessionCreateNow';
 import BookingItemDetailNow from './sections/@dashboard/booking-item/BookingItemDetailNow';
+import SessionNotStart from './pages/SessionNotStart';
+import SessionHistory from './sections/@dashboard/session/SessionHistory';
+import PaymentManage from './pages/PaymentManage';
+import PaymentUserDetail from './sections/@dashboard/user/PaymentUserDetail';
+import StaffProfile from './sections/staff/StaffProfile';
+import UpdateItem from './pages/UpdateItem';
+import ReItem from './pages/ReItem';
+
 
 // ----------------------------------------------------------------------
 
@@ -67,21 +81,117 @@ export default function Router() {
     //     </RolesAuthRoute>
     //   </Suspense>
     // ), },
-    { path: 'auction', element: <AuctionPage /> },
+    { path: 'auction/:sessionId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['Admin', 'Staff', 'User']}>
+          <AuctionPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'signup', element: <SignUp /> },
-    { path: 'addproduct', element: <AddProduct /> },
-    { path: 'profile', element: <Profile /> },
+    { path: 'additem', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['User']}>
+          <AddProduct />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'profile', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['User']}>
+          <Profile />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'home', element: <HomePage />},
     { path: 'prepare', element: <PrepareSession />},
-    { path: 'instage', element: <InstageSession />},
+    { path: 'instage',element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <InstageSession />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
     { path: 'finish', element: <FinishSession />},
-    { path: 'myproduct', element: <MyProductPage />},
-    { path: 'mysession', element: <MySessionPage />},
-    { path: 'myhistory', element: <MyHistoryPage />},
-    { path: 'shoppingcart', element: <ShoppingCartPage />},
-    { path: 'payment-join-success', element: <PaymentSuccessJoinPage /> },
-    { path: 'payment-success/:sessionId', element: <PaymentSuccessPage /> },
-    { path: 'payment-fail', element: <PaymentFailPage />},
+    { path: 'myitem',element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MyProductPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'mysession', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MySessionPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'myhistory', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MyHistoryPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'shoppingcart', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <ShoppingCartPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'payment-join-success', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentSuccessJoinPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'payment-success', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentSuccessPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'payment-fail', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentFailPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'payment-history', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <TransactionHistoryPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 're-auction/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <Reauction />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'update-item/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <UpdateItem />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 're-item/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <ReItem />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'test', element: <Test /> },
+
     
     {
       path: '/dashboard',
@@ -102,9 +212,12 @@ export default function Router() {
         },
         { path: 'user-waiting', element: <UserWaitingApprove /> },
         { path: 'user-ban', element: <UserBan /> },
+        { path: 'payment-manage', element: <PaymentManage /> },
+        { path: 'payment-user-detail/:userId', element: <PaymentUserDetail /> },
         { path: 'user-detail/:userId', element: <UserDetail /> },
         { path: 'user-waiting-detail/:userId', element: <UserWaitingDetail /> },
         { path: 'user-ban-detail/:userId', element: <UserBanDetail /> },
+        { path: 'staff-profile', element: <StaffProfile /> },
         // { path: 'products', element: <ProductsPage /> },
         // { path: 'blog', element: <BlogPage /> },
         {
@@ -162,9 +275,14 @@ export default function Router() {
         { path: 'item-type-create', element: <CategoryCreate /> },
         { path: 'sessions', element: <SessionPage /> },
         { path: 'session-detail/:sessionId', element: <SessionDetail /> },
+        { path: 'session-history/:sessionId', element: <SessionHistory /> },
         { path: 'session-success', element: <SessionSuccessPage /> },
         { path: 'session-not-pay', element: <SessionNotPayPage /> },
         { path: 'session-out-of-date', element: <SessionOutOfDatePage /> },
+        { path: 'session-instage', element: <SessionInStagePage /> },
+        { path: 'session-not-start', element: <SessionNotStart /> },
+        { path: 'session-error-item', element: <SessionErrorItemPage /> },
+        { path: 'session-received', element: <SessionReceivedPage /> },
         { path: 'session-create/:itemId', element: <SessionCreate /> },
         { path: 'session-create-now/:itemId', element: <SessionCreateNow /> },
         { path: 'items', element: <ItemPage /> },

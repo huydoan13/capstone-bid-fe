@@ -22,6 +22,30 @@ export async function createCategory(newCategory) {
     }
 }
 
+export async function createDescription(categoryId, descriptionName) {
+    const url = `${BASE_URL}/Description`;
+    const data = {
+        categoryId,
+        detail: descriptionName
+    }
+
+    try{
+        axiosInstance.post(url, data);
+    }
+    catch(error){
+        console.log(error);
+    }
+}
+
+export async function deleteDescription(id) {
+    const url = `${BASE_URL}/Description?id=${id}`;
+    try {
+        axiosInstance.delete(url, { data: { id } });
+        console.log(`Deleted Description: ${id}`);
+    } catch (error) {
+        console.log('Khong delete duoc', error);
+    }
+}
 
 export async function updateCategory(upCategory) {
     const url = `${BASE_URL}/categorys`;

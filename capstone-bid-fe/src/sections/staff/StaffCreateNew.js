@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { format } from 'date-fns'
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import { createStaff } from '../../services/staff-actions';
 
@@ -74,6 +76,10 @@ const StaffCreateNew = () => {
       setRePassword('');
       setSuccessDialogOpen(true);
       setError('');
+      toast.success('Tạo nhân viên thành công', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+      });
     } catch (error) {
       console.error('Error:', error);
       setErrorDialogOpen(true);

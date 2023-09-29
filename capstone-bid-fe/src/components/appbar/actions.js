@@ -5,6 +5,7 @@ import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import HistoryIcon from '@mui/icons-material/History';
 import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
 import axios from "axios";
 import NotificationsUserPopover from "../../layouts/dashboard/header/NotificationsUserPopover";
@@ -19,7 +20,7 @@ export default function Actions({ matches }) {
     const logout = LogoutFuncion();
     const open = Boolean(anchorEl);
 
-
+    const [profileData, setProfileData] = useState({});
     const user = localStorage.getItem('loginUser');
     const jsonUser = JSON.parse(user);
     const userEmail = !!jsonUser && !!jsonUser.Email;
@@ -27,6 +28,25 @@ export default function Actions({ matches }) {
     const { cart, setShowCart } = useUIContext();
     const [sessionData, setSessionData] = useState([]);
     const token = localStorage.getItem('token');
+
+    const api = `https://bids-online.azurewebsites.net/api/Users/by_id?id=${jsonUser?.Id}`
+
+
+    const fetchProfileData = async () => {
+        // try {
+        //     const response = await axios.get(api, {headers: { Authorization: `Bearer ${token}` },});
+        //     setProfileData(response.data);
+        // } catch (error) {
+        //     console.log('Error fetching profile data:', error);
+        // }
+
+        try {
+            const response = await axios.get(api, { headers: { Authorization: `Bearer ${token}` }, });
+            setProfileData(response.data);
+        } catch (error) {
+            console.log('Error fetching profile data:', error);
+        }
+    };
 
     const fetchSessionData = () => {
         // Fetch data from the API link using Axios
@@ -40,6 +60,10 @@ export default function Actions({ matches }) {
     };
     useEffect(() => {
         fetchSessionData();
+    }, []);
+
+    useEffect(() => {
+        fetchProfileData();
     }, []);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -99,7 +123,7 @@ export default function Actions({ matches }) {
                                             aria-haspopup="true"
                                             aria-expanded={open ? 'true' : undefined}
                                         >
-                                            <Avatar sx={{ width: 32, height: 32 }}>M</Avatar>
+                                            <Avatar sx={{ width: 40, height: 40 }} src={profileData?.avatar} />
                                         </IconButton>
                                     </Tooltip>
                                 </Box>
@@ -141,10 +165,10 @@ export default function Actions({ matches }) {
                                     {role === "User" ? (
                                         <>
                                             <MenuItem onClick={handleClose} sx={{ display: "flex", alignItems: "center" }}>
-                                                <Avatar />
+                                            <Avatar src={profileData.avatar} />
                                                 <Link to="/profile" style={{ textDecoration: "none", color: "inherit" }}>
 
-                                                    <Typography sx={{ marginLeft: 1 }}>Hồ Sơ Cá Nhân</Typography>
+                                                    <Typography sx={{ marginLeft: 1 }}>{jsonUser.Email}</Typography>
                                                 </Link>
                                             </MenuItem>
                                             <Divider />
@@ -157,11 +181,14 @@ export default function Actions({ matches }) {
                                             </MenuItem>
 
                                             <MenuItem onClick={handleClose}>
-                                                <ListItemIcon>
-                                                    <AlternateEmailIcon fontSize="small" />
-                                                </ListItemIcon>
-                                                {jsonUser.Email}
+                                                <HistoryIcon />
+                                                <Link to="/payment-history" style={{ textDecoration: "none", color: "inherit" }}>
+
+                                                    <Typography sx={{ marginLeft: 1 }}>Lịch Sử Giao Dịch</Typography>
+                                                </Link>
                                             </MenuItem>
+
+                                            
                                             <MenuItem onClick={handleClose}>
                                                 <ListItemIcon>
                                                     <Settings fontSize="small" />

@@ -42,7 +42,7 @@ import { fDate } from '../utils/formatTime';
 import Iconify from '../components/iconify';
 import Scrollbar from '../components/scrollbar';
 // sections
-import { getSessionsOutOfDate } from '../services/session-actions';
+import { getSessionsOutOfDate, getStatusInfo } from '../services/session-actions';
 import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
 // mock
 // import USERLIST from '../_mock/user';
@@ -252,13 +252,13 @@ export default function SessionOutOfDate() {
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá quá hạn | BIDS </title>
+        <title> Phiên đấu giá thất bại | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-          Phiên đấu giá quá hạn
+            Phiên đấu giá thất bại
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User
@@ -282,7 +282,8 @@ export default function SessionOutOfDate() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } = row.sessionResponseCompletes;
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
+                      row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
                     return (
@@ -304,22 +305,64 @@ export default function SessionOutOfDate() {
                         <TableCell align="left">{feeName}</TableCell>
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice}</TableCell>
+                        <TableCell align="left">
+                          {finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                        </TableCell>
                         {/* <TableCell align="left">{address}</TableCell> */}
                         {/* <TableCell align="left">{phone}</TableCell> */}
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
-                          <Chip label={status} color="warning" />
+                          <Chip
+                            label={getStatusInfo(status).text}
+                            style={{ backgroundColor: getStatusInfo(status).color, color: '#ffffff' }}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
-                          <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
-                            <Button
-                            >
-                              <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} />
-                              Chi tiết
-                            </Button>
-                          </Link>
+                          <IconButton
+                            size="large"
+                            color="inherit"
+                            onClick={(event) => handleOpenMenu(event, sessionId)}
+                          >
+                            <Iconify icon={'eva:more-vertical-fill'} />
+                          </IconButton>
+                          <Popover
+                            open={openPopoverId === sessionId}
+                            anchorEl={anchorEl}
+                            // open={Boolean(open)}
+                            // anchorEl={open}
+                            onClose={handleCloseMenu}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+                            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            PaperProps={{
+                              sx: {
+                                p: 1,
+                                width: 150,
+                                '& .MuiMenuItem-root': {
+                                  px: 1,
+                                  typography: 'body2',
+                                  borderRadius: 0.75,
+                                },
+                              },
+                            }}
+                          >
+                            <MenuItem>
+                              <Link to={`/dashboard/session-detail/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'eva:edit-fill'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Chi tiết
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                            <MenuItem>
+                              <Link to={`/dashboard/session-history/${row.sessionResponseCompletes.sessionId}`}>
+                                <Button>
+                                  {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
+                                  Lịch sử đấu giá
+                                </Button>
+                              </Link>
+                            </MenuItem>
+                          </Popover>
                         </TableCell>
                       </TableRow>
                     );

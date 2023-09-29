@@ -31,10 +31,16 @@ import {
   CardContent,
   Select,
   InputLabel,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
 } from '@mui/material';
 // components
 // eslint-disable-next-line import/no-unresolved
-import { deleteCategory, getAllCategory, updateCategory } from 'src/services/category-actions';
+import { createDescription, deleteCategory, deleteDescription, getAllCategory, updateCategory } from 'src/services/category-actions';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { fDate } from '../utils/formatTime';
 // import Label from '../components/label';
 import Iconify from '../components/iconify';
@@ -89,15 +95,17 @@ export default function CaterogyPage() {
   // const [open, setOpen] = useState(null);
 
   const [category, setCategory] = useState([]);
-  
+
   const [categoryName, setCategoryName] = useState();
+  const [selectedValue, setSelectedValue] = useState('');
 
   // const [upCategory, setUpCategory] = useState({});
 
   const [upCategory, setUpCategory] = useState({
     categoryId: category.categoryId, // initial value
-    categoryName: category.categoryName, // initial value
-    status: category.status // initial value
+    categoryName: category.categoryName,
+    descriptions: category.descriptions, // initial value
+    status: category.status, // initial value
   });
 
   const [page, setPage] = useState(0);
@@ -121,7 +129,9 @@ export default function CaterogyPage() {
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY');
 
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  const [isCreateDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [newDescriptionName, setNewDescriptionName] = useState('');
 
   // const handleInputChange = (event) => {
   //   const { name, value } = event.target;
@@ -130,14 +140,13 @@ export default function CaterogyPage() {
   //     [name]: value
   //   }));
   // };
-  
 
   const styleModal = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: 500,
     bgcolor: 'background.paper',
     boxShadow: 24,
     p: 4,
@@ -169,13 +178,53 @@ export default function CaterogyPage() {
     setOpenPopoverId(null);
   };
 
-  // const handleOpenMenu = (event) => {
-  //   setOpen(event.currentTarget);
-  // };
+  const handleOpenCreateDialog = () => {
+    setNewDescriptionName(''); // Clear the input field when opening the dialog
+    setCreateDialogOpen(true);
+  };
 
-  // const handleCloseMenu = () => {
-  //   setOpen(null);
-  // };
+  const handleOpenDeleteDialog = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  // ... other code ...
+
+  // Step 4: Handle the creation of a new description
+  const handleCreateDescription = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await createDescription(upCategory.categoryId, newDescriptionName);
+      setNewDescriptionName('');
+    } catch (error) {
+      console.log('Failed to fetch', error);
+    }
+    // Close the dialog
+    setCreateDialogOpen(false);
+  };
+
+  const handleDeleteDescription = async (event) => {
+    event.preventDefault();
+    const descriptionIdToDelete = selectedValue;
+    try {
+      const response = await deleteDescription(descriptionIdToDelete);
+      setDeleteDialogOpen(false);
+      toast.success('Description deleted successfully', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
+    } catch (error) {
+      console.log('Failed to fetch', error);
+      setDeleteDialogOpen(false);
+
+      // Show an error message (optional)
+      toast.error('Failed to delete description', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
+    }
+    // Close the dialog
+    setCreateDialogOpen(false);
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -208,6 +257,10 @@ export default function CaterogyPage() {
         const updatedCategory = category.find((u) => u.categoryId === categoryId);
         updatedCategory.status = false;
         setCategory([...category]);
+        toast.success('Cấm người dùng thành công', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        });
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -218,8 +271,16 @@ export default function CaterogyPage() {
   const handleUpdateButton = () => {
     console.log('Update ne');
     updateCategory(upCategory);
+    toast.success('Cấm người dùng thành công', {
+      position: toast.POSITION.TOP_RIGHT,
+      autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+    });
     console.log(upCategory);
     handleCloseModal();
+  };
+
+  const handleSelectChange = (event) => {
+    setSelectedValue(event.target.value);
   };
 
   const handleClick = (event, name) => {
@@ -324,7 +385,10 @@ export default function CaterogyPage() {
                         <TableCell align="left">{formatDate(updateDate)}</TableCell>
                         <TableCell align="left">{formatDate(createDate)}</TableCell>
                         <TableCell align="left">
-                          <Chip label={status ? 'Đang hoạt động' : 'Ngưng hoạt động'} color={status ? 'success' : 'error'} />
+                          <Chip
+                            label={status ? 'Đang hoạt động' : 'Ngưng hoạt động'}
+                            color={status ? 'success' : 'error'}
+                          />
                         </TableCell>
 
                         <TableCell align="right">
@@ -430,27 +494,76 @@ export default function CaterogyPage() {
           >
             <Box sx={styleModal}>
               <Card>
-                <CardHeader subheader="The information can be edited" title="Category Information" />
+                <CardHeader title="Thông tin loại đấu giá" />
                 <CardContent>
-                  <Grid container spacing={3}>
-                    <Grid item md={12} xs={12}>
+                  <Grid container spacing={2}>
+                    {/* <Grid item md={12} xs={12}>
                       <TextField fullWidth label="Category Id" defaultValue={upCategory.categoryId} disabled />
-                    </Grid>
+                    </Grid> */}
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Category Name" onChange={(e) => setUpCategory({...upCategory, categoryName: e.target.value})} defaultValue={upCategory.categoryName} />
+                      <TextField
+                        fullWidth
+                        label="Loại đấu giá"
+                        onChange={(e) => setUpCategory({ ...upCategory, categoryName: e.target.value })}
+                        defaultValue={upCategory.categoryName}
+                      />
                     </Grid>
+
+                    {upCategory.descriptions?.map((description, index) => (
+                      <Grid item md={6} xs={12} key={description.id}>
+                        <TextField
+                          fullWidth
+                          multiline
+                          label={`Miêu tả ${index + 1}`}
+                          InputProps={{
+                            readOnly: true,
+                          }}
+                          value={description.name}
+                        />
+                      </Grid>
+                    ))}
+
                     <Grid item md={12} xs={12}>
-                      <InputLabel id="demo-simple-select-label">Status</InputLabel>
-                      <Select onChange={(e) => setUpCategory({...upCategory, status: e.target.value === 'true' })} value={upCategory.status} label="status" name="status" size="small">
+                      <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
+                      <Select
+                        onChange={(e) => setUpCategory({ ...upCategory, status: e.target.value === 'true' })}
+                        value={upCategory.status}
+                        label="status"
+                        name="status"
+                        size="small"
+                      >
                         <MenuItem value="true">Đang hoạt động</MenuItem>
                         <MenuItem value="false">Ngưng hoạt động</MenuItem>
                       </Select>
                     </Grid>
-                    <Box
+
+                      <Grid item md={4} xs={12}>
+                      <Button
+                        onClick={() => {
+                          handleUpdateButton(upCategory);
+                        }}
+                        color="primary"
+                        variant="contained"
+                      >
+                        Cập nhật
+                      </Button>
+                      </Grid>
+                      <Grid item md={4} xs={12}>
+                      <Button onClick={handleOpenCreateDialog} variant="contained" color="success">
+                        Tạo miêu tả
+                      </Button>
+                      </Grid>
+                      <Grid item md={4} xs={12}>
+                      <Button onClick={handleOpenDeleteDialog} variant="contained" color="error">
+                        Xóa miêu tả
+                      </Button>
+                      </Grid>
+
+                    {/* <Box
                       sx={{
                         display: 'flex',
                         justifyContent: 'left',
-                        p: 5,
+                        p: 3,
                       }}
                     >
                       <Button
@@ -466,7 +579,29 @@ export default function CaterogyPage() {
                     <Box
                       sx={{
                         display: 'flex',
+                        justifyContent: 'center',
+                        p: 3,
+                      }}
+                    >
+                      <Button onClick={handleOpenCreateDialog} variant="contained">
+                        Tạo miêu tả
+                      </Button>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
                         justifyContent: 'right',
+                        p: 3,
+                      }}
+                    >
+                      <Button onClick={handleOpenDeleteDialog} variant="contained">
+                        Xóa miêu tả
+                      </Button>
+                    </Box> */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
                         p: 2,
                       }}
                     >
@@ -479,6 +614,59 @@ export default function CaterogyPage() {
               </Card>
             </Box>
           </Modal>
+
+          <Dialog
+            open={isCreateDialogOpen}
+            onClose={() => setCreateDialogOpen(false)}
+            aria-labelledby="create-description-dialog-title"
+          >
+            <DialogTitle id="create-description-dialog-title">Tạo miêu tả</DialogTitle>
+            <DialogContent>
+              <TextField
+                autoFocus
+                margin="dense"
+                id="new-description-name"
+                label="Miêu tả"
+                type="text"
+                fullWidth
+                value={newDescriptionName}
+                onChange={(e) => setNewDescriptionName(e.target.value)}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setCreateDialogOpen(false)} color="secondary">
+                Hủy
+              </Button>
+              <Button onClick={handleCreateDescription} color="primary" disabled={!newDescriptionName}>
+                Tạo
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          <Dialog
+            open={isDeleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            aria-labelledby="create-description-dialog-title"
+          >
+            <DialogTitle id="create-description-dialog-title">Xóa miêu tả</DialogTitle>
+            <DialogContent>
+              <Select value={selectedValue} onChange={handleSelectChange} fullWidth>
+                {upCategory.descriptions?.map((item) => (
+                  <MenuItem key={item.id} value={item.id}>
+                    {item.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setDeleteDialogOpen(false)} color="secondary">
+                Hủy
+              </Button>
+              <Button onClick={handleDeleteDescription} color="primary">
+                Xóa
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Card>
       </Container>
     </>

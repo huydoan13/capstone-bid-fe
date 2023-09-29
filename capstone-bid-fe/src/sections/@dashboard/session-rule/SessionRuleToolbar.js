@@ -56,7 +56,7 @@ export default function SessionListToolbar({ numSelected, filterName, onFilterNa
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Tìm phiên đấu giá..."
+          placeholder="Tìm cấu hình thời gian đấu giá..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled', width: 20, height: 20 }} />

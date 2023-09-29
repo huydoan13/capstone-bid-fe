@@ -32,6 +32,8 @@ import {
   Select,
   InputLabel,
 } from '@mui/material';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // components
 // eslint-disable-next-line import/no-unresolved
 import { getAllStaff, deleteStaff, updateStaff } from 'src/services/staff-actions';
@@ -148,6 +150,10 @@ export default function StaffPage() {
         const updatedCategory = staff.find((u) => u.staffId === staffId);
         // updatedCategory.status = false;
         setStaff([...staff]);
+        toast.success('Xóa nhân viên thành công', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        });
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -161,7 +167,6 @@ export default function StaffPage() {
     console.log(staffDetail);
     handleCloseModal();
   };
-
 
   const handleOpenMenu = (event, staffId) => {
     setAnchorEl(event.currentTarget);
@@ -300,7 +305,7 @@ export default function StaffPage() {
                           <Chip label={status ? 'Đang hoạt động' : 'Đã cấm'} color={status ? 'success' : 'error'} />
                         </TableCell>
 
-                        <TableCell align="right">
+                        {/* <TableCell align="right">
                           <IconButton size="large" color="inherit" onClick={(event) => handleOpenMenu(event, staffId)}>
                             <Iconify icon={'eva:more-vertical-fill'} />
                           </IconButton>
@@ -343,6 +348,17 @@ export default function StaffPage() {
                               Xóa
                             </MenuItem>
                           </Popover>
+                        </TableCell> */}
+                        <TableCell align="right">
+                          <Button
+                            onClick={() => {
+                              handleDeleteButton(row.staffId);
+                            }}
+                            sx={{ color: 'error.main' }}
+                          >
+                            <Iconify icon={'eva:trash-2-outline'} sx={{ mr: 2 }} />
+                            Xóa
+                          </Button>
                         </TableCell>
                         {/* <TableCell align="left">{isVerified ? 'Yes' : 'No'}</TableCell> */}
                       </TableRow>
@@ -407,15 +423,32 @@ export default function StaffPage() {
                       <TextField disabled fullWidth label="Staff Id" defaultValue={staffDetail.staffId} />
                     </Grid> */}
                     <Grid item md={12} xs={12}>
-                      <TextField multiline fullWidth label="Họ và tên" onChange={(e) => setStaffDetail({...staffDetail, staffName: e.target.value})} defaultValue={staffDetail.staffName} />
+                      <TextField
+                        multiline
+                        fullWidth
+                        label="Họ và tên"
+                        onChange={(e) => setStaffDetail({ ...staffDetail, staffName: e.target.value })}
+                        defaultValue={staffDetail.staffName}
+                      />
                     </Grid>
                     <Grid item md={12} xs={12}>
-                      <TextField multiline fullWidth label="Địa chỉ" onChange={(e) => setStaffDetail({...staffDetail, address: e.target.value})} defaultValue={staffDetail.address} />
+                      <TextField
+                        multiline
+                        fullWidth
+                        label="Địa chỉ"
+                        onChange={(e) => setStaffDetail({ ...staffDetail, address: e.target.value })}
+                        defaultValue={staffDetail.address}
+                      />
                     </Grid>
                     <Grid item md={12} xs={12}>
-                      <TextField fullWidth label="Số điện thoại" onChange={(e) => setStaffDetail({...staffDetail, phone: e.target.value})} defaultValue={staffDetail.phone} />
+                      <TextField
+                        fullWidth
+                        label="Số điện thoại"
+                        onChange={(e) => setStaffDetail({ ...staffDetail, phone: e.target.value })}
+                        defaultValue={staffDetail.phone}
+                      />
                     </Grid>
-                    
+
                     {/* <Grid item md={12} xs={12}>
                       <InputLabel id="demo-simple-select-label">Status</InputLabel>
                       <Select onChange={(e) => setUpCategory({...upCategory, status: e.target.value === 'true' })} value={upCategory.status} label="status" name="status" size="small">
@@ -456,7 +489,6 @@ export default function StaffPage() {
               </Card>
             </Box>
           </Modal>
-
         </Card>
       </Container>
     </>

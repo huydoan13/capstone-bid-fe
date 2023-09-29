@@ -34,12 +34,24 @@ const PaymentSuccessJoinForm = () => {
     const jsonUser = JSON.parse(user);
     const token = localStorage.getItem('token');
 
+    // useEffect(() => {
+    //   // Make the API request
+    //   axios.put(`https://bids-online.azurewebsites.net/api/Sessions/check_and_update_order?userId=${jsonUser.Id}`,null,{headers: { Authorization: `Bearer ${token}` }})
+    //     .then(response => {
+    //       // Handle the API response here
+    //       console.log(response.data); // You can replace this with your logic
+    //     })
+    //     .catch(error => {
+    //       console.error('Error:', error);
+    //     });
+    // }, []);
+
   return (
     <CenteredBox>
       <Box textAlign="center">
         <AnimatedTickIcon />
         <Typography variant="h5" component="h2" mt={2}>
-          Bạn đã thanh toán thành công
+          Bạn đã thanh đăng kí thành công
         </Typography>
       </Box>
     </CenteredBox>

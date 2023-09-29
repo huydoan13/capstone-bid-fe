@@ -4,37 +4,41 @@ import service from "../../services";
 
 const pageSize = 3;
 
-export default function AppPagination({setProducts}) {
-
+export default function AppPagination({ setProducts }) {
     const [pagination, setPagination] = useState({
         count: 0,
         from: 0,
-        to: pageSize
+        to: pageSize,
     });
 
     useEffect(() => {
-        service.getData({ from: pagination.from, to: pagination.to }).then(response => {
-            
+        service.getData().then((response) => {
             setPagination({ ...pagination, count: response.count });
-            setProducts(response.data);
+            setProducts(response.data.slice(pagination.from, pagination.to));
         });
-    }, [pagination.from,pagination.to]);
+    }, [pagination.from, pagination.to]);
 
     const handlePageChange = (event, page) => {
         const From = (page - 1) * pageSize;
         const To = (page - 1) * pageSize + pageSize;
 
-        setPagination({ ...pagination, from : From, to: To });
-    }
+        setPagination({ ...pagination, from: From, to: To });
+    };
+
     return (
-        <Box justifyContent={"center"} alignContent={"center"} display={"flex"} sx={{
-            margin: "20px 0px"
-        }}>
-            <Pagination 
-            color="primary"
-            count={Math.ceil(pagination.count / pageSize)}
+        <Box
+            justifyContent={"center"}
+            alignContent={"center"}
+            display={"flex"}
+            sx={{
+                margin: "20px 0px",
+            }}
+        >
+            <Pagination
+                color="primary"
+                count={Math.ceil(pagination.count / pageSize)}
                 onChange={handlePageChange}
             />
         </Box>
-    )
+    );
 }

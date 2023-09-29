@@ -12,12 +12,15 @@ import {
     Stack,
     Divider,
     Grid,
+    CircularProgress,
 } from "@mui/material";
-
+import { useNavigate } from 'react-router-dom';
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -67,8 +70,10 @@ function SlideTransition(props) {
 const ProductDetailWrapper = styled(Box)(({ theme }) => ({
     display: "flex",
     padding: theme.spacing(1),
-    border: ' 1px solid #000000',
     marginTop: '1%',
+    [theme.breakpoints.down('md')]: {
+        width: '100%',
+    }
 }));
 
 const ProductDetailInfoWrapper = styled(Box)(() => ({
@@ -81,6 +86,17 @@ const ProductDetailInfoWrapper = styled(Box)(() => ({
 
 }));
 
+const styles = {
+    TaskAltIcon: {
+        fontSize: '150px',
+        color: '#C3E1AE'
+    },
+    errorIcon: {
+        fontSize: '150px',
+        color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+};
+
 export default function StageProductDetail({ open, onClose, product }) {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
@@ -89,7 +105,7 @@ export default function StageProductDetail({ open, onClose, product }) {
         useDialogModal(AuctionForm);
     const [countdown, setCountdown] = useState(getTimeRemaining(product.beginTime));
     const [selectedImage, setSelectedImage] = useState(
-        product.images.length > 0 ? product.images[0].detail : null
+        product.images.length > 0 ? product.images[0].detail : "/assets/images/covers/auction-hammer.jpg"
     );
     const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
     const [feeDialogOpen, setFeeDialogOpen] = useState(false);
@@ -103,9 +119,10 @@ export default function StageProductDetail({ open, onClose, product }) {
     const jsonUser = JSON.parse(user);
     const isLoggedIn = !!jsonUser && !!jsonUser.Email;
     const [maxWidth, setMaxWidth] = React.useState('sm');
+    const [isLoading, setLoading] = useState(false);
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning_in_stage';
-    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-join-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
-
+    const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
+    const navigate = useNavigate();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -140,6 +157,7 @@ export default function StageProductDetail({ open, onClose, product }) {
     };
 
     const joinAuction = () => {
+        setLoading(true);
         const requestData = {
             sessionId: product.sessionId,
             userId: jsonUser.Id
@@ -150,7 +168,10 @@ export default function StageProductDetail({ open, onClose, product }) {
                 // Handle the response from the API if needed.
                 // For example, you can show a success message or refresh the page.
 
-                window.location.href = "/auction"
+                // window.location.href = "/auction"
+                setLoading(false);
+                const sessionId = product.sessionId;
+                navigate(`/auction/${sessionId}`);
             })
             .catch(error => {
                 console.error('Error joining the auction:', error);
@@ -158,10 +179,12 @@ export default function StageProductDetail({ open, onClose, product }) {
                     setIsErrorDialogOpen(true);
                     setDialogMessage(error.response.data);
                     // setIsSuccessDialogOpen(true);
+                    setLoading(false);
 
                 } else {
                     setIsErrorDialogOpen(true);
                     setDialogMessage("Đã có lỗi xảy ra");
+                    setLoading(false);
                 }
             })
         // .Finally(window.location.href = "/auction");
@@ -192,8 +215,9 @@ export default function StageProductDetail({ open, onClose, product }) {
 
     // Function to handle the auction button click
     const handleAuctionButtonClick = (product) => {
-        localStorage.setItem("sessionId", product.sessionId);
-        console.log(product.sessionId)
+        // localStorage.setItem("sessionId", product.sessionId);
+        // console.log(product.sessionId)
+
         if (isLoggedIn) {
             joinAuction();
 
@@ -404,9 +428,17 @@ export default function StageProductDetail({ open, onClose, product }) {
                                         </>
                                     )}
                                 </Typography>
-                                <Button startIcon={<GavelIcon />} size="large" color="primary" variant="contained" onClick={() => handleAuctionButtonClick(product)}>
-                                    Đấu Giá Ngay
+                                <Button
+                                    startIcon={<GavelIcon />}
+                                    size="large"
+                                    color="primary"
+                                    variant="contained"
+                                    onClick={() => handleAuctionButtonClick(product)}
+                                    disabled={isLoading} // Disable the button when loading
+                                >
+                                    {isLoading ? <CircularProgress size={24} color="inherit" /> : "Đăng Kí Đấu Giá."}
                                 </Button>
+
                             </Stack>
 
                             {/* <Box
@@ -424,8 +456,11 @@ export default function StageProductDetail({ open, onClose, product }) {
                 </DialogContent>
             </Dialog>
             <AuctionDetailDialog product={product} />
-            <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-                <DialogTitle>Không Thể Tham Gia Đấu Giá</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isDialogOpen} onClose={handleDialogClose}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Không Thể Tham Gia Đấu Giá</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Bạn cần đăng nhập trước để tham gia đấu giá.
@@ -440,8 +475,11 @@ export default function StageProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
-                <DialogTitle>Thành Công</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thành Công</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {dialogMessage}
@@ -453,10 +491,13 @@ export default function StageProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
-                <DialogTitle>Lỗi</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thông Báo</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText align="center">
                         {dialogMessage}
                     </DialogContentText>
                 </DialogContent>
@@ -467,7 +508,7 @@ export default function StageProductDetail({ open, onClose, product }) {
                 </DialogActions>
             </Dialog>
             <Dialog fullWidth maxWidth={maxWidth} open={feeDialogOpen} onClose={closeDialog}>
-                <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+                <DialogTitle variant="h5" align="center">Chi tiết đơn hàng</DialogTitle>
                 <DialogContent>
                     {selectedItem && (
                         <>

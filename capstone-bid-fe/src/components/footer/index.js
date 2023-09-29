@@ -7,6 +7,7 @@ import {
   Button,
   Stack,
   Container,
+  Link,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -16,7 +17,19 @@ import SendIcon from "@mui/icons-material/Send";
 import { Colors } from "../../style/theme";
 import { SubscribeTf, FooterTitle } from "../../style/footer";
 
+
+const StyledLink = styled(Link)`
+  color: inherit; /* Use the default text color */
+  text-decoration: none; /* Remove underline */
+  transition: color 0.3s; /* Smooth color transition on hover */
+
+  &:hover {
+    color: ${Colors.primary}; /* Change color on hover (you can use any color you like) */
+  }
+`;
+
 export default function Footer() {
+
   return (
     <Box
       sx={{
@@ -32,41 +45,17 @@ export default function Footer() {
         <Grid item md={6} lg={4}>
           <FooterTitle variant="body1">Về chúng tôi.</FooterTitle>
           <Typography variant="caption2">
-          Bid Online là hệ thống phần mềm phân tích thông tin mời thầu thế hệ mới dành cho doanh nghiệp, cá nhân,
-           giúp cá nhân tìm kiếm,  và mua sắm tư nhân trên cả nước.
+            BIDs online là hệ thống ứng dụng đấu giá trực tuyến cung cấp dịch vụ đấu giá trực tuyến cho người dùng khắp cả nước sử dụng mọi lúc mọi nơi.
           </Typography>
-          <Box
-            sx={{
-              mt: 4,
-              color: Colors.dove_gray,
-            }}
-          >
-            <FacebookIcon sx={{ mr: 1 }} />
-            <TwitterIcon sx={{ mr: 1 }} />
-            <InstagramIcon />
-          </Box>
         </Grid>
         <Grid item md={6} lg={2}>
           <FooterTitle variant="body1">Thông Tin</FooterTitle>
           <List>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-              Về chúng tôi
-              </Typography>
-            </ListItemText>
-            <ListItemText>
-              <Typography lineHeight={2} variant="caption2">
-              Theo dõi đơn hàng
-              </Typography>
-            </ListItemText>
-            <ListItemText>
-              <Typography lineHeight={2} variant="caption2">
-              Quyền riêng tư  &amp; Chính sách
-              </Typography>
-            </ListItemText>
-            <ListItemText>
-              <Typography lineHeight={2} variant="caption2">
-              Điều Khoản  &amp; Dịch Vụ
+                <StyledLink component="a" href="https://docs.google.com/document/d/1wHiHLmHivLH5tboGqxfcfztanMaKYAEFcwhX5U0CNeI/edit?fbclid=IwAR3OaRPLB2kXR-c67JIGYy0sFnNy1XmpRuWHeuMAU4ufsUEjtotPbpGF37c" underline="none" color="inherit">
+                  Quy tắc hệ thống
+                </StyledLink >
               </Typography>
             </ListItemText>
           </List>
@@ -76,42 +65,33 @@ export default function Footer() {
           <List>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Đăng Nhập
+                <StyledLink component="a" href="/login" underline="none" color="inherit">
+                  Đăng Nhập
+                </StyledLink >
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                Giỏ Hàng
+                <StyledLink component="a" href="/shoppingcart" underline="none" color="inherit">
+                  Giỏ Hàng
+                </StyledLink >
               </Typography>
             </ListItemText>
             <ListItemText>
               <Typography lineHeight={2} variant="caption2">
-                tài Khoản Của Tôi
+                <StyledLink component="a" href="/profile" underline="none" color="inherit">
+                  Tài Khoản Của Tôi
+                </StyledLink >
               </Typography>
             </ListItemText>
-            <ListItemText>
-              <Typography lineHeight={2} variant="caption2">
-                Ưa Thích
-              </Typography>
-            </ListItemText>
+
           </List>
         </Grid>
         <Grid item md={6} lg={4}>
-          <FooterTitle variant="body1">Bản Tin</FooterTitle>
-          <Stack>
-            <SubscribeTf
-              color="primary"
-              label="Tài Khoản Email"
-              variant="standard"
-            />
-            <Button
-              startIcon={<SendIcon sx={{ color: Colors.white }} />}
-              sx={{ mt: 4, mb: 4 }}
-              variant="contained"
-            >
-              Đăng Kí
-            </Button>
-          </Stack>
+          <FooterTitle variant="body1">Lưu ý</FooterTitle>
+          <Typography variant="caption2">
+            Mọi thông tin và hình ảnh trên website đều được sưu tầm trên Internet. Chúng tôi không sở hữu hay chịu trách nhiệm bất kỳ thông tin nào trên web này. Nếu làm ảnh hưởng đến cá nhân hay tổ chức nào, khi được yêu cầu, chúng tôi sẽ xem xét và gỡ bỏ ngay lập tức.
+          </Typography>
         </Grid>
       </Grid>
     </Box>

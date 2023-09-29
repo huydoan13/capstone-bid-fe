@@ -44,7 +44,7 @@ export async function getAllUserBan() {
 
 export function getStatusInfo(status) {
   switch (status) {
-    case 'Waitting':
+    case 'Waiting':
       return { text: 'Đang chờ duyệt', color: '#FA8D24' }; // Red color
     case 'Acctive':
       return { text: 'Đang hoạt động', color: 'green' }; // Red color
@@ -65,6 +65,8 @@ export const getRoleLabel = (status) => {
       return 'Quản trị viên';
     case 'Staff':
       return 'Nhân viên';
+    case 'User':
+      return 'Người dùng';
     default:
       return '';
   }
@@ -72,7 +74,7 @@ export const getRoleLabel = (status) => {
 
 export const getStatusLabel = (status) => {
   switch (status) {
-    case 'Waitting':
+    case 'Waiting':
       return 'Đang chờ duyệt';
     case 'Acctive':
       return 'Đang hoạt động';
