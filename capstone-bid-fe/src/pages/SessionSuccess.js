@@ -295,7 +295,7 @@ export default function SessionSuccess() {
                 />
                 <TableBody>
                   {filteredUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, status } =
+                    const { sessionId, feeName, sessionName, beginTime, auctionTime, endTime, finalPrice, winner, status } =
                       row.sessionResponseCompletes;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
 
@@ -319,7 +319,7 @@ export default function SessionSuccess() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice}</TableCell>
+                        <TableCell align="left">{finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip

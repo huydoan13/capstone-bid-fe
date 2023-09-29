@@ -116,6 +116,8 @@ export default function SessionNotStart() {
 
   const [anchorEl, setAnchorEl] = useState(null);
 
+  const [showPaymentHistoryButton, setShowPaymentHistoryButton] = useState(false);
+
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
   const navigate = useNavigate();
@@ -354,12 +356,13 @@ export default function SessionNotStart() {
                                 </Button>
                               </Link>
                             </MenuItem>
-                            <MenuItem>
-                              <Button>
-                                {/* <Iconify icon={'ic:baseline-history'} sx={{ mr: 0, ml: 0 }} /> */}
-                                Lịch sử đấu giá
-                              </Button>
-                            </MenuItem>
+                            {/* <MenuItem>
+                              {showPaymentHistoryButton && (
+                                <Button>
+                                  Lịch sử đấu giá
+                                </Button>
+                              )}
+                            </MenuItem> */}
                           </Popover>
                         </TableCell>
                       </TableRow>

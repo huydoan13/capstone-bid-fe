@@ -153,11 +153,11 @@ function SessionCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <FormControl fullWidth required margin="normal" sx={{ mb: 3 }}>
-                  <InputLabel>Quy tắc đấu giá</InputLabel>
+                  <InputLabel>Cấu hình thời gian đấu giá</InputLabel>
                   <Select
                     value={sessionData.sessionRuleId}
                     onChange={(event) => setSessionData({ ...sessionData, sessionRuleId: event.target.value })}
-                    label="Quy tắc đấu giá"
+                    label="Cấu hình thời gian đấu giá"
                   >
                     {sessionRules.map((sessionRule) => (
                       <MenuItem key={sessionRule.sessionRuleId} value={sessionRule.sessionRuleId}>
