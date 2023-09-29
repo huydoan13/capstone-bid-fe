@@ -54,7 +54,7 @@ const navConfig = [
     items: [
       { title: 'Đơn đăng ký', path: '/dashboard/booking-items', icon: <Icon icon="mdi:form" width="30" height="30" />, },
       { title: 'Chưa có phiên', path: '/dashboard/booking-item-no-session', icon: <Icon icon="mdi:form" width="30" height="30" />, },
-      { title: 'Tạo bây giờ', path: '/dashboard/booking-item-now', icon: <Icon icon="mdi:form" width="30" height="30" />, },
+      { title: 'Đơn ưu tiên', path: '/dashboard/booking-item-now', icon: <Icon icon="mdi:form" width="30" height="30" />, },
     ]
   },
   // {
