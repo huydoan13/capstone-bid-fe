@@ -65,7 +65,7 @@ export async function denyBookingItemWaiting(id, reason) {
 
 export function getStatusInfo(status) {
   switch (status) {
-    case 'Waitting':
+    case 'Waiting':
       return { text: 'Đang chờ duyệt', color: '#FA8D24' }; // Red color
     case 'Accepted':
       return { text: 'Đã chấp nhận', color: '#00FF00' }; // Green color
@@ -75,7 +75,7 @@ export function getStatusInfo(status) {
       return { text: 'Không hoạt động', color: '#FF0000' };
     case 'NotCreateSessionYet':
       return { text: 'Chưa có phiên', color: '#FF0000' };
-    case 'SessionWaitting':
+    case 'SessionWaiting':
       return { text: 'Chờ bắt đầu', color: '#FA8D24' };
     default:
       return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
@@ -84,7 +84,7 @@ export function getStatusInfo(status) {
 
 export const getStatusLabel = (status) => {
   switch (status) {
-    case 'Waitting':
+    case 'Waiting':
       return 'Đang chờ duyệt';
     case 'Accepted':
       return 'Đã chấp nhận';
@@ -94,7 +94,7 @@ export const getStatusLabel = (status) => {
       return 'Không hoạt động';
     case 'NotCreateSessionYet':
       return 'Chưa có Phiên';
-    case 'SessionWaitting':
+    case 'SessionWaiting':
       return 'Chờ bắt đầu';
     default:
       return '';

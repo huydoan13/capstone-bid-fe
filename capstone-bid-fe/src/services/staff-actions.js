@@ -95,11 +95,14 @@ export async function denyUserWaiting(id, reason) {
   }
 }
 
-export async function banUser(id) {
-  const url = `${BASE_URL}/staffs/ban?BanId=${id}`;
-//   const data = { BanID };
+export async function banUser(id, reason) {
+  const url = `${BASE_URL}/staffs/ban?BanID=${id}&Reason=${reason}`;
+  const data = {
+    id,
+    reason,
+  };
   try {
-    axiosInstance.put(url, { data: {id}} );
+    axiosInstance.put(url, data );
     console.log(`Ban User: ${id}`);
   } catch (error) {
     console.log(error);

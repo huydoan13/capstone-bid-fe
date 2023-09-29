@@ -37,6 +37,15 @@ export async function createDescription(categoryId, descriptionName) {
     }
 }
 
+export async function deleteDescription(id) {
+    const url = `${BASE_URL}/Description?id=${id}`;
+    try {
+        axiosInstance.delete(url, { data: { id } });
+        console.log(`Deleted Description: ${id}`);
+    } catch (error) {
+        console.log('Khong delete duoc', error);
+    }
+}
 
 export async function updateCategory(upCategory) {
     const url = `${BASE_URL}/categorys`;

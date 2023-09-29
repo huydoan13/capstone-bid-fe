@@ -277,13 +277,13 @@ export default function AllBookingItem() {
   return (
     <>
       <Helmet>
-        <title> Đơn đăng kí đấu giá | BIDS </title>
+        <title> Đơn đăng ký đấu giá | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Đơn đăng kí đấu giá
+            Đơn đăng ký đấu giá
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             Tạo mới đơn đăng kí đấu giá

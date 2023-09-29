@@ -252,13 +252,13 @@ export default function SessionOutOfDate() {
   return (
     <>
       <Helmet>
-        <title> Phiên đấu giá quá hạn | BIDS </title>
+        <title> Phiên đấu giá thất bại | BIDS </title>
       </Helmet>
 
       <Container>
         <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
           <Typography variant="h4" gutterBottom>
-            Phiên đấu giá quá hạn
+            Phiên đấu giá thất bại
           </Typography>
           {/* <Button variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
             New User

@@ -109,13 +109,21 @@ export async function createSessionNow(session, itemId) {
 export function getStatusInfo(status) {
   switch (status) {
     case 1:
-      return { text: 'Chưa bắt đầu', color: 'F0F758' }; // Red color
+      return { text: 'Chưa bắt đầu', color: '#ff5722' }; // Red color
     case 2:
-      return { text: 'Đang diễn ra', color: '#00FF00' }; // Green color
+      return { text: 'Đang diễn ra', color: '#3f51b5' }; // Green color
     case 3:
-      return { text: 'Chưa thanh toán', color: '#FF0000' }; // Blue color
+      return { text: 'Chưa thanh toán', color: '#F7803B' }; // Blue color
+    case 4:
+      return { text: 'Thành công', color: '#1FEE26' }; // Blue color
     case 5:
-      return { text: 'Thất bại', color: '#FF0000' }; // Blue color
+      return { text: 'Thất bại', color: '#F2041E' }; // Blue color
+    case 6:
+      return { text: 'Đã nhận hàng', color: '#2196f3' };
+    case 7:
+      return { text: 'Nhận hàng lỗi', color: '#ff9800' };
+    case 8:
+      return { text: 'Đã xóa', color: '#795548' };
     default:
       return { text: 'Unknown', color: '#000000' }; // Black color for unknown status
   }

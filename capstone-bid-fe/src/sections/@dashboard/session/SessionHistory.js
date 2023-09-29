@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { filter } from 'lodash';
+import moment from 'moment';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Card,
@@ -41,6 +42,7 @@ const TABLE_HEAD = [
   { id: 'itemName', label: 'Tên sản phẩm', alignRight: false },
   { id: 'sessionName', label: 'Phiên đấu giá', alignRight: false },
   { id: 'price', label: 'Bước nhảy', alignRight: false },
+  { id: 'createDate', label: 'Thời gian đấu giá', alignRight: false },
   { id: 'status', label: 'Trạng thái', alignRight: false },
   { id: '' },
 ];
@@ -96,6 +98,8 @@ const SessionHistory = () => {
   const [sessionHistory, setSessionHistory] = useState([]);
 
   const [loading, setLoading] = useState(true);
+
+  const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
   const handleOpenMenu = (event, userId) => {
     setAnchorEl(event.currentTarget);
@@ -222,6 +226,7 @@ const SessionHistory = () => {
                       auctionTime,
                       endTime,
                       finalPrice,
+                      createDate,
                       status,
                     } = row;
                     const selectedUser = selected.indexOf(sessionName) !== -1;
@@ -237,9 +242,10 @@ const SessionHistory = () => {
                         <TableCell align="left">
                           {price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                         </TableCell>
+                        <TableCell align="left">{formatDate(createDate)}</TableCell>
                         <TableCell align="left">
                         <Chip
-                            label={status ? 'True' : 'False'}
+                            label={status ? 'Hợp lệ' : 'Không hợp lệ'}
                             color={status ? 'success' : 'error'}
                           />
                           </TableCell>

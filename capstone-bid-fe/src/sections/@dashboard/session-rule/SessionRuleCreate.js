@@ -96,7 +96,7 @@ function SessionRuleCreate() {
     try {
       const response = await createSessionRule(sessionRuleData);
       navigate('/dashboard/session-rule');
-      toast.success('Tạo luật đấu giá thành công', {
+      toast.success('Tạo cấu hình thời gian đấu giá thành công', {
         position: toast.POSITION.TOP_RIGHT,
         autoClose: 3000, // Notification will automatically close after 3 second (3000 milliseconds)
       });
@@ -123,11 +123,11 @@ function SessionRuleCreate() {
     <Container>
       <Stack direction="row" alignItems="center" justifyContent="space-between" mb={3}>
         <Typography variant="h4" gutterBottom>
-          Tạo mới phân khúc đấu giá
+          Tạo mới cấu hình thời gian đấu giá
         </Typography>
       </Stack>
       <Card>
-        <CardHeader title="Đơn tạo mới phân khúc đấu giá" />
+        <CardHeader title="Đơn tạo mới cấu hình thời gian đấu giá" />
         <CardContent>
           <Box component="form" onSubmit={handleSubmit}>
             <p style={errorStyle} ref={errRef} className={errMsg ? 'errmsg' : 'offscreen'} aria-live="assertive">
@@ -136,7 +136,7 @@ function SessionRuleCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={12}>
                 <TextField
-                  label="Tên phân khúc"
+                  label="Tên cấu hình"
                   // name='name'
                   value={sessionRuleData.name}
                   onChange={(event) => setSessionRuleData({ ...sessionRuleData, name: event.target.value })}
@@ -352,7 +352,7 @@ function SessionRuleCreate() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <Button sx={{ marginLeft: '50px' }} type="submit" variant="contained" color="primary">
-                  Tạo luật đấu giá
+                  Tạo
                 </Button>
               </Grid>
               <Grid item xs={12} sm={6}>

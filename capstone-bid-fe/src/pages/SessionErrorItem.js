@@ -319,7 +319,7 @@ export default function SessionSuccess() {
                         <TableCell align="left">{formatDate(beginTime)}</TableCell>
                         {/* <TableCell align="left">{formatAuctionTime(auctionTime)}</TableCell> */}
                         <TableCell align="left">{formatDate(endTime)}</TableCell>
-                        <TableCell align="left">{finalPrice}</TableCell>
+                        <TableCell align="left">{finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                         {/* <TableCell align="left">{formatDate(dateOfBirth)}</TableCell> */}
                         <TableCell align="left">
                           <Chip

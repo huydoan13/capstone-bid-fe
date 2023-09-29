@@ -35,6 +35,8 @@ import {
   InputLabel,
 } from '@mui/material';
 import { Image } from 'mui-image';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 // components
 import { useNavigate } from 'react-router-dom';
 // import Label from '../components/label';
@@ -43,7 +45,7 @@ import Scrollbar from '../components/scrollbar';
 // sections
 import { getSessionsNotPay, getStatusInfo } from '../services/session-actions';
 import { deleteSessionRule, getAllSessionRule, updateSessionRule } from '../services/session-rule-actions';
-import { SessionListHead, SessionListToolbar } from '../sections/@dashboard/session';
+import { SessionRuleListHead, SessionRuleToolbar } from '../sections/@dashboard/session-rule';
 // mock
 // import USERLIST from '../_mock/user';
 
@@ -87,7 +89,7 @@ function applySortFilter(array, comparator, query) {
     return a[1] - b[1];
   });
   if (query) {
-    return filter(array, (_user) => _user.sessionName.toLowerCase().indexOf(query.toLowerCase()) !== -1);
+    return filter(array, (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1);
   }
   return stabilizedThis.map((el) => el[0]);
 }
@@ -191,7 +193,19 @@ export default function SessionRule() {
   };
 
   const handleUpdateSessionRule = (sessionRuleDetail) => {
-    updateSessionRule(sessionRuleDetail);
+    updateSessionRule(sessionRuleDetail).then(response => {
+      toast.success('Cập nhật thời gian thành công', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+      });
+      // if(response.status === 200) {
+      //   toast.success('Cấm người dùng thành công', {
+      //     position: toast.POSITION.TOP_RIGHT,
+      //     autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+      //   });
+      // }
+    }
+    );
     handleCloseModal();
     handleCloseMenu();
   };
@@ -221,6 +235,10 @@ export default function SessionRule() {
         const updatedUser = sessionRule.find((u) => u.sessionRuleId === sessionRuleId);
         console.log(updatedUser);
         setSessionRule([...sessionRule]);
+        toast.success('Xóa thành công', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 10000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        });
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
@@ -283,18 +301,18 @@ export default function SessionRule() {
             Cấu hình thời gian đấu giá
           </Typography>
           <Button onClick={handleCreateButton} variant="contained" startIcon={<Iconify icon="eva:plus-fill" />}>
-            Tạo mới luật
+            Tạo mới thời gian đấu giá
           </Button>
           {/* <Modal onClick={handleOpenModal} onClose={handleCloseModal}>Create</Modal> */}
         </Stack>
 
         <Card>
-          <SessionListToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <SessionRuleToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           {/* <UserDetail userDetail={upUser} /> */}
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <SessionListHead
+                <SessionRuleListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
@@ -452,14 +470,14 @@ export default function SessionRule() {
             <Box sx={styleModal}>
               <form>
                 <Card>
-                  <CardHeader title="Thông tin chi tiết luật đấu giá" />
+                  <CardHeader title="Thông tin chi tiết cấu hình đấu giá" />
                   <CardContent>
                     <Grid container spacing={2}>
                         <Grid item md={12} xs={12}>
                           <TextField
                             fullWidth
                             multiline
-                            label="Luật đấu giá"
+                            label="Cấu hình thời gian đấu giá"
                             value={sessionRuleDetail.name}
                             onChange={(e) => setSessionRuleDetail({ ...sessionRuleDetail, name: e.target.value })}
                             sx={{ mb: 3 }}

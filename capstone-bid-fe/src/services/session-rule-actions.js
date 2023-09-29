@@ -8,6 +8,11 @@ export async function getAllSessionRule() {
     return axiosInstance.get(url);
 }
 
+export async function getSessionRuleValid() {
+    const url = `${BASE_URL}/sessionrule/valid`;
+    return axiosInstance.get(url);
+}
+
 export async function createSessionRule(newSessionRule) {
     const url = `${BASE_URL}/sessionrule`;
     const data = {
