@@ -9,7 +9,7 @@ export async function getAllUser() {
 }
 
 export async function getUserNotificationById(id) {
-  const url = `${BASE_URL}/usernotificationdetail/by_id`;
+  const url = `${BASE_URL}/usernotificationdetail/by_id?userId=${id}`;
   try {
     axiosInstance.get(url, { data: { id } });
   } catch (error) {
