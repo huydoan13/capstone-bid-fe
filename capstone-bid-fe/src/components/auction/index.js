@@ -173,6 +173,8 @@ const AuctionForm = () => {
 
   // end realtime
 
+
+  
   const highestPrice = sessionDetails.reduce((maxPrice, detail) => {
     return detail.price > maxPrice ? detail.price : maxPrice;
   }, 0);

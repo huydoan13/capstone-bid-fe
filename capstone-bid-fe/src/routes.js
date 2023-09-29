@@ -81,26 +81,118 @@ export default function Router() {
     //     </RolesAuthRoute>
     //   </Suspense>
     // ), },
-    { path: 'auction/:sessionId', element: <AuctionPage /> },
+    { path: 'auction/:sessionId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['Admin', 'Staff', 'User']}>
+          <AuctionPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'signup', element: <SignUp /> },
-    { path: 'additem', element: <AddProduct /> },
-    { path: 'profile', element: <Profile /> },
+    { path: 'additem', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['User']}>
+          <AddProduct />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'profile', element: (
+      <Suspense>
+        <RolesAuthRoute roles={['User']}>
+          <Profile />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'home', element: <HomePage />},
     { path: 'prepare', element: <PrepareSession />},
-    { path: 'instage', element: <InstageSession />},
+    { path: 'instage',element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <InstageSession />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
     { path: 'finish', element: <FinishSession />},
-    { path: 'myitem', element: <MyProductPage />},
-    { path: 'mysession', element: <MySessionPage />},
-    { path: 'myhistory', element: <MyHistoryPage />},
-    { path: 'shoppingcart', element: <ShoppingCartPage />},
-    { path: 'payment-join-success', element: <PaymentSuccessJoinPage /> },
-    { path: 'payment-success', element: <PaymentSuccessPage /> },
-    { path: 'payment-fail', element: <PaymentFailPage />},
-    { path: 'payment-history', element: <TransactionHistoryPage />},
-    { path: 're-auction/:itemId', element: <Reauction /> },
-    { path: 'update-item/:itemId', element: <UpdateItem /> },
-    { path: 're-item/:itemId', element: <ReItem /> },
+    { path: 'myitem',element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MyProductPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'mysession', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MySessionPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'myhistory', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <MyHistoryPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'shoppingcart', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <ShoppingCartPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'payment-join-success', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentSuccessJoinPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'payment-success', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentSuccessPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'payment-fail', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <PaymentFailPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 'payment-history', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <TransactionHistoryPage />
+        </RolesAuthRoute>
+      </Suspense>
+    ),},
+    { path: 're-auction/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <Reauction />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 'update-item/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <UpdateItem />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
+    { path: 're-item/:itemId', element: (
+      <Suspense>
+        <RolesAuthRoute roles={[ 'User']}>
+          <ReItem />
+        </RolesAuthRoute>
+      </Suspense>
+    ), },
     { path: 'test', element: <Test /> },
+
+    
     {
       path: '/dashboard',
       element: (

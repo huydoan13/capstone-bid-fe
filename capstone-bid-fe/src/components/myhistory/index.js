@@ -40,7 +40,7 @@ const MyHistoryForm = () => {
     const [selectedReason, setSelectedReason] = useState(''); // State to store the selected reason
     const [sessionIdToError, setSessionIdToError] = useState(null); // State to store the session ID for the PUT request
     const [cancelToken, setCancelToken] = useState(null);
-    const [isLoading, setIsLoading] = useState(true); 
+    const [isLoading, setIsLoading] = useState(true);
 
     // const apiDetail = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionId}&userId=${jsonUser.Id}`;
     // const apiDetailfBidder = `https://bids-online.azurewebsites.net/api/SessionDetails/by_session_for_bidder?id=${items[0]?.sessionResponseCompletes?.sessionId}&userId=${jsonUser.Id}`;
@@ -75,6 +75,7 @@ const MyHistoryForm = () => {
     };
 
     const handleSuccessClose = () => {
+        
         loadItems(option);
         setOpen(false);
         setIsPopupOpen(false);
@@ -87,7 +88,7 @@ const MyHistoryForm = () => {
     console.log(items[0]?.sessionId);
 
     const handleRecieve = () => {
-
+        setIsLoading(true);
         console.log(sessionIdToError);
         if (!sessionIdToError) {
             alert('Session ID is missing.'); // You can replace this with a more user-friendly error message
@@ -111,16 +112,18 @@ const MyHistoryForm = () => {
                 console.log('PUT request successful:', response);
                 loadItems(option);
                 setSuccessOpen(true);
-
+                setIsLoading(false);
             })
             .catch((error) => {
                 // Handle the error
                 console.error('Error making PUT request:', error);
+                setIsLoading(false);
                 // You can display an error message here
             });
     };
     const handleConfirmReturn = () => {
         // Check if a reason has been selected
+        setIsLoading(true);
         if (!selectedReason) {
             alert('Vui lòng chọn lý do trả lại tài sản.'); // You can replace this with a more user-friendly error message
             return;
@@ -142,9 +145,11 @@ const MyHistoryForm = () => {
                 loadItems(option);
                 setOpen(false);
                 setIsPopupOpen(false);
+                setIsLoading(false);
             })
             .catch((error) => {
                 // Handle the error
+                setIsLoading(false);
                 console.error('Error making PUT request:', error);
             });
     };
@@ -487,8 +492,29 @@ const MyHistoryForm = () => {
                                     marginTop={"1%"}
                                     marginRight={"5%"}
                                 >
-                                    <Button variant="outlined" onClick={handleRecieve}>Đã Nhận Hàng</Button>
-                                    <Button variant="outlined" onClick={handleClickOpen} >Trả Hàng Hoàn Tiền</Button>
+
+                                    <Button
+                                       
+                                        variant="contained"
+                                        color="primary"
+                                        
+                                        onClick={handleRecieve}
+                                        disabled={isLoading} // Disable when loading
+                                    >
+                                        {isLoading ? <CircularProgress size={24} /> : 'Đã Nhận Hàng'}
+                                    </Button>
+                                    <Button
+                                        
+                                        variant="contained"
+                                        color="primary"
+                                        
+                                        onClick={handleClickOpen}
+                                        disabled={isLoading} // Disable when loading
+                                    >
+                                        {isLoading ? <CircularProgress size={24} /> : 'Trả Hàng Hoàn Tiền'}
+                                    </Button>
+                                    {/* <Button variant="outlined" onClick={handleRecieve}>Đã Nhận Hàng</Button>
+                                    <Button variant="outlined" onClick={handleClickOpen} >Trả Hàng Hoàn Tiền</Button> */}
                                 </Stack>
                             </MyTableContainer>
 
@@ -602,9 +628,19 @@ const MyHistoryForm = () => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" color="success" onClick={handleConfirmReturn}>
-                        Đồng ý
+                    <Button
+
+                        variant="contained"
+                        color="primary"
+
+                        onClick={handleConfirmReturn}
+                        disabled={isLoading} // Disable when loading
+                    >
+                        {isLoading ? <CircularProgress size={24} /> : ' Đồng ý'}
                     </Button>
+                    {/* <Button variant="contained" color="success" onClick={handleConfirmReturn}>
+                        Đồng ý
+                    </Button> */}
                     <Button variant="contained" color="error" onClick={handleCloseDialog}>
                         Hủy bỏ
                     </Button>
@@ -618,7 +654,17 @@ const MyHistoryForm = () => {
                 </DialogContent>
 
                 <DialogActions>
-                    <Button variant="contained" color='success' onClick={handleSuccessClose}>Đồng ý</Button>
+                    <Button
+                        style={{ width: "200px" }}
+                        variant="contained"
+                        color="primary"
+                        sx={{ marginTop: '20px' }}
+                        onClick={handleSuccessClose}
+                        disabled={isLoading} // Disable when loading
+                    >
+                        {isLoading ? <CircularProgress size={24} /> : ' Đồng ý'}
+                    </Button>
+                    {/* <Button variant="contained" color='success' onClick={handleSuccessClose}>Đồng ý</Button> */}
                 </DialogActions>
 
             </Dialog>

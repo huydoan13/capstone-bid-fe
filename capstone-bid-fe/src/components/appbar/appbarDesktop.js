@@ -69,11 +69,7 @@ export default function AppbarDesktop({ matches }) {
                             Cuộc Đấu Giá Đang Diễn Ra
                         </StyledLink>
                     </MenuItem>
-                    <MenuItem onClick={handleMenuClose}>
-                        <StyledLink component="a" href="/404" underline="none" color="inherit">
-                            Cuộc Đấu Giá Đã Kết Thúc
-                        </StyledLink>
-                    </MenuItem>
+                    
                 </Menu>
                 {/* Continue with other list items */}
                 {role === "User" ? (
