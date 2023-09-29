@@ -196,8 +196,17 @@ export default function CaterogyPage() {
       const response = await createDescription(upCategory.categoryId, newDescriptionName);
       setNewDescriptionName('');
       setCreateDialogOpen(false);
+      toast.success('Miêu tả tạo thành công', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
     } catch (error) {
       console.log('Failed to fetch', error);
+      setCreateDialogOpen(false);
+      toast.error('Miêu tả tạo không thành công', {
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 3000,
+      });
     }
     // Close the dialog
     setCreateDialogOpen(false);
@@ -265,6 +274,10 @@ export default function CaterogyPage() {
       })
       .catch((err) => {
         console.log('Can not delete because:', err);
+        toast.error('Xóa loại đấu giá không thành công', {
+          position: toast.POSITION.TOP_RIGHT,
+          autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
+        });
       });
     handleCloseMenu();
   };
