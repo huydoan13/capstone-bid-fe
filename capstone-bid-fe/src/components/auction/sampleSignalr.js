@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 export const Notify = () => {
   const [connection, setConnection] = useState(null);
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState("Alo");
 
   useEffect(() => {
     const connect = new HubConnectionBuilder()

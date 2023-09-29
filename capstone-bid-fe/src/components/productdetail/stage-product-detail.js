@@ -12,12 +12,15 @@ import {
     Stack,
     Divider,
     Grid,
+    CircularProgress,
 } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import DialogActions from "@mui/material/DialogActions";
 import DialogContentText from "@mui/material/DialogContentText";
 import CloseIcon from "@mui/icons-material/Close";
 import styled from "@emotion/styled";
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import GavelIcon from '@mui/icons-material/Gavel';
@@ -83,6 +86,17 @@ const ProductDetailInfoWrapper = styled(Box)(() => ({
 
 }));
 
+const styles = {
+    TaskAltIcon: {
+        fontSize: '150px',
+        color: '#C3E1AE'
+    },
+    errorIcon: {
+        fontSize: '150px',
+        color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+};
+
 export default function StageProductDetail({ open, onClose, product }) {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
@@ -105,6 +119,7 @@ export default function StageProductDetail({ open, onClose, product }) {
     const jsonUser = JSON.parse(user);
     const isLoggedIn = !!jsonUser && !!jsonUser.Email;
     const [maxWidth, setMaxWidth] = React.useState('sm');
+    const [isLoading, setLoading] = useState(false);
     const apiUrl = 'https://bids-online.azurewebsites.net/api/SessionDetails/joinning_in_stage';
     const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_joinning?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
     const navigate = useNavigate();
@@ -142,6 +157,7 @@ export default function StageProductDetail({ open, onClose, product }) {
     };
 
     const joinAuction = () => {
+        setLoading(true);
         const requestData = {
             sessionId: product.sessionId,
             userId: jsonUser.Id
@@ -153,6 +169,7 @@ export default function StageProductDetail({ open, onClose, product }) {
                 // For example, you can show a success message or refresh the page.
 
                 // window.location.href = "/auction"
+                setLoading(false);
                 const sessionId = product.sessionId;
                 navigate(`/auction/${sessionId}`);
             })
@@ -162,10 +179,12 @@ export default function StageProductDetail({ open, onClose, product }) {
                     setIsErrorDialogOpen(true);
                     setDialogMessage(error.response.data);
                     // setIsSuccessDialogOpen(true);
+                    setLoading(false);
 
                 } else {
                     setIsErrorDialogOpen(true);
                     setDialogMessage("Đã có lỗi xảy ra");
+                    setLoading(false);
                 }
             })
         // .Finally(window.location.href = "/auction");
@@ -409,9 +428,17 @@ export default function StageProductDetail({ open, onClose, product }) {
                                         </>
                                     )}
                                 </Typography>
-                                <Button startIcon={<GavelIcon />} size="large" color="primary" variant="contained" onClick={() => handleAuctionButtonClick(product)}>
-                                    Đấu Giá Ngay
+                                <Button
+                                    startIcon={<GavelIcon />}
+                                    size="large"
+                                    color="primary"
+                                    variant="contained"
+                                    onClick={() => handleAuctionButtonClick(product)}
+                                    disabled={isLoading} // Disable the button when loading
+                                >
+                                    {isLoading ? <CircularProgress size={24} color="inherit" /> : "Đăng Kí Đấu Giá."}
                                 </Button>
+
                             </Stack>
 
                             {/* <Box
@@ -429,8 +456,11 @@ export default function StageProductDetail({ open, onClose, product }) {
                 </DialogContent>
             </Dialog>
             <AuctionDetailDialog product={product} />
-            <Dialog open={isDialogOpen} onClose={handleDialogClose}>
-                <DialogTitle>Không Thể Tham Gia Đấu Giá</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isDialogOpen} onClose={handleDialogClose}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Không Thể Tham Gia Đấu Giá</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         Bạn cần đăng nhập trước để tham gia đấu giá.
@@ -445,8 +475,11 @@ export default function StageProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
-                <DialogTitle>Thành Công</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isSuccessDialogOpen} onClose={() => setIsSuccessDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thành Công</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {dialogMessage}
@@ -458,10 +491,13 @@ export default function StageProductDetail({ open, onClose, product }) {
                     </Button>
                 </DialogActions>
             </Dialog>
-            <Dialog open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
-                <DialogTitle>Lỗi</DialogTitle>
+            <Dialog fullWidth maxWidth={maxWidth} open={isErrorDialogOpen} onClose={() => setIsErrorDialogOpen(false)}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant="h4" align="center">Thông Báo</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>
+                    <DialogContentText align="center">
                         {dialogMessage}
                     </DialogContentText>
                 </DialogContent>

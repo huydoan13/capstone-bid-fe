@@ -56,24 +56,48 @@ const AddProductForm = () => {
   const theme = useTheme();
   const [auctionHourError, setAuctionHourError] = useState('');
   const [auctionMinuteError, setAuctionMinuteError] = useState('');
-  const uploader = Uploader({ apiKey: 'public_kW15bhNGeEwXXtjm51C1xufEVTUm' });
+  const uploader = Uploader({ apiKey: 'public_12a1ybtATujHiWyzUEfMyoyzWFbL' });
+
+  const myCustomLocale = {
+    "orDragDropImages": "... kéo và thả hình ảnh.",
+    "uploadImages": "Tải lên hình ảnh",
+    "maxImagesReached": "Số lượng hình ảnh tối đa:",
+    "cancel": "Hủy bỏ",
+    "continue": "Tiếp Tục",
+    "addAnotherImage": "Thêm một hình ảnh khác...",
+  }
   const uploaderOptions = {
     multi: true,
-
+    maxFileCount: 4,
     // Comment out this line & use 'onUpdate' instead of
     // 'onComplete' to have the dropzone close after upload.
-    showFinishButton: true,
-
+    locale: myCustomLocale,
+    maxFileSizeBytes: 10 * 1024 * 1024,
+    mimeTypes: ["image/jpeg", "image/png", "image/jpg"],
+    showRemoveButton: true,
     styles: {
       colors: {
-        primary: '#377dff',
+        active: "#528fff",
       },
+    },
+    editor: {
+      images: {
+        preview: false,              // True by default if cropping is enabled. Previews PDFs and videos too.
+        crop: false,                 // True by default.
+        cropFilePath: image => {    // Choose the file path used for JSON image crop files.
+          const { filePath } = image  // In:  https://www.bytescale.com/docs/upload-api/types/FileDetails
+          return `${filePath}.crop` // Out: https://www.bytescale.com/docs/upload-api/types/FilePathDefinition
+        },
+        cropRatio: 4 / 3,           // Width / Height. Undefined enables freeform (default).
+        cropShape: "rect"           // "rect" (default) or "circ".
+      }
     },
   };
 
+
   useEffect(() => {
     axios
-      .get('https://bids-online.azurewebsites.net/api/Categorys', {
+      .get('https://bids-online.azurewebsites.net/api/Categorys/valid', {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((response) => {
@@ -300,7 +324,7 @@ const AddProductForm = () => {
     },
   };
 
-  
+
   return (
     <Box
       component="form"
@@ -320,27 +344,36 @@ const AddProductForm = () => {
       }}
       onSubmit={handleSubmit}
     >
-      <TextField
-        label="Tên Sản Phẩm"
-        value={itemName}
-        onChange={(event) => setItemName(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-      />
+
+      <Grid container>
+        <Grid xs={6}>
+          <TextField
+            label="Tên Sản Phẩm"
+            value={itemName}
+            onChange={(event) => setItemName(event.target.value)}
+            fullWidth
+            required
+            margin="normal"
+          />
+
+        </Grid>
+        <Grid xs={6} >
+          <FormControl sx={{ marginLeft: "5px" }} fullWidth required margin="normal">
+            <InputLabel>Thể Loại Sản Phẩm</InputLabel>
+            <Select value={categoryId} onChange={handleCategoryChange} label="Category">
+              {categories.map((category) => (
+                <MenuItem key={category.categoryId} value={category.categoryId}>
+                  {category.categoryName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
 
 
 
-      <FormControl fullWidth required margin="normal">
-        <InputLabel>Thể Loại Sản Phẩm</InputLabel>
-        <Select value={categoryId} onChange={handleCategoryChange} label="Category">
-          {categories.map((category) => (
-            <MenuItem key={category.categoryId} value={category.categoryId}>
-              {category.categoryName}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+
 
       <Box
         sx={{
@@ -381,7 +414,7 @@ const AddProductForm = () => {
             type="text"  // Change type to "text" to prevent non-numeric input
           />
         </Grid>
-        <Grid xs={6} paddingLeft={"125px"}>
+        <Grid xs={6} paddingLeft={"10%"}>
           <Box sx={{ width: '50%' }}>
             <InputLabel>Yêu cầu đặt cọc</InputLabel>
             <RadioGroup
@@ -401,51 +434,61 @@ const AddProductForm = () => {
       </Grid>
 
 
-      <TextField
-        label="Thời gian đấu giá (giờ)"
-        value={auctionHour}
-        onInput={(event) => {
-          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
-          setAuctionHour(event.target.value);
+      <Grid container >
+        <Grid xs={6}>
+          <TextField
+            label="Thời gian đấu giá (giờ)"
+            value={auctionHour}
+            onInput={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+              setAuctionHour(event.target.value);
 
-          // Validate the input value (not negative and between 0 - 10)
-          const newValue = parseInt(event.target.value, 10); // Convert to integer
-          if (newValue < 0 || newValue > 10) {
-            setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
-          } else {
-            setAuctionHourError('');
-          }
-        }}
-        fullWidth
-        required
-        margin="normal"
-        type="text"  // Change type to "text" to prevent non-numeric input
-        error={!!auctionHourError}
-        helperText={auctionHourError}
-      />
+              // Validate the input value (not negative and between 0 - 10)
+              const newValue = parseInt(event.target.value, 10); // Convert to integer
+              if (newValue < 0 || newValue > 168) {
+                setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 168');
+              } else {
+                setAuctionHourError('');
+              }
+            }}
+            fullWidth
+            required
+            margin="normal"
+            type="text"  // Change type to "text" to prevent non-numeric input
+            error={!!auctionHourError}
+            helperText={auctionHourError}
+          />
+        </Grid>
+        <Grid xs={6}>
+          <TextField
+            label="Thời gian đấu giá (phút)"
+            value={auctionMinute}
+            sx={{ marginLeft: '5px' }}
+            onInput={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+              setAuctionMinute(event.target.value);
 
-      <TextField
-        label="Thời gian đấu giá (phút)"
-        value={auctionMinute}
-        onInput={(event) => {
-          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
-          setAuctionMinute(event.target.value);
+              // Validate the input value (not negative and between 0 - 60)
+              const newValue = parseInt(event.target.value, 10); // Convert to integer
+              if (newValue < 0 || newValue > 60) {
+                setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
+              } else {
+                setAuctionMinuteError('');
+              }
+            }}
+            fullWidth
+            required
+            margin="normal"
+            type="text"  // Change type to "text" to prevent non-numeric input
+            error={!!auctionMinuteError}
+            helperText={auctionMinuteError}
+          />
+        </Grid>
+      </Grid>
 
-          // Validate the input value (not negative and between 0 - 60)
-          const newValue = parseInt(event.target.value, 10); // Convert to integer
-          if (newValue < 0 || newValue > 60) {
-            setAuctionMinuteError('Phút đấu giá phải nằm trong khoảng từ 0 đến 60');
-          } else {
-            setAuctionMinuteError('');
-          }
-        }}
-        fullWidth
-        required
-        margin="normal"
-        type="text"  // Change type to "text" to prevent non-numeric input
-        error={!!auctionMinuteError}
-        helperText={auctionMinuteError}
-      />
+
+
+
       <FormControl fullWidth required margin="normal">
         <InputLabel id="demo-simple-select-label">Loại Phiên đấu giá</InputLabel>
         <Select
@@ -476,8 +519,7 @@ const AddProductForm = () => {
         height="375px"
         options={uploaderOptions}
         // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
-        onComplete={(files) => {
-          // Optional.
+        onUpdate={(files) => {
           if (files.length === 0) {
             console.log('No files selected.');
           } else {
@@ -487,74 +529,61 @@ const AddProductForm = () => {
             setProductImage(img);
           }
         }}
+      // onComplete={(files) => {
+      //   // Optional.
+      //   if (files.length === 0) {
+      //     console.log('No files selected.');
+      //   } else {
+      //     console.log('Files uploaded:');
+      //     console.log(files.map((f) => f.fileUrl).join('\n'));
+      //     const img = files.map((f) => f.fileUrl).join('\n');
+      //     setProductImage(img);
+      //   }
+      // }}
       />
 
-      <TextField
-        label="Giá Ban Đầu (VND)"
-        value={firstPrice}
-        onInput={(event) => {
-          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
-          setFirstPrice(event.target.value);
-        }}
-        fullWidth
-        required
-        margin="normal"
-        type="text"  // Change type to "text" to prevent non-numeric input
-        InputProps={{
-          endAdornment: firstPrice ? (
-            <InputAdornment position="end">{parseFloat(firstPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
-          ) : null,
-        }}
-      />
 
-      <TextField
-        label={`Bước Giá(5-10% giá ban đầu) (VND): ${calculatedStepPrice}`}
-        value={stepPrice}
-        onInput={(event) => {
-          event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
-          setStepPrice(event.target.value);
-        }}
-        fullWidth
-        required
-        margin="normal"
-        type="text"  // Change type to "text" to prevent non-numeric input
-        InputProps={{
-          endAdornment: stepPrice ? (
-            <InputAdornment position="start">{parseFloat(stepPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
-          ) : null,
-        }}
-      />
-
-      <description>Hình Ảnh Sản Phẩm</description>
-      <UploadDropzone
-        uploader={uploader} // Required.
-        width="100%" // Optional.
-        height="375px"
-        options={uploaderOptions}
-        // onUpdate={files => console.log(files.map(x => x.fileUrl).join("\n"))}        // Optional.
-        onComplete={(files) => {
-          // Optional.
-          if (files.length === 0) {
-            console.log('No files selected.');
-          } else {
-            console.log('Files uploaded:');
-            console.log(files.map((f) => f.fileUrl).join('\n'));
-            const img = files.map((f) => f.fileUrl).join('\n');
-            setProductImage(img);
-          }
-        }}
-      />
-
-      <TextField
-        label="Mô Tả Sản Phẩm"
-        value={description}
-        onChange={(event) => setDescription(event.target.value)}
-        fullWidth
-        required
-        margin="normal"
-        multiline
-        rows={4}
-      />
+      <Grid container >
+        <Grid xs={6}>
+          <TextField
+            label="Giá Ban Đầu (VND)"
+            value={firstPrice}
+            onInput={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+              setFirstPrice(event.target.value);
+            }}
+            fullWidth
+            required
+            margin="normal"
+            type="text"  // Change type to "text" to prevent non-numeric input
+            InputProps={{
+              endAdornment: firstPrice ? (
+                <InputAdornment position="end">{parseFloat(firstPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
+              ) : null,
+            }}
+          />
+        </Grid>
+        <Grid xs={6}>
+          <TextField
+            label={`Bước Giá( ${calculatedStepPrice}) (VND): `}
+            value={stepPrice}
+            onInput={(event) => {
+              event.target.value = event.target.value.replace(/[^0-9]/g, ''); // Allow only numbers
+              setStepPrice(event.target.value);
+            }}
+            sx={{marginLeft:"5px"}}
+            fullWidth
+            required
+            margin="normal"
+            type="text"  // Change type to "text" to prevent non-numeric input
+            InputProps={{
+              endAdornment: stepPrice ? (
+                <InputAdornment position="start">{parseFloat(stepPrice).toLocaleString('vi-VN')} ₫</InputAdornment>
+              ) : null,
+            }}
+          />
+        </Grid>
+      </Grid>
 
       <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
         <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>

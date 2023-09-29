@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox } from '@mui/material';
+import { TextField, Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox, Grid } from '@mui/material';
 import { Uploader } from "uploader";
 import { UploadDropzone } from "react-uploader";
 import { format } from 'date-fns'
@@ -43,13 +43,56 @@ const SignUpForm = () => {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [emailDisabled, setEmailDisabled] = useState(false);
   const [roleUpgradeSuccess, setRoleUpgradeSuccess] = useState(false);
+  const [maxWidth, setMaxWidth] = React.useState('sm');
   const navigate = useNavigate()
   const theme = useTheme();
-  const uploader = Uploader({ apiKey: "public_kW15bhNGeEwXXtjm51C1xufEVTUm" });
+  const uploader = Uploader({ apiKey: "public_12a1ybtATujHiWyzUEfMyoyzWFbL" });
 
   const UpdateRoleApi = `https://bids-online.azurewebsites.net/api/Users/update_role_user`
   const confirm = `https://bids-online.azurewebsites.net/api/Users/confirm_email?email=${email}`
 
+
+  const myCustomLocale = {
+    "orDragDropImages": "... kéo và thả hình ảnh.",
+    "uploadImages": "Tải lên hình ảnh",
+    "maxImagesReached": "Số lượng hình ảnh tối đa:",
+    "cancel": "Hủy bỏ",
+    "continue": "Tiếp Tục",
+    "addAnotherImage": "Thêm một hình ảnh khác...",
+  }
+
+
+  
+
+  const uploaderOptions = {
+    multi: true,
+    maxFileCount: 1,
+    locale: myCustomLocale,
+    // Comment out this line & use 'onUpdate' instead of
+    // 'onComplete' to have the dropzone close after upload.
+    maxFileSizeBytes: 10 * 1024 * 1024,
+    mimeTypes: ["image/jpeg", "image/png", "image/jpg"],
+    showRemoveButton: true,
+    styles: {
+      colors: {
+        primary: '#377dff',
+      },
+    },
+    
+    
+    editor: {
+      images: {
+        preview: false,              // True by default if cropping is enabled. Previews PDFs and videos too.
+        crop: false,                 // True by default.
+        cropFilePath: image => {    // Choose the file path used for JSON image crop files.
+          const { filePath } = image  // In:  https://www.bytescale.com/docs/upload-api/types/FileDetails
+          return `${filePath}.crop` // Out: https://www.bytescale.com/docs/upload-api/types/FilePathDefinition
+        },
+        cropRatio: 4 / 3,           // Width / Height. Undefined enables freeform (default).
+        cropShape: "rect"           // "rect" (default) or "circ".
+      }
+    },
+  };
 
   const handleOtpInputChange = (event) => {
     setOtpError(false);
@@ -73,6 +116,8 @@ const SignUpForm = () => {
   };
 
 
+  
+
   const handleOtpSubmit = () => {
     axios
       .put(confirm, null, { headers: { Authorization: `Bearer ${token}` } })
@@ -88,6 +133,7 @@ const SignUpForm = () => {
       });
   };
 
+  
 
   const handleDialogClose1 = () => {
     setOtpDialogOpen(false);
@@ -158,25 +204,30 @@ const SignUpForm = () => {
 
     if (!userName || !email || !password || !rePassword || !address || !phone || !dateOfBirth || !cccdnumber) {
       setError('Không Được Bỏ Trống');
+      setErrorDialogOpen(true);
       return;
     }
 
     if (password.length < 8) {
       setError('Mật Khẩu Cần Ít Nhất 8 Ký Tự');
+      setErrorDialogOpen(true);
       return;
     }
 
     if (!email.match(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/)) {
       setError('Sai Kiểu email, Ví Dụ: example@gmail.com');
+      setErrorDialogOpen(true);
       return;
     }
 
     if (password !== rePassword) {
-      setError('Mật Khẩu Không Giống');
+      setError('Mật Khẩu Không Chính Xác');
+      setErrorDialogOpen(true);
       return;
     }
     if (!avatar || !cccdfrontImage || !cccdbackImage) {
       setError('Vui lòng tải lên đủ 3 hình ảnh (Ảnh đại diện, Mặt trước CCCD, Mặt sau CCCD).');
+      setErrorDialogOpen(true);
       return;
     }
     if (!isCheckboxChecked) {
@@ -207,12 +258,12 @@ const SignUpForm = () => {
           const userID = data.data.userId;
           console.log(userID);
           const paypalData = {
-            userId : userID,
+            userId: userID,
             paypalAccount,
           };
-        
+
           axios.post('https://bids-online.azurewebsites.net/api/UserPaymentInformation', paypalData)
-            
+
             .catch(err => {
               if (err.response.status === 400) {
                 setIsLoading(false);
@@ -223,11 +274,11 @@ const SignUpForm = () => {
               }
             }).then(response => {
               setIsLoading(false);
-          setSuccessDialogOpen(true);
+              setSuccessDialogOpen(true);
             });
-        
+
           // These statements should not be inside the inner .then block
-          
+
         })
         .catch(err => {
 
@@ -275,7 +326,7 @@ const SignUpForm = () => {
       setFrontImage(null);
       setBackImage(null);
       setError('');
-      
+
     } catch (error) {
       // console.error('Error:', error.response);
 
@@ -303,7 +354,7 @@ const SignUpForm = () => {
       fontSize: '150px',
       color: '#B5E4EB' // Adjust the size as needed // To center it vertically
     },
-    TaskAltIcon:{
+    TaskAltIcon: {
       fontSize: '150px',
       color: '#C3E1AE'
     }
@@ -328,27 +379,36 @@ const SignUpForm = () => {
       }}
       onSubmit={handleSubmit}
     >
-      <TextField
-        label="Tên Tài Khoản"
-        type="text"
-        value={userName}
-        onChange={(e) => setUsername(e.target.value)}
-        margin="normal"
-        required
-        sx={{ width: '100%' }}
-        id="userName"
-      />
-      <TextField
-        label="Email"
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        margin="normal"
-        disabled={emailDisabled}
-        required
-        sx={{ width: '100%' }}
-        id="email"
-      />
+
+      <Grid container>
+        <Grid xs={6}>
+          <TextField
+            label="Tên Tài Khoản"
+            type="text"
+            value={userName}
+            onChange={(e) => setUsername(e.target.value)}
+            margin="normal"
+            required
+            sx={{ width: '100%' }}
+            id="userName"
+          />
+        </Grid>
+        <Grid xs={6}>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            margin="normal"
+            disabled={emailDisabled}
+            required
+            sx={{ width: '100%', marginLeft: "5px" }}
+            id="email"
+          />
+        </Grid>
+      </Grid>
+
+
       <Button
         variant="outlined"
         color="primary"
@@ -359,29 +419,36 @@ const SignUpForm = () => {
       >
         Xác Thực Email
       </Button>
+      <Grid container>
+        <Grid xs={6}>
+          <TextField
+            label="Mật Khẩu"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            margin="normal"
+            required
+            sx={{ width: '100%' }}
+            id="password"
+            disabled={!roleUpgradeSuccess}
+          />
+        </Grid>
+        <Grid xs={6}>
+          <TextField
+            label="Nhập Lại Mật Khẩu"
+            type="password"
+            value={rePassword}
+            onChange={(e) => setRePassword(e.target.value)}
+            margin="normal"
+            required
+            sx={{ width: '100%' , marginLeft:"5px"}}
+            id="rePassword"
+            disabled={!roleUpgradeSuccess}
+          />
+        </Grid>
+      </Grid>
 
-      <TextField
-        label="Mật Khẩu"
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        margin="normal"
-        required
-        sx={{ width: '100%' }}
-        id="password"
-        disabled={!roleUpgradeSuccess}
-      />
-      <TextField
-        label="Nhập Lại Mật Khẩu"
-        type="password"
-        value={rePassword}
-        onChange={(e) => setRePassword(e.target.value)}
-        margin="normal"
-        required
-        sx={{ width: '100%' }}
-        id="rePassword"
-        disabled={!roleUpgradeSuccess}
-      />
+
       <TextField
         label="Tài Khoản PayPal"
         type="text"
@@ -402,9 +469,14 @@ const SignUpForm = () => {
         required
         sx={{ width: '100%' }}
         id="address"
+        multiline
+        rows={2}
         disabled={!roleUpgradeSuccess}
       />
-      <TextField
+
+      <Grid container>
+        <Grid xs={6}>
+        <TextField
         label="Số Điện Thoại"
         type="tel"
         value={phone}
@@ -415,20 +487,26 @@ const SignUpForm = () => {
         id="phone"
         disabled={!roleUpgradeSuccess}
       />
-      <TextField
+        </Grid>
+        <Grid xs={6}>
+        <TextField
         label=" Tháng, Ngày, Năm Sinh"
         type="date"
         value={dateOfBirth}
         onChange={(e) => setDateOfBirth(e.target.value)}
         margin="normal"
         required
-        sx={{ width: '100%' }}
+        sx={{ width: '100%', marginLeft:"5px" }}
         id="dateOfBirth"
         InputLabelProps={{
           shrink: true
         }}
         disabled={!roleUpgradeSuccess}
       />
+        </Grid>
+      </Grid>
+      
+      
       <TextField
         label="Số CCCD"
         type="text"
@@ -443,7 +521,8 @@ const SignUpForm = () => {
       <h2>Ảnh Đại Diện</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
-        height="375px"            // Optional.
+        height="375px"
+        options={uploaderOptions}        // Optional.
         onUpdate={files => {      // Optional.
           if (files.length === 0) {
             console.log('No files selected.')
@@ -459,7 +538,8 @@ const SignUpForm = () => {
       <h2>Hình Ảnh Mặt Trước Thẻ CCCD</h2>
       <UploadDropzone uploader={uploader}       // Required.
         width="600px"             // Optional.
-        height="375px"            // Optional.
+        height="375px"
+        options={uploaderOptions}        // Optional.
         onUpdate={files => {      // Optional.
           if (files.length === 0) {
             console.log('No files selected.')
@@ -471,7 +551,8 @@ const SignUpForm = () => {
           }
         }} disabled={!roleUpgradeSuccess} />
       <h2>Hình Ảnh Mặt Sau Thẻ CCCD</h2>
-      <UploadDropzone uploader={uploader}       // Required.
+      <UploadDropzone uploader={uploader}
+        options={uploaderOptions}      // Required.
         width="600px"             // Optional.
         height="375px"            // Optional.
         onUpdate={files => {      // Optional.
@@ -485,11 +566,11 @@ const SignUpForm = () => {
           }
         }}
       />
-      {err && (
+      {/* {err && (
         <Typography variant="body2" color="error" sx={{ marginTop: '10px' }}>
           {err}
         </Typography>
-      )}
+      )} */}
 
       <FormControlLabel
         control={
@@ -506,12 +587,12 @@ const SignUpForm = () => {
         label="Tôi cam kết tuân thủ Quyền và trách nhiệm của Người tham gia đấu giá (Quy định theo tài sản đấu giá), Chính sách bảo mật thông tin khách hàng, Cơ chế giải quyết tranh chấp, Quy chế hoạt động tại website đấu giá trực tuyến của Online Bids."
       />
 
-      <Dialog open={otpDialogOpen} onClose={handleCloseOtpDialog}>
-        
-        
-        <DialogTitle sx={{ textAlign: 'center',}}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
-          <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
-          <DialogContent>
+      <Dialog fullWidth maxWidth={maxWidth} open={otpDialogOpen} onClose={handleCloseOtpDialog}>
+
+
+        <DialogTitle sx={{ textAlign: 'center', }}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+        <DialogTitle variant='h3' align='center' >Xác nhận mã OTP</DialogTitle>
+        <DialogContent>
           <Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>Hãy nhập mã OTP đã được gửi về địa chỉ email mà bạn đã đăng kí </Typography>
           <TextField
             label="OTP"
@@ -533,9 +614,10 @@ const SignUpForm = () => {
       </Dialog>
 
 
-      <Dialog open={!!updateRoleMessage} onClose={handleDialogClose1}>
+      <Dialog fullWidth maxWidth={maxWidth} open={!!updateRoleMessage} onClose={handleDialogClose1}>
+      <DialogTitle fullWidth maxWidth={maxWidth} sx={{ textAlign: 'center', }}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
         <DialogContent>
-          <p>{updateRoleMessage}</p>
+          <Typography align='center'>{updateRoleMessage}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose1} color="primary">
@@ -545,8 +627,8 @@ const SignUpForm = () => {
       </Dialog>
 
 
-      <Dialog open={successDialogOpen} onClose={handleSuccessDialogClose}>
-      <DialogTitle sx={{ marginTop : '25px', textAlign: 'center',}}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+      <Dialog fullWidth maxWidth={maxWidth} open={successDialogOpen} onClose={handleSuccessDialogClose}>
+        <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
         <DialogTitle DialogTitle variant='h3' align='center'>Đã đăng kí tài Khoản.</DialogTitle>
         <DialogContent>
           <Typography align='center' variant="subtitle2">Tài Khoản của bạn đã được tạo thành công. Vui lòng chờ Admin hệ thống xét duyệt Tài Khoản của bạn. </Typography>
@@ -557,18 +639,21 @@ const SignUpForm = () => {
       </Dialog>
 
       {/* Error Dialog */}
-      <Dialog open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
-        <DialogTitle>Error</DialogTitle>
+      <Dialog fullWidth maxWidth={maxWidth} open={errorDialogOpen || checkboxError} onClose={handleErrorDialogClose}>
+      <DialogTitle fullWidth maxWidth={maxWidth} sx={{ textAlign: 'center', }}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+        <DialogTitle align='center'>Đã xảy ra lỗi</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">{checkboxError ? 'Bạn cần chấp nhận điều khoản và điều kiện.' : err}</Typography>
+          <Typography variant="body1" align='center'>{checkboxError ? 'Bạn cần chấp nhận điều khoản và điều kiện.' : err}</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleErrorDialogClose}>OK</Button>
         </DialogActions>
       </Dialog>
-      
+
       <Button
         endIcon={<PersonAddIcon />}
+
+        style={{ width: "200px" }}
         type="submit"
         variant="contained"
         color="primary"

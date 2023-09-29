@@ -29,7 +29,7 @@ const Image ="https://images.unsplash.com/photo-1644989787501-1397b3231a19?ixlib
                 <Appbar />
                 <Box display={"flex"} flexDirection= "column" sx={{ p: 8 ,backgroundImage: `url(${Image})`,backgroundSize: 'cover' }}>
                 <Typography color={"white"} variant="h4">Danh Mục Tài Sản</Typography>
-                <Typography color={"white"} variant="subtitle">Sản Phẩm Của Tôi</Typography>
+                <Typography color={"white"} variant="subtitle">Tài Sản Của Tôi</Typography>
                 </Box>
                 <MyProductForm/>
                 <Box display={"flex"} sx={{ p: 1 }}>

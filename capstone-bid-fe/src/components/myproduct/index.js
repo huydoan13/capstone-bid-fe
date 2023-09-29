@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios, { CancelToken } from 'axios';
 import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableContainer, TableHead, Stack } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
+import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
 import moment from 'moment/moment';
 import MoreOutlinedIcon from '@mui/icons-material/MoreOutlined';
@@ -27,6 +28,8 @@ const MyProductForm = () => {
     const theme = useTheme();
     const matches = useMediaQuery(theme.breakpoints.down("md"));
     const [cancelToken, setCancelToken] = useState(null);
+    const [isLoading, setIsLoading] = useState(true); 
+    const [maxWidth, setMaxWidth] = React.useState('sm');
     function SlideTransition(props) {
         return <Slide direction="down" {...props} />;
     }
@@ -62,16 +65,23 @@ const MyProductForm = () => {
         setIsPopupOpen(false);
     };
 
+
+    const handleUpdateItemClick = () => {
+        if (selectedItem) {
+            const itemId = selectedItem.itemId;
+            navigate(`/update-item/${itemId}`);
+        }
+    };
     const handleReAuctionClick = () => {
         if (selectedItem) {
             const itemId = selectedItem.itemId;
-            navigate(`/re-auction/${itemId}`);
+            navigate(`/re-item/${itemId}`);
         }
     };
 
     const loadItems = (selectedOption) => {
         
-        setLoading(true);
+        setIsLoading(true);
         if (cancelToken) {
             cancelToken.cancel('Operation canceled by the user.');
           }
@@ -93,13 +103,18 @@ const MyProductForm = () => {
 
         axios
             .get(apiUrl, { headers: { Authorization: `Bearer ${token}` } ,cancelToken: source.token,})
-            .then((response) => setItems(response.data))
+            .then(response => {
+                setIsLoading(false);
+                setItems(response.data);
+            })
             .catch((error) => {
                 if (axios.isCancel(error)) {
                     // Request was canceled, no need to handle this as an error
                     console.log('Request canceled:', error.message);
+                    setIsLoading(false);
                   } else {
                     console.error('Error fetching items:', error);
+                    setIsLoading(false);
                   }
             })
             .finally(() => {
@@ -232,6 +247,17 @@ const MyProductForm = () => {
 
     return (
         <Product>
+            {isLoading && (
+                <Dialog fullWidth maxWidth={maxWidth} open={isLoading}>
+                    <DialogTitle align='center'>Đang tải</DialogTitle>
+                    <DialogContent>
+                        {/* You can customize the loading message or add a spinner here */}
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                            <CircularProgress color="primary" size={60} />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
             <Box sx={{ width: '100%' }} display="flex" flexDirection={isScreenMd ? 'column' : 'row'} mt={3}>
                 <Paper
                     elevation={3}
@@ -487,6 +513,11 @@ const MyProductForm = () => {
                                     {selectedOption === 'cancelled' && (
                                         <Button variant='contained' onClick={handleReAuctionClick}>
                                             Đấu giá lại
+                                        </Button>
+                                    )}
+                                    {selectedOption === 'waiting' && (
+                                        <Button variant='contained' onClick={handleUpdateItemClick}>
+                                            Cập Nhật
                                         </Button>
                                     )}
                                 </Stack>

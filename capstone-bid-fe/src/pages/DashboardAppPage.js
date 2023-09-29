@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { faker } from '@faker-js/faker';
+import CircularProgress from '@mui/material/CircularProgress';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import SearchIcon from '@mui/icons-material/Search';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import {
@@ -13,6 +17,11 @@ import {
   InputLabel,
   TextField,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 // components
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
@@ -57,7 +66,10 @@ export default function DashboardAppPage() {
   const [chartData, setChartData] = useState([]);
   const [chartCategoryData, setChartCategoryData] = useState([]);
   const [chartUserData, setChartUserData] = useState([]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [maxWidth, setMaxWidth] = React.useState('xs');
 
   const mapLabelsToColors = (labels) => {
     const colorMap = {
@@ -70,7 +82,7 @@ export default function DashboardAppPage() {
       'Nhận hàng lỗi': '#ff9800',
       'Đã xóa': '#795548',
     };
-  
+
     return labels.map((label) => colorMap[label]);
   };
 
@@ -81,53 +93,56 @@ export default function DashboardAppPage() {
       'Đã từ chối': '#F7803B',
       'Đang chờ duyệt': '#ff9800',
     };
-  
+
     return labels.map((label) => colorMap[label]);
   };
 
   // Inside your DashboardAppPage component
-const labelsPayment = [
-  'Chưa bắt đầu',
-  'Đang diễn ra',
-  'Chưa thanh toán',
-  'Thành công',
-  'Thất bại',
-  'Đã nhận hàng',
-  'Nhận hàng lỗi',
-  'Đã xóa',
-];
+  const labelsPayment = [
+    'Chưa bắt đầu',
+    'Đang diễn ra',
+    'Chưa thanh toán',
+    'Thành công',
+    'Thất bại',
+    'Đã nhận hàng',
+    'Nhận hàng lỗi',
+    'Đã xóa',
+  ];
 
-const labelsCategory = [
-  'Chưa bắt đầu',
-  'Đang diễn ra',
-  'Chưa thanh toán',
-  'Thành công',
-  'Thất bại',
-  'Đã nhận hàng',
-  'Nhận hàng lỗi',
-  'Đã xóa',
-];
+  const labelsCategory = [
+    'Chưa bắt đầu',
+    'Đang diễn ra',
+    'Chưa thanh toán',
+    'Thành công',
+    'Thất bại',
+    'Đã nhận hàng',
+    'Nhận hàng lỗi',
+    'Đã xóa',
+  ];
 
-const labelsUser = [
-  'Đã chấp nhận',
-  'Bị cấm',
-  'Đã từ chối',
-  'Đang chờ duyệt',
-];
+  const labelsUser = [
+    'Đã chấp nhận',
+    'Bị cấm',
+    'Đã từ chối',
+    'Đang chờ duyệt',
+  ];
 
-const chartColorsPayment = mapLabelsToColors(labelsPayment);
-const chartColorsCategory = mapLabelsToColors(labelsCategory); // Define labelsCategory based on your data
-const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser based on your data
+  const chartColorsPayment = mapLabelsToColors(labelsPayment);
+  const chartColorsCategory = mapLabelsToColors(labelsCategory); // Define labelsCategory based on your data
+  const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser based on your data
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       try {
         const response = await axiosInstance.get(
           'https://bids-online.azurewebsites.net/api/Login/report_session_total'
         );
         console.log(response);
         setTotal(response.data);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.log('Failed to fetch: ', error);
       }
     })();
@@ -135,15 +150,29 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       try {
         const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Categorys');
         console.log(response);
         setCategories(response.data);
+        setIsLoading(false);
       } catch (error) {
+        setIsLoading(false);
         console.log('Failed to fetch: ', error);
       }
     })();
   }, []);
+
+  const styles = {
+    TaskAltIcon: {
+      fontSize: '100px',
+      color: '#C3E1AE'
+    },
+    errorIcon: {
+      fontSize: '100px',
+      color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+    },
+  };
 
   // useEffect(() => {
   //   if (selectedCategoryId) {
@@ -229,10 +258,32 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
   //   })();
   // }, [selectedMenuItem]);
 
+
+  const handleCloseErrorDialog = () => {
+    setErrorDialogOpen(false);
+  };
+
   const handleSubmitPayment = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
-    try{
+    try {
+
+      if (!startDatePayment || !endDatePayment) {
+        setErrorMessage('Ngày Bắt Đầu Hoặc Kết Thúc Không Được Bỏ Trống');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
+  
+      // Check if end date is not greater than start date
+      if (endDatePayment <= startDatePayment) {
+        setErrorMessage('Ngày Kết Thúc Phải bằng Hoặc Lớn Hơn Ngày Bắt Đầu');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
+  
       const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_session_total_by_date', {
         params: {
           startDate: startDatePayment.toISOString(),
@@ -241,6 +292,7 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
       });
       console.log(response)
       setTotalPayment(response.data);
+      setIsLoading(false);
       const updatedChartData = [
         { label: 'Chưa bắt đầu', value: response.data.totalCountNotStart },
         { label: 'Đang diễn ra', value: response.data.totalCountInStage },
@@ -253,15 +305,31 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
       ];
       setChartData(updatedChartData);
     }
-    catch(error) {
+    catch (error) {
+      setIsLoading(false);
       console.log('Failed to fetch: ', error);
     }
   }
 
   const handleSubmitCategory = async (e) => {
     e.preventDefault();
-
+    setIsLoading(true);
     try {
+
+      if (!startDate || !endDate) {
+        setErrorMessage('Ngày Bắt Đầu Hoặc Kết Thúc Không Được Bỏ Trống');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
+  
+      // Check if end date is not greater than start date
+      if (endDate <= startDate) {
+        setErrorMessage('Ngày Kết Thúc Phải bằng Hoặc Lớn Hơn Ngày Bắt Đầu');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
       const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_category', {
         params: {
           categoryId: selectedCategoryId,
@@ -269,6 +337,7 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
           endDate: endDate.toISOString(),
         },
       });
+      setIsLoading(false);
       console.log(response);
       setTotalCategory(response.data);
 
@@ -286,14 +355,29 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
 
       setChartCategoryData(updatedChartData);
     } catch (error) {
+      setIsLoading(false);
       console.log('Failed to fetch: ', error);
     }
   };
 
   const handleSubmitUser = async (event) => {
     event.preventDefault();
-
+    setIsLoading(true);
     try {
+      if (!startDateUser || !endDateUser) {
+        setErrorMessage('Ngày Bắt Đầu Hoặc Kết Thúc Không Được Bỏ Trống');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
+  
+      // Check if end date is not greater than start date
+      if (endDateUser <= startDateUser) {
+        setErrorMessage('Ngày Kết Thúc Phải bằng Hoặc Lớn Hơn Ngày Bắt Đầu');
+        setErrorDialogOpen(true);
+        setIsLoading(false);
+        return; // Exit the function early to prevent the API request
+      }
       const response = await axiosInstance.get('https://bids-online.azurewebsites.net/api/Login/report_user', {
         params: {
           startDate: startDateUser.toISOString(),
@@ -302,7 +386,7 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
       });
       console.log(response);
       setTotalUser(response.data);
-
+      setIsLoading(false);
       const updatedChartData = [
         { label: 'Đã chấp nhận', value: response.data.totalAccountAccepted },
         { label: 'Bị cấm', value: response.data.totalAccountBanned },
@@ -313,6 +397,7 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
 
       setChartUserData(updatedChartData);
     } catch (error) {
+      setIsLoading(false);
       console.log('Failed to fetch: ', error);
     }
   };
@@ -390,7 +475,7 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
             />
           </Grid> */}
           <Grid item xs={12} md={12}>
-            <form onSubmit={handleSubmitPayment}>
+            <form onSubmit={handleSubmitPayment} >
               <LocalizationProvider dateAdapter={AdapterMoment}>
                 <DatePicker
                   label="Ngày bắt đầu"
@@ -399,15 +484,26 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
                 <DatePicker
+                  sx={{ marginLeft: "1%" }}
                   label="Ngày kết thúc"
                   value={endDatePayment}
                   onChange={(date) => setEndDatePayment(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
               </LocalizationProvider>
-              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
-                Xong
+
+              <Button
+                sx={{ marginLeft: '20px', marginTop: '10px' }}
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isLoading} // Disable the button when loading
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : <SearchIcon />}
               </Button>
+              {/* <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
+                Xong
+              </Button> */}
             </form>
           </Grid>
           <Grid item xs={12} md={12}>
@@ -443,14 +539,21 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
                 <DatePicker
+                  sx={{ marginLeft: "1%" }}
                   label="Ngày kết thúc"
                   value={endDate}
                   onChange={(date) => setEndDate(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
               </LocalizationProvider>
-              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
-                Xong
+              <Button
+                sx={{ marginLeft: '20px', marginTop: '10px' }}
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isLoading} // Disable the button when loading
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : <SearchIcon />}
               </Button>
             </form>
           </Grid>
@@ -471,14 +574,21 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
                 <DatePicker
+                  sx={{ marginLeft: "1%" }}
                   label="Ngày kết thúc"
                   value={endDateUser}
                   onChange={(date) => setEndDateUser(date)}
                   renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                 />
               </LocalizationProvider>
-              <Button sx={{marginLeft: '20px', marginTop: '10px'}} type="submit" variant="contained" color="primary">
-                Xong
+              <Button
+                sx={{ marginLeft: '20px', marginTop: '10px' }}
+                type="submit"
+                variant="contained"
+                color="primary"
+                disabled={isLoading} // Disable the button when loading
+              >
+                {isLoading ? <CircularProgress size={24} color="inherit" /> : <SearchIcon />}
               </Button>
             </form>
           </Grid>
@@ -662,6 +772,29 @@ const chartColorsUser = mapUserLabelsToColors(labelsUser); // Define labelsUser 
           </Grid> */}
         </Grid>
       </Container>
+
+      <Dialog
+        fullWidth maxWidth={maxWidth}
+        open={errorDialogOpen}
+        onClose={handleCloseErrorDialog}
+      >
+        <DialogTitle sx={{ textAlign: 'center' }}>
+          <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+        </DialogTitle>
+        <DialogTitle align='center' variant='h5'>Đã xảy ra Lỗi</DialogTitle>
+
+        <DialogContent>
+          <DialogContentText align='center' variant='subtitle2'>
+            {errorMessage}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseErrorDialog} color="primary" autoFocus>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </>
   );
 }
