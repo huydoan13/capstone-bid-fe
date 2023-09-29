@@ -141,27 +141,9 @@ export default function Router() {
         </RolesAuthRoute>
       </Suspense>
     ),},
-    { path: 'payment-join-success', element: (
-      <Suspense>
-        <RolesAuthRoute roles={[ 'User']}>
-          <PaymentSuccessJoinPage />
-        </RolesAuthRoute>
-      </Suspense>
-    ), },
-    { path: 'payment-success', element: (
-      <Suspense>
-        <RolesAuthRoute roles={[ 'User']}>
-          <PaymentSuccessPage />
-        </RolesAuthRoute>
-      </Suspense>
-    ), },
-    { path: 'payment-fail', element: (
-      <Suspense>
-        <RolesAuthRoute roles={[ 'User']}>
-          <PaymentFailPage />
-        </RolesAuthRoute>
-      </Suspense>
-    ),},
+    { path: 'payment-join-success', element: <PaymentSuccessJoinPage />},
+    { path: 'payment-success', element: <PaymentSuccessPage />},
+    { path: 'payment-fail', element: <PaymentFailPage />},
     { path: 'payment-history', element: (
       <Suspense>
         <RolesAuthRoute roles={[ 'User']}>
