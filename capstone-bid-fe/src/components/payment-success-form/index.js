@@ -36,7 +36,7 @@ const PaymentSuccessForm = () => {
 
   useEffect(() => {
     // Make the API request
-    axios.put(`https://bids-online.azurewebsites.net/api/Sessions/check_and_update_order?userId=${jsonUser.Id}`,null,{headers: { Authorization: `Bearer ${token}` }})
+    axios.put(`https://bids-online.azurewebsites.net/api/Sessions/check_and_update_order?userId=${jsonUser?.Id}`,null,{headers: { Authorization: `Bearer ${token}` }})
       .then(response => {
         // Handle the API response here
         console.log(response.data); // You can replace this with your logic
