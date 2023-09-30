@@ -45,11 +45,18 @@ const AuctionCountdown = ({ endTime, beginTime }) => {
 
   return (
     <>
-      <Typography Typography fontSize={"25px"} fontWeight={"bold"} margin={"1%"} variant="subtitle">Thời Gian Còn Lại</Typography>
-      <Box sx={{ width: "100%", boxShadow: 3 }}>
-
+      <Typography fontSize={"25px"} fontWeight={"bold"} margin={"1%"} variant="subtitle">Thời Gian Còn Lại</Typography>
+      <Box sx={{ width: "100%", boxShadow: 3, margin: '3%' }}>
+        
         <Typography sx={{ display: 'flex', justifyContent: 'space-between', margin: '3%' }}>
-
+        <Grid container sx={{ textAlign: 'center' }}>
+          <Grid fontSize={"25px"} fontWeight={"bold"} margin={"1%"} item xs={12}>
+            {countdown.days.toString().padStart(2, '0')}
+          </Grid>
+          <Grid item xs={12}>
+            Ngày
+          </Grid>
+        </Grid>
           <Grid container sx={{ textAlign: 'center' }}>
             <Grid fontSize={"25px"} fontWeight={"bold"} margin={"1%"} item xs={12}>
               {countdown.hours.toString().padStart(2, '0')}
