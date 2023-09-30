@@ -87,8 +87,9 @@ const BookingItemDetail = () => {
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
-  const handleInputModalOpen = () => {
+  const handleInputModalOpen = (bookingItemId) => {
     setIsInputModalOpen(true);
+    setReason('');
   };
 
   const handleInputModalClose = () => {
@@ -352,7 +353,7 @@ const BookingItemDetail = () => {
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button onClick={handleInputModalOpen}>Từ Chối</Button>
+                        <Button onClick={() => handleInputModalOpen(item.bookingItemId)}>Từ Chối</Button>
                       </Grid>
                     </>
                   )}
