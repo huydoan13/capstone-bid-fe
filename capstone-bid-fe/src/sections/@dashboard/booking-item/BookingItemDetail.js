@@ -87,7 +87,7 @@ const BookingItemDetail = () => {
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
 
-  const handleInputModalOpen = (bookingItemId) => {
+  const handleInputModalOpen = () => {
     setIsInputModalOpen(true);
     setReason('');
   };
@@ -178,6 +178,8 @@ const BookingItemDetail = () => {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
     });
+    setIsInputModalOpen(false)
+    navigate('/dashboard/booking-items');
   };
 
   useEffect(() => {
@@ -357,6 +359,22 @@ const BookingItemDetail = () => {
                       </Grid>
                     </>
                   )}
+                  <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
+                    <Box sx={styleModal}>
+                      <TextField
+                        label="Nhập lý do từ chối đơn đăng kí"
+                        variant="outlined"
+                        value={reason}
+                        onChange={handleInputChange}
+                        fullWidth
+                        multiline
+                        rows={4}
+                        sx={{ marginBottom: '20px' }}
+                      />
+                      <Button onClick={() => handleDenyBookingItem(item.bookingItemId, reason)}>Xong</Button>
+                      <Button onClick={handleInputModalClose}>Hủy</Button>
+                    </Box>
+                  </Modal>
                 </Grid>
               </div>
             ))}
@@ -394,7 +412,7 @@ const BookingItemDetail = () => {
         </Box>
       </Modal>
 
-      <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
+      {/* <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
         <Box sx={styleModal}>
           <TextField
             label="Nhập lý do từ chối đơn đăng kí"
@@ -409,7 +427,7 @@ const BookingItemDetail = () => {
           <Button onClick={() => handleDenyBookingItem(bookingItemDetail.bookingItemId, reason)}>Xong</Button>
           <Button onClick={handleInputModalClose}>Hủy</Button>
         </Box>
-      </Modal>
+      </Modal> */}
     </Container>
   );
 };

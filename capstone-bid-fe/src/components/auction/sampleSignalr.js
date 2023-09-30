@@ -1,4 +1,4 @@
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+// import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
 import { Button, Input } from "@mui/material";
 import React, { useEffect, useState } from "react";
 
@@ -6,14 +6,14 @@ export const Notify = () => {
   const [connection, setConnection] = useState(null);
   const [inputText, setInputText] = useState("Alo");
 
-  useEffect(() => {
-    const connect = new HubConnectionBuilder()
-      .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
-      .withAutomaticReconnect()
-      .build();
+  // useEffect(() => {
+  //   const connect = new HubConnectionBuilder()
+  //     .withUrl("https://bids-online.azurewebsites.net/sessiondetailhub")
+  //     .withAutomaticReconnect()
+  //     .build();
 
-    setConnection(connect);
-  }, []);
+  //   setConnection(connect);
+  // }, []);
 
   useEffect(() => {
     if (connection) {
