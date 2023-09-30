@@ -84,7 +84,7 @@ const navConfig = [
   {
     title: 'Quản lý thanh toán',
     path: '/dashboard/payment-manage',
-    icon: <Icon icon="fluent-mdl2:product-variant" width="30" height="30" />,
+    icon: <Icon icon="tdesign:money" width="30" height="30" />,
     role: ['Admin', 'Staff'],
   },
   {
