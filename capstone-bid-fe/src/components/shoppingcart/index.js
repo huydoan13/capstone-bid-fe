@@ -7,11 +7,14 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import Paper from '@mui/material/Paper';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Grid, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
 import { Colors } from '../../style/theme';
+
 
 const ShoppingCartForm = () => {
     const [items, setItems] = useState([]);
@@ -25,10 +28,26 @@ const ShoppingCartForm = () => {
     const [link, setPaymentlink] = useState();
     const [maxWidth, setMaxWidth] = React.useState('sm');
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false);
+    const [successDialogOpen, setSuccessDialogOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true); // State for loading indicator
+    const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+    const [error, setError] = useState()
+
+    const styles = {
+        TaskAltIcon: {
+            fontSize: '150px',
+            color: '#C3E1AE'
+        },
+        errorIcon: {
+            fontSize: '150px',
+            color: '#B5E4EB' // Adjust the size as needed // To center it vertically
+        },
+    };
+
 
     const api = `https://bids-online.azurewebsites.net/api/Sessions/by_user_for_payment?id=${jsonUser.Id}`;
-
+    const rejectPayment = `https://bids-online.azurewebsites.net/api/Sessions/reject_payment`;
     const paymentAPI = `https://bids-online.azurewebsites.net/api/Login/payment_complete?sessionId=${selectedItem?.sessionId}&payerId=${jsonUser?.Id}&urlSuccess=https://capstone-bid-fe.vercel.app/payment-success&urlFail=https://capstone-bid-fe.vercel.app/payment-fail`
 
     useEffect(() => {
@@ -45,8 +64,73 @@ const ShoppingCartForm = () => {
             });
     }, []);
 
-    console.log(selectedItem?.sessionId);
-    console.log(link)
+    // console.log(selectedItem?.sessionId);
+    // console.log(link)
+
+    const handleOpen = (item) => {
+        setSelectedItem(item);
+        setOpen(true);
+
+    }
+
+    const handleCloseDialog = () => {
+       
+        setOpen(false);
+        
+    }
+
+    const handleClose = () => {
+
+        handleRejectPayment();
+        setOpen(false);
+       
+    }
+
+    const handleSuccessDialogOpen = (item) => {
+
+        setSuccessDialogOpen(true);
+    }
+
+    const handleSuccessDialogClose = () => {
+
+
+        setSuccessDialogOpen(false);
+    }
+
+
+    const handleRejectPayment = async () => {
+        setIsLoading(true);
+        if (selectedItem) {
+            const sessionID = selectedItem?.sessionId;
+            console.log(sessionID);
+            const requestBody = {
+                sessionID,
+            };
+            try {
+                const response = axios.put(rejectPayment, requestBody, { headers: { Authorization: `Bearer ${token}` }, })
+                    .then((response) => {
+                        // Handle the response (success or failure)
+                        // You can add your logic here, e.g., show a success message
+                        setIsLoading(false);
+                        setSuccessDialogOpen(true);
+                        console.log('PUT request successful:', response);
+
+                    })
+                    .catch((error) => {
+                        // Set the error message in the state
+                        setError(error?.response?.data || 'An error occurred.');
+                        setIsLoading(false);
+                        // Open the error dialog
+                        setErrorDialogOpen(true);
+
+                        console.error('Error making PUT request:', error);
+                    });
+
+            } catch (error) {
+                console.error('Error making PUT request:', error);
+            }
+        };
+    }
     const handlePayment = async () => {
         if (selectedItem) {
             try {
@@ -67,6 +151,13 @@ const ShoppingCartForm = () => {
             }
         }
     };
+
+    const handleErrorDialogClose = () => {
+        setIsLoading(false);
+        setErrorDialogOpen(false);
+
+    };
+
 
     const openDialog = async (item) => {
         setSelectedItem(item); // Set the selected item first
@@ -107,7 +198,7 @@ const ShoppingCartForm = () => {
                 justifyContent={"center"}
                 alignItems={"center"}>
                 <TableContainer sx={{ width: matches ? '100%' : '60%' }} component={Paper}>
-                    <Table sx={{ maxWidth: '100%' }} aria-label="spanning table">
+                    <Table sx={{width: '100%', maxWidth: '100%' }} aria-label="spanning table">
                         <TableHead>
                             <TableRow>
                                 {/* Checkbox column */}
@@ -115,6 +206,7 @@ const ShoppingCartForm = () => {
                                 <TableCell>Tên Sản Phẩm</TableCell>
                                 <TableCell>Thông Tin Sản Phẩm</TableCell>
                                 <TableCell align="right">Tổng</TableCell>
+                                <TableCell> </TableCell>
                                 <TableCell> </TableCell>
                             </TableRow>
                         </TableHead>
@@ -130,10 +222,14 @@ const ShoppingCartForm = () => {
                                     <TableCell style={{ height: '100px', width: '250px' }}>{item.description}</TableCell>
                                     <TableCell align="right">{item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
                                     <TableCell>
-                                        <Button fullWidth variant='contained' onClick={() => openDialog(item)}>
+                                        <Button sx={{marginBottom : "5px"}}  fullWidth variant='contained' onClick={() => openDialog(item)}>
                                             Thanh Toán
                                         </Button>
+                                        <Button fullWidth variant='contained' color="error" onClick={() => handleOpen(item)}>
+                                            Hủy Thanh Toán
+                                        </Button>
                                     </TableCell>
+                                   
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -198,6 +294,42 @@ const ShoppingCartForm = () => {
                 </Dialog>
 
             </Stack>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={open} onClose={handleCloseDialog}>
+                <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <ErrorOutlineOutlinedIcon style={styles.errorIcon} /> </DialogTitle>
+                <DialogTitle DialogTitle variant='h3' align='center'>Bạn có Đồng ý hủy thanh toán.</DialogTitle>
+                <DialogContent>
+                    <Typography align='center' variant="subtitle2">Sau khi hủy thanh toán bạn sẽ mất hoàn toàn tiền đã đặt cọc của sản phẩm và bạn có nguy cơ bị khóa tài khoản. </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog}>Thoát</Button>
+                    <Button onClick={handleClose}>Đồng ý</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={successDialogOpen} onClose={handleSuccessDialogClose}>
+                <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
+                <DialogTitle DialogTitle variant='h3' align='center'>Đã hủy thanh toán sản phẩm thành công.</DialogTitle>
+
+                <DialogActions>
+                    <Button onClick={handleSuccessDialogClose}>OK</Button>
+                </DialogActions>
+            </Dialog>
+
+            <Dialog fullWidth maxWidth={maxWidth} open={errorDialogOpen} onClose={handleErrorDialogClose}>
+                <DialogTitle sx={{ textAlign: 'center' }}>
+                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                </DialogTitle>
+                <DialogTitle variant='h3' align='center' >Đã có lỗi xảy ra </DialogTitle>
+                <DialogContent>
+                    <Typography Typography variant='subtitle2' sx={{ marginBottom: "25px" }} align='center'>
+                        {error}
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleErrorDialogClose}>OK</Button>
+                </DialogActions>
+            </Dialog>
         </>
     );
 }

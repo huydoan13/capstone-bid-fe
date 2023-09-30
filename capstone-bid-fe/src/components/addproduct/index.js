@@ -164,8 +164,8 @@ const AddProductForm = () => {
     setLoading(true);
     // Perform further processing or API call with the form data
 
-    if (auctionHour < 0 || auctionHour > 10) {
-      setError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+    if (auctionHour < 0 || auctionHour > 168) {
+      setError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 168');
       setErrorDialogOpen(true); // Show error dialog
       return; // Prevent form submission
     }

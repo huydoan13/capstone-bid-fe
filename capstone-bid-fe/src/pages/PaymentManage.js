@@ -79,24 +79,24 @@ const PaymentManage = () => {
                 <Grid container sx={{ textAlign: 'center' }}>
                   <Grid item xs={12}>
                     <Typography margin={'1%'} variant="subtitle">
-                      Tổng Số Tiền Đã Chi Tiêu Trong : {dateRangeText}
+                    Tổng Số Tiền Nhận Đã Nhận Trong : {dateRangeText}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography fontSize={'25px'} color={'red'} fontWeight={'bold'} margin={'1%'} variant="subtitle">
-                      -{paymentHistory?.totalSend?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    <Typography fontSize={'25px'} color={'green'} fontWeight={'bold'} margin={'1%'} variant="subtitle">
+                      +{paymentHistory?.totalSend?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                     </Typography>
                   </Grid>
                 </Grid>
                 <Grid container sx={{ textAlign: 'center' }}>
                   <Grid item xs={12}>
                     <Typography margin={'1%'} variant="subtitle">
-                      Tổng Số Tiền Nhận Đã Nhận Trong : {dateRangeText}
+                    Tổng Số Tiền Đã Chi Tiêu Trong : {dateRangeText}
                     </Typography>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography fontSize={'25px'} color={'green'} fontWeight={'bold'} margin={'1%'} variant="subtitle">
-                      +{paymentHistory?.totalReceive?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                    <Typography fontSize={'25px'} color={'red'} fontWeight={'bold'} margin={'1%'} variant="subtitle">
+                      -{paymentHistory?.totalReceive?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -155,17 +155,17 @@ const PaymentManage = () => {
                           style={{
                             boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.1)',
                             marginBottom: '8px',
-                            color: payment.isReceive ? 'green' : 'red', // Change font color
+                            color: payment.isReceive ? 'red' : 'green', // Change font color
                           }}
                         >
                           <TableCell>{payment.paymentID}</TableCell>
                           <TableCell>{payment.payPalAccount}</TableCell>
                           <TableCell
                             style={{
-                              color: payment.isReceive ? 'green' : 'red', // Change font color
+                              color: payment.isReceive ? 'red' : 'green', // Change font color
                             }}
                           >
-                            {payment.isReceive ? '+' : '-'}
+                            {payment.isReceive ? '-' : '+'}
                             {payment.paymentTotal.toLocaleString('vi-VN', {
                               style: 'currency',
                               currency: 'VND',
