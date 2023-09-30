@@ -50,7 +50,7 @@ export async function acceptBookingItemWaiting(id) {
 }
 
 export async function denyBookingItemWaiting(id, reason) {
-  const url = `${BASE_URL}/bookingitems/deny`;
+  const url = `${BASE_URL}/bookingitems/deny?id=${id}&reason=${reason}`;
   const data = {
     id,
     reason,

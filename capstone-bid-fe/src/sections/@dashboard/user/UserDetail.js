@@ -365,7 +365,7 @@ const UserDetail = () => {
             sx={{ marginBottom: '20px' }}
           />
           <Button onClick={() => handleBanUser(userDetail.userId, reason)}>Xong</Button>
-          <Button onClick={handleInputModalClose}>Cancel</Button>
+          <Button onClick={handleInputModalClose}>Hủy</Button>
         </Box>
       </Modal>
     </Container>

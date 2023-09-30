@@ -47,6 +47,8 @@ const BookingItemDetailNow = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [reason, setReason] = useState('');
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('loginUser'));
 
@@ -84,6 +86,19 @@ const BookingItemDetailNow = () => {
   const classes = useStyles();
 
   const formatDate = (date) => moment(date).locale('vi').format('DD/MM/YYYY HH:mm:ss');
+
+  const handleInputModalOpen = () => {
+    setIsInputModalOpen(true);
+  };
+
+  const handleInputModalClose = () => {
+    setIsInputModalOpen(false);
+    setReason('');
+  };
+
+  const handleInputChange = (event) => {
+    setReason(event.target.value);
+  };
 
   const handleSelectImage = (imageObj) => {
     setSelectedImage(imageObj);
@@ -156,8 +171,8 @@ const BookingItemDetailNow = () => {
     navigate(`/dashboard/session-create-now/${selectedBookingItem.itemId}`);
   };
 
-  const handleDenyBookingItem = (bookingItemId) => {
-    denyBookingItemWaiting(bookingItemId);
+  const handleDenyBookingItem = (bookingItemId, reason) => {
+    denyBookingItemWaiting(bookingItemId, reason);
     toast.success('Từ chối đơn đăng kí thành công', {
       position: toast.POSITION.TOP_RIGHT,
       autoClose: 3000, // Notification will automatically close after 3 seconds (3000 milliseconds)
@@ -337,13 +352,7 @@ const BookingItemDetailNow = () => {
                         </Button>
                       </Grid>
                       <Grid item md={6} xs={12}>
-                        <Button
-                          onClick={() => {
-                            handleDenyBookingItem(item.bookingItemId);
-                          }}
-                        >
-                          Từ Chối
-                        </Button>
+                        <Button onClick={handleInputModalOpen}>Từ Chối</Button>
                       </Grid>
                     </>
                   )}
@@ -381,6 +390,23 @@ const BookingItemDetailNow = () => {
               </Box>
             </>
           )}
+        </Box>
+      </Modal>
+
+      <Modal open={isInputModalOpen} onClose={handleInputModalClose}>
+        <Box sx={styleModal}>
+          <TextField
+            label="Nhập lý do từ chối đơn đăng kí"
+            variant="outlined"
+            value={reason}
+            onChange={handleInputChange}
+            fullWidth
+            multiline
+            rows={4}
+            sx={{ marginBottom: '20px' }}
+          />
+          <Button onClick={() => handleDenyBookingItem(bookingItemDetail.bookingItemId, reason)}>Xong</Button>
+          <Button onClick={handleInputModalClose}>Hủy</Button>
         </Box>
       </Modal>
     </Container>
