@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios, { CancelToken } from 'axios';
-import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer, Stack, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Container, Icon, List, ListItem, ListItemText, Paper, useMediaQuery, Pagination, IconButton, DialogTitle, Dialog, DialogContent, DialogActions, Button, Slide, Typography, Table, TableBody, TableRow, TableCell, TableHead, TableContainer, Stack, FormControl, InputLabel, Select, MenuItem, Modal } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import CircularProgress from '@mui/material/CircularProgress';
 import styled from '@emotion/styled';
@@ -75,7 +75,7 @@ const MyHistoryForm = () => {
     };
 
     const handleSuccessClose = () => {
-        
+
         loadItems(option);
         setOpen(false);
         setIsPopupOpen(false);
@@ -429,223 +429,289 @@ const MyHistoryForm = () => {
                 </Paper>
             </Box>
             {(selectedOption === 'pay-success') ? (
-                <Dialog
-                    // TransitionComponent={SlideTransition}
-                    variant="permanant"
+
+                <Modal
                     open={isPopupOpen}
-                    fullScreen
+                    onClose={handleClosePopup}
+                    aria-labelledby="bid-dialog-title"
+                    aria-describedby="bid-dialog-description"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
                 >
-                    <DialogTitle
-                        sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
+                    <Box
+                        sx={{
+                            bgcolor: 'background.paper',
+                            border: '2px solid #000',
+                            borderRadius: '0', // Remove border radius
+                            p: 4,
+                            width: '100%', // Set width to 100%
+                            height: '100%', // Set height to 100%
+                            maxWidth: 'none', // Remove max width
+                            maxHeight: 'none', // Remove max height
+                        }}
                     >
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={"space-between"}
-                            fontSize={"25px"}
+
+
+                        <DialogTitle
+                            sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
                         >
-                            Lịch Sử Đấu Giá Của Phiên
-                            <IconButton onClick={handleClosePopup}>
-                                <CloseIcon />
-                            </IconButton>
-                        </Box>
-                    </DialogTitle>
+                            <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent={"space-between"}
+                                fontSize={"25px"}
+                            >
+                                Lịch Sử Đấu Giá Của Phiên
+                                <IconButton onClick={handleClosePopup}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>
 
-                    <DialogContent>
-                        {/* Loop through the data and display each item */}
-                        {Array.isArray(apiData) && apiData.length > 0 ? (
-                            <MyTableContainer>
-                                <Table aria-label="simple table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell align="center">Người Đấu Giá:</TableCell>
-                                            <TableCell align="center">Sản Phẩm:</TableCell>
-                                            <TableCell align="center">Giá đấu thầu:</TableCell>
-                                            <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
-                                            {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {currentItemsDialog.map((item) => (
-                                            <TableRow key={item.sessionDetailId}>
-                                                <TableCell align="center">{item?.userName}</TableCell>
-                                                <TableCell align="center">{item?.itemName}</TableCell>
-                                                <TableCell align="center">
-                                                    {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
-                                                </TableCell>
-                                                {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
-                                                    {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
-                                                </TableCell>}
+                        <DialogContent>
+                            {/* Loop through the data and display each item */}
+                            {Array.isArray(apiData) && apiData.length > 0 ? (
+                                <MyTableContainer>
+                                    <Table aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell align="center">Người Đấu Giá:</TableCell>
+                                                <TableCell align="center">Sản Phẩm:</TableCell>
+                                                <TableCell align="center">Giá đấu thầu:</TableCell>
+                                                <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
+                                                {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
                                             </TableRow>
-                                        ))}
+                                        </TableHead>
+                                        <TableBody>
+                                            {currentItemsDialog.map((item) => (
+                                                <TableRow key={item.sessionDetailId}>
+                                                    <TableCell align="center">{item?.userName}</TableCell>
+                                                    <TableCell align="center">{item?.itemName}</TableCell>
+                                                    <TableCell align="center">
+                                                        {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
+                                                    </TableCell>
+                                                    {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
+                                                        {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
+                                                    </TableCell>}
+                                                </TableRow>
+                                            ))}
 
-                                    </TableBody>
-                                </Table>
-                                <Stack
-                                    spacing={2}
-                                    direction="row"
-                                    justifyContent="flex-end" // Align to the right
-                                    padding={2} // Optional padding
-                                    marginTop={"1%"}
-                                    marginRight={"5%"}
-                                >
+                                        </TableBody>
+                                    </Table>
+                                    <Stack
+                                        spacing={2}
+                                        direction="row"
+                                        justifyContent="flex-end" // Align to the right
+                                        padding={2} // Optional padding
+                                        marginTop={"1%"}
+                                        marginRight={"5%"}
+                                    >
 
-                                    <Button
-                                       
-                                        variant="contained"
-                                        color="primary"
-                                        
-                                        onClick={handleRecieve}
-                                        disabled={isLoading} // Disable when loading
-                                    >
-                                        {isLoading ? <CircularProgress size={24} /> : 'Đã Nhận Hàng'}
-                                    </Button>
-                                    <Button
-                                        
-                                        variant="contained"
-                                        color="primary"
-                                        
-                                        onClick={handleClickOpen}
-                                        disabled={isLoading} // Disable when loading
-                                    >
-                                        {isLoading ? <CircularProgress size={24} /> : 'Trả Hàng Hoàn Tiền'}
-                                    </Button>
-                                    {/* <Button variant="outlined" onClick={handleRecieve}>Đã Nhận Hàng</Button>
+                                        <Button
+
+                                            variant="contained"
+                                            color="primary"
+
+                                            onClick={handleRecieve}
+                                            disabled={isLoading} // Disable when loading
+                                        >
+                                            {isLoading ? <CircularProgress size={24} /> : 'Đã Nhận Hàng'}
+                                        </Button>
+                                        <Button
+
+                                            variant="contained"
+                                            color="primary"
+
+                                            onClick={handleClickOpen}
+                                            disabled={isLoading} // Disable when loading
+                                        >
+                                            {isLoading ? <CircularProgress size={24} /> : 'Trả Hàng Hoàn Tiền'}
+                                        </Button>
+                                        {/* <Button variant="outlined" onClick={handleRecieve}>Đã Nhận Hàng</Button>
                                     <Button variant="outlined" onClick={handleClickOpen} >Trả Hàng Hoàn Tiền</Button> */}
-                                </Stack>
-                            </MyTableContainer>
+                                    </Stack>
+                                </MyTableContainer>
 
-                        ) : (
-                            <div>No data to display.</div>
-                        )}
-                    </DialogContent>
-                    <Pagination
-                        count={Math.ceil(apiData.length / dialogItemsPerPage)}
-                        page={dialogCurrentPage}
-                        onChange={(event, page) => setDialogCurrentPage(page)}
-                        color="primary"
-                        size="large"
-                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
-                    />
+                            ) : (
+                                <div>No data to display.</div>
+                            )}
+                        </DialogContent>
+                        <Pagination
+                            count={Math.ceil(apiData.length / dialogItemsPerPage)}
+                            page={dialogCurrentPage}
+                            onChange={(event, page) => setDialogCurrentPage(page)}
+                            color="primary"
+                            size="large"
+                            sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                        />
+                    </Box>
+                </Modal>
 
-                </Dialog>
+
             ) : (
-                <Dialog
-                    variant="permanant"
+                <Modal
                     open={isPopupOpen}
-                    fullScreen
+                    onClose={handleClosePopup}
+                    aria-labelledby="bid-dialog-title"
+                    aria-describedby="bid-dialog-description"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
                 >
-                    <DialogTitle
-                        sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
+                    <Box
+                        sx={{
+                            bgcolor: 'background.paper',
+                            border: '2px solid #000',
+                            borderRadius: '0', // Remove border radius
+                            p: 4,
+                            width: '100%', // Set width to 100%
+                            height: '100%', // Set height to 100%
+                            maxWidth: 'none', // Remove max width
+                            maxHeight: 'none', // Remove max height
+                        }}
                     >
-                        <Box
-                            display="flex"
-                            alignItems="center"
-                            justifyContent={"space-between"}
-                            fontSize={"25px"}
+
+                        <DialogTitle
+                            sx={{ p: 5, backgroundImage: `url(${Image})`, backgroundSize: 'cover' }}
                         >
-                            Lịch Sử Đấu Giá Của Phiên
-                            <IconButton onClick={handleClosePopup}>
-                                <CloseIcon />
-                            </IconButton>
-                        </Box>
+                            <Box
+                                display="flex"
+                                alignItems="center"
+                                justifyContent={"space-between"}
+                                fontSize={"25px"}
+                            >
+                                Lịch Sử Đấu Giá Của Phiên
+                                <IconButton onClick={handleClosePopup}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
+                        </DialogTitle>
+                        <DialogContent>
+                            {/* Loop through the data and display each item */}
+                            {Array.isArray(apiData) && apiData.length > 0 ? (
+                                <MyTableContainer>
+                                    <Table aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell align="center">Người Đấu Giá:</TableCell>
+                                                <TableCell align="center">Sản Phẩm:</TableCell>
+                                                <TableCell align="center">Giá đấu thầu:</TableCell>
+                                                <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
+                                                {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {currentItemsDialog.map((item) => (
+                                                <TableRow key={item.sessionDetailId}>
+                                                    <TableCell align="center">{item?.userName}</TableCell>
+                                                    <TableCell align="center">{item?.itemName}</TableCell>
+                                                    <TableCell align="center">
+                                                        {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
+                                                    </TableCell>
+                                                    <TableCell align="center">
+                                                        {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
+                                                    </TableCell>
+                                                    {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
+                                                        {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
+                                                    </TableCell>}
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </MyTableContainer>
+                            ) : (
+                                <div>No data to display.</div>
+                            )}
+                        </DialogContent>
+                        <Pagination
+                            count={Math.ceil(apiData.length / dialogItemsPerPage)}
+                            page={dialogCurrentPage}
+                            onChange={(event, page) => setDialogCurrentPage(page)}
+                            color="primary"
+                            size="large"
+                            sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
+                        />
+
+                    </Box>
+                </Modal>
+            )}
+            
+            <Modal
+                open={open}
+                onClose={handleCloseDialog}
+                aria-labelledby="bid-dialog-title"
+                aria-describedby="bid-dialog-description"
+                BackdropProps={{
+                    style: {
+                      backgroundColor: 'transparent', // or 'rgba(0, 0, 0, 0)'
+                    },
+                  }}
+            >
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: 700,
+                        bgcolor: 'background.paper',
+                        borderRadius: '5px',
+                        boxShadow: 24,
+                        p: 4,
+                    }}
+                >
+
+                    <DialogTitle sx={{ textAlign: 'center' }}>
+                        <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+                    </DialogTitle>
+                    <DialogTitle variant="h4" align="center">
+                        Xác nhận trả hàng
                     </DialogTitle>
                     <DialogContent>
-                        {/* Loop through the data and display each item */}
-                        {Array.isArray(apiData) && apiData.length > 0 ? (
-                            <MyTableContainer>
-                                <Table aria-label="simple table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell align="center">Người Đấu Giá:</TableCell>
-                                            <TableCell align="center">Sản Phẩm:</TableCell>
-                                            <TableCell align="center">Giá đấu thầu:</TableCell>
-                                            <TableCell align="center">Thời Gian Bỏ Giá:</TableCell>
-                                            {selectedOption !== 'instate' && <TableCell align="center">Kết quả</TableCell>}
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {currentItemsDialog.map((item) => (
-                                            <TableRow key={item.sessionDetailId}>
-                                                <TableCell align="center">{item?.userName}</TableCell>
-                                                <TableCell align="center">{item?.itemName}</TableCell>
-                                                <TableCell align="center">
-                                                    {item?.price?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) || '-'}
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    {item?.createDate ? new Date(item.createDate).toLocaleString('vi-VN') : '-'}
-                                                </TableCell>
-                                                {selectedOption !== 'instate' && <TableCell align="center" style={{ color: item?.price === maxPrice ? 'green' : 'red' }}>
-                                                    {item?.price === maxPrice ? 'Trúng Đấu Giá' : 'Không Trúng Đấu Giá'}
-                                                </TableCell>}
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </MyTableContainer>
-                        ) : (
-                            <div>No data to display.</div>
-                        )}
+                        <Typography variant="subtitle2" sx={{ marginBottom: '25px' }} align="center">
+                            Bạn có đồng ý trả lại tài sản lưu ý bạn sẽ mất số tiền tham gia và tiền cọc của tài sản
+                        </Typography>
+                        <Typography variant="subtitle1" sx={{ marginBottom: '25px' }} align="center">
+                            Xin vui lòng chọn lý do hoàn trả tài sản
+                        </Typography>
+                        <FormControl fullWidth>
+                            <InputLabel>Lý do hoàn trả</InputLabel>
+                            <Select
+                                value={selectedReason}
+                                onChange={handleReasonChange}
+                            >
+                                <MenuItem value="Tài sản không đúng với mô tả">Tài sản không đúng với mô tả</MenuItem>
+                                <MenuItem value="Tôi không muốn mua tài sản này nữa">Tôi không muốn mua tài sản này nữa</MenuItem>
+                                <MenuItem value="Thay đổi địa chỉ nhận tài sản">Thay đổi địa chỉ nhận tài sản</MenuItem>
+                                <MenuItem value="Chưa nhận được tài sản">Chưa nhận được tài sản</MenuItem>
+                                <MenuItem value="Lý do khác">Lý do khác</MenuItem>
+                            </Select>
+                        </FormControl>
                     </DialogContent>
-                    <Pagination
-                        count={Math.ceil(apiData.length / dialogItemsPerPage)}
-                        page={dialogCurrentPage}
-                        onChange={(event, page) => setDialogCurrentPage(page)}
-                        color="primary"
-                        size="large"
-                        sx={{ display: 'flex', justifyContent: 'center', mt: '20px' }}
-                    />
-                </Dialog>)}
-            <Dialog fullWidth maxWidth={maxWidth} open={open} onClose={handleCloseDialog}>
-                <DialogTitle sx={{ textAlign: 'center' }}>
-                    <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
-                </DialogTitle>
-                <DialogTitle variant="h4" align="center">
-                    Xác nhận trả hàng
-                </DialogTitle>
-                <DialogContent>
-                    <Typography variant="subtitle2" sx={{ marginBottom: '25px' }} align="center">
-                        Bạn có đồng ý trả lại tài sản lưu ý bạn sẽ mất số tiền tham gia và tiền cọc của tài sản
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ marginBottom: '25px' }} align="center">
-                        Xin vui lòng chọn lý do hoàn trả tài sản
-                    </Typography>
-                    <FormControl fullWidth>
-                        <InputLabel>Lý do hoàn trả</InputLabel>
-                        <Select
-                            value={selectedReason}
-                            onChange={handleReasonChange}
+                    <DialogActions>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleConfirmReturn}
+                            disabled={isLoading} // Disable when loading
                         >
-                            <MenuItem value="Tài sản không đúng với mô tả">Tài sản không đúng với mô tả</MenuItem>
-                            <MenuItem value="Tôi không muốn mua tài sản này nữa">Tôi không muốn mua tài sản này nữa</MenuItem>
-                            <MenuItem value="Thay đổi địa chỉ nhận tài sản">Thay đổi địa chỉ nhận tài sản</MenuItem>
-                            <MenuItem value="Chưa nhận được tài sản">Chưa nhận được tài sản</MenuItem>
-                            <MenuItem value="Lý do khác">Lý do khác</MenuItem>
-                        </Select>
-                    </FormControl>
-                </DialogContent>
-                <DialogActions>
-                    <Button
+                            {isLoading ? <CircularProgress size={24} /> : ' Đồng ý'}
+                        </Button>
+                        <Button variant="contained" color="error" onClick={handleCloseDialog}>
+                            Hủy bỏ
+                        </Button>
+                    </DialogActions>
 
-                        variant="contained"
-                        color="primary"
-
-                        onClick={handleConfirmReturn}
-                        disabled={isLoading} // Disable when loading
-                    >
-                        {isLoading ? <CircularProgress size={24} /> : ' Đồng ý'}
-                    </Button>
-                    {/* <Button variant="contained" color="success" onClick={handleConfirmReturn}>
-                        Đồng ý
-                    </Button> */}
-                    <Button variant="contained" color="error" onClick={handleCloseDialog}>
-                        Hủy bỏ
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                </Box>
+            </Modal>
             <Dialog fullWidth maxWidth={maxWidth} open={successOpen} onClose={handleSuccessClose}>
                 <DialogTitle sx={{ marginTop: '25px', textAlign: 'center', }}> <TaskAltIcon style={styles.TaskAltIcon} /> </DialogTitle>
                 <DialogTitle variant='h4' align='center' >Thành Công</DialogTitle>

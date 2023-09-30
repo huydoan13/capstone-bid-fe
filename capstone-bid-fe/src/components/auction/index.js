@@ -33,7 +33,8 @@ import {
   CircularProgress,
   Input,
   TableHead,
-  TablePagination
+  TablePagination,
+  Modal
 } from '@mui/material';
 import styled from '@emotion/styled';
 import AuctionCountdown from './auctionCountdown';
@@ -110,7 +111,7 @@ const AuctionForm = () => {
     // sendMessage();
     fetchSessionDetails();
     fetchAuctionData();
-    
+
   }, []);
 
   useEffect(() => {
@@ -153,7 +154,7 @@ const AuctionForm = () => {
   //           await fetchSessionDetails();
   //           await fetchAuctionData();
   //           console.log(message)
-           
+
 
   //         });
   //       })
@@ -174,7 +175,7 @@ const AuctionForm = () => {
   // end realtime
 
 
-  
+
   const highestPrice = sessionDetails.reduce((maxPrice, detail) => {
     return detail.price > maxPrice ? detail.price : maxPrice;
   }, 0);
@@ -190,8 +191,10 @@ const AuctionForm = () => {
   };
 
   const closeDialog = () => {
-    setFeeDialogOpen(false);
+    setIsDialogOpen(false);
   };
+
+
 
   const closeJonningDialog = () => {
 
@@ -255,16 +258,19 @@ const AuctionForm = () => {
 
   const makeApiCall = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post(IncreaseApi, { userId: jsonUser.Id, sessionId }, { headers: { Authorization: `Bearer ${token}` } });
-
+      setIsLoading(false);
 
     } catch (error) {
       if (error.response && error.response.status === 400 && error.response.data) {
         setIsErrorDialogOpen(true);
         setDialogMessage(error.response.data);
+        setIsLoading(false);
       } else {
         setIsErrorDialogOpen(true);
         setDialogMessage("Đã có lỗi xảy ra");
+        setIsLoading(false);
       }
     }
   };
@@ -432,7 +438,7 @@ const AuctionForm = () => {
         const currentTime = moment();
         const auctionEndTime = moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss");
         const fiveMinutesBeforeEndTime = convertTimeToSeconds(moment(auctionData[0]?.endTime, "YYYY-MM-DD HH:mm:ss").subtract(convertTimeToSeconds(auctionData[0]?.freeTime), 'seconds').format("HH:mm:ss"));
-        
+
         if (auctionEndTime.isBefore(currentTime)) {
           handleGoBack();
           setIsIntervalActive(false);
@@ -447,9 +453,9 @@ const AuctionForm = () => {
         }
       }
     };
-  
+
     let interval = null;
-  
+
     if (isIntervalActive) {
       interval = setInterval(() => {
         fetchAuctionData();
@@ -457,7 +463,7 @@ const AuctionForm = () => {
         checkAuctionEnd();
       }, 5000);
     }
-  
+
     return () => {
       clearInterval(interval);
     };
@@ -477,7 +483,7 @@ const AuctionForm = () => {
   const handleDialogClose = async () => {
     // await sendMessage();
     await makeApiCall();
-    
+
     setPage(0);
     fetchAuctionData();
     fetchSessionDetails();
@@ -572,27 +578,66 @@ const AuctionForm = () => {
     const { isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice } = useBidDialog();
 
     return (
-      <Dialog fullWidth maxWidth={maxWidth} Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
-        <DialogTitle sx={{ textAlign: 'center' }}>
-          <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
-        </DialogTitle >
-        <DialogTitle align='center' variant='h4'>Bạn Có Muốn Tăng Giá</DialogTitle>
-        <DialogContent>
-          <Typography align='center' variant='subtitle2'>Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setIsDialogOpen(false)} color="primary">
-            Thoát
-          </Button>
-          <Button onClick={() => {
-            handleDialogClose();
-            
+      <Modal
+        open={isDialogOpen}
+        onClose={closeDialog}
+        aria-labelledby="bid-dialog-title"
+        aria-describedby="bid-dialog-description"
+        BackdropProps={{
+          style: {
+            backgroundColor: 'transparent', // or 'rgba(0, 0, 0, 0)'
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 500,
+            bgcolor: 'background.paper',
+            borderRadius: "5px",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <DialogTitle sx={{ textAlign: 'center' }}>
+            <ErrorOutlineOutlinedIcon style={styles.errorIcon} />
+          </DialogTitle>
+          <DialogTitle align='center' variant='h4' id="bid-dialog-title">Bạn Có Muốn Tăng Giá</DialogTitle>
+          <DialogContent>
+            <Typography align='center' variant='subtitle2' id="bid-dialog-description">
+              Giá của sản phẩm hiện giờ là : {formatToVND(auctionData[0]?.finalPrice)}
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDialog} color="primary">
+              Thoát
+            </Button>
 
+            <Button
+
+
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                handleDialogClose();
+                closeDialog();
+              }}
+              disabled={isLoading} // Disable when loading
+            >
+              {isLoading ? <CircularProgress size={24} /> : 'Đồng Ý'}
+            </Button>
+            {/* <Button onClick={() => {
+            handleDialogClose();
+            closeDialog();
           }} color="primary">
             Đồng Ý
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </Button> */}
+          </DialogActions>
+        </Box>
+      </Modal>
     );
   };
 
@@ -758,7 +803,7 @@ const AuctionForm = () => {
                 <RemainingTime endTime={auctionData[0]?.endTime} />
               )}
             </Box>
-            
+
 
           </Stack>
         </ProductDetailInfoWrapper>
@@ -808,7 +853,7 @@ const AuctionForm = () => {
           />
         </>
       </Stack>
-      
+
       <BidDialogContext.Provider value={{ isDialogOpen, setIsDialogOpen, currentPrice, setCurrentPrice }}>
         <BidDialog />
       </BidDialogContext.Provider>
@@ -828,82 +873,110 @@ const AuctionForm = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog fullWidth maxWidth={maxWidth} open={feeDialogOpen} onClose={closeDialog}>
-        <DialogTitle>Chi tiết đơn hàng</DialogTitle>
-        <DialogContent>
-          {auctionData && (
-            <>
-              <Grid marginTop={"50px"} marginBottom={"50px"} >
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Tham Gia Đấu Giá</Typography>
-                  <Typography margin={'1%'} align="right" variant="subtitle1">
-                    {formatToVND(
-                      Math.min(
-                        Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
-                        200000
-                      )
-                    )}
 
+      <Modal
+        open={feeDialogOpen}
+        onClose={closeDialog}
+        aria-labelledby="bid-dialog-title"
+        aria-describedby="bid-dialog-description"
+        BackdropProps={{
+          style: {
+            backgroundColor: 'transparent', // or 'rgba(0, 0, 0, 0)'
+          },
+        }}
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 500,
+            bgcolor: 'background.paper',
+            borderRadius: "5px",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <DialogTitle>Chi tiết đơn hàng</DialogTitle>
+          <DialogContent>
+            {auctionData && (
+              <>
+                <Grid marginTop={"50px"} marginBottom={"50px"} >
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Tham Gia Đấu Giá</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1">
+                      {formatToVND(
+                        Math.min(
+                          Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                          200000
+                        )
+                      )}
+
+                    </Typography>
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)}</Typography>
+                  </Typography>
+                </Grid>
+                <Divider variant="inset" />
+                <Typography marginTop={"50px"} marginBottom={"50px"}>
+
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1">
+
+                      {formatToVND(
+                        Math.min(
+                          Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                          200000
+                        ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                      )}
+
+                    </Typography>
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} align="inherit" variant="subtitle1">Thuế</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
+                  </Typography>
+                  <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                    <Typography margin={'1%'} color={"#4688F4"} align="inherit" variant="subtitle1">Khuyến Mãi/ Mã Quà Tặng </Typography>
                   </Typography>
                 </Typography>
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
-                  <Typography margin={'1%'} align="right" variant="subtitle1"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)}</Typography>
+
+                <Divider variant="inset" />
+                <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
+                  <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
+                    Math.min(
+                      Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                      200000
+                    ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                  )}   </Typography>
                 </Typography>
-              </Grid>
-              <Divider variant="inset" />
-              <Typography marginTop={"50px"} marginBottom={"50px"}>
-
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
-                  <Typography margin={'1%'} align="right" variant="subtitle1">
-
-                    {formatToVND(
-                      Math.min(
-                        Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
-                        200000
-                      ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
-                    )}
-
-                  </Typography>
-                </Typography>
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
-                  <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
-                </Typography>
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} align="inherit" variant="subtitle1">Thuế</Typography>
-                  <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
-                </Typography>
-                <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
-                  <Typography margin={'1%'} color={"#4688F4"} align="inherit" variant="subtitle1">Khuyến Mãi/ Mã Quà Tặng </Typography>
-                </Typography>
-              </Typography>
-
-              <Divider variant="inset" />
-              <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
-                <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
-                  Math.min(
-                    Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
-                    200000
-                  ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
-                )}   </Typography>
-              </Typography>
-            </>
-          )}
+              </>
+            )}
 
 
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={closeDialog} color="primary">
-            Thoát
-          </Button>
-          <Button onClick={handlePayment} color="primary">
-            Thanh toán bằng PayPal
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={closeDialog} color="primary">
+              Thoát
+            </Button>
+            <Button onClick={handlePayment} color="primary">
+              Thanh toán bằng PayPal
+            </Button>
+          </DialogActions>
+
+        </Box>
+      </Modal>
+
+
 
       <Dialog fullWidth maxWidth={maxWidth} open={isLoading} onClose={() => { }}>
         <DialogContent align='center'>

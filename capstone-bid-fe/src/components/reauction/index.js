@@ -344,8 +344,8 @@ const ReAuctionForm = () => {
         setAuctionHour(newValue);
 
         // Validate the input value (not negative and between 0 - 10)
-        if (newValue < 0 || newValue > 10) {
-          setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 10');
+        if (newValue < 0 || newValue > 168) {
+          setAuctionHourError('Giờ đấu giá phải nằm trong khoảng từ 0 đến 168');
         } else {
           setAuctionHourError('');
         }
