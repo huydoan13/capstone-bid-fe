@@ -176,9 +176,12 @@ const AuctionForm = () => {
 
 
 
-  const highestPrice = sessionDetails.reduce((maxPrice, detail) => {
-    return detail.price > maxPrice ? detail.price : maxPrice;
-  }, 0);
+  const highestPriceDetail = sessionDetails.reduce((maxDetail, detail) => {
+    if (detail.price > maxDetail.price || (detail.price === maxDetail.price && detail.createDate < maxDetail.createDate)) {
+      return { price: detail.price, createDate: detail.createDate };
+    }
+    return maxDetail;
+  }, { price: 0, createDate: null });
 
 
   const handleChangePage = (event, newPage) => {
@@ -307,7 +310,7 @@ const AuctionForm = () => {
     setShowDescriptions((prevState) => !prevState);
   };
   const formatCreateDate = (createDate) => {
-    return moment(createDate).format('YYYY-MM-DD HH:mm:ss'); // Adjust the format as per your requirement
+    return moment(createDate).format('YYYY-MM-DD HH:mm:ss.SSS'); // Adjust the format as per your requirement
   };
 
   const convertTimeToSeconds = (timeString) => {
@@ -829,8 +832,8 @@ const AuctionForm = () => {
                     <TableCell align="center">{formatToVND(detail.price)}</TableCell>
                     <TableCell align="center">{formatCreateDate(detail.createDate)}</TableCell>
                     <TableCell align="center">
-                      {detail.price === highestPrice ? (
-                        <Typography style={{ color: 'green' }}>Trả Giá Cao Nhất</Typography>
+                      {detail.price === highestPriceDetail.price && detail.createDate === highestPriceDetail.createDate ? (
+                        <Typography style={{ color: 'green' }}>Trả Giá Cao Nhất(Sớm nhất) </Typography>
                       ) : (
                         <Typography style={{ color: 'red' }}>Trả Giá Thấp Hơn</Typography>
                       )}
