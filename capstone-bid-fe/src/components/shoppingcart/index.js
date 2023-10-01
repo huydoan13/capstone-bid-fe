@@ -74,16 +74,16 @@ const ShoppingCartForm = () => {
     }
 
     const handleCloseDialog = () => {
-       
+
         setOpen(false);
-        
+
     }
 
     const handleClose = () => {
 
         handleRejectPayment();
         setOpen(false);
-       
+
     }
 
     const handleSuccessDialogOpen = (item) => {
@@ -198,7 +198,7 @@ const ShoppingCartForm = () => {
                 justifyContent={"center"}
                 alignItems={"center"}>
                 <TableContainer sx={{ width: matches ? '100%' : '60%' }} component={Paper}>
-                    <Table sx={{width: '100%', maxWidth: '100%' }} aria-label="spanning table">
+                    <Table sx={{ width: '100%', maxWidth: '100%' }} aria-label="spanning table">
                         <TableHead>
                             <TableRow>
                                 {/* Checkbox column */}
@@ -220,16 +220,20 @@ const ShoppingCartForm = () => {
                                     </TableCell>
                                     <TableCell>{item.itemName}</TableCell>
                                     <TableCell style={{ height: '100px', width: '250px' }}>{item.description}</TableCell>
-                                    <TableCell align="right">{item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</TableCell>
+                                    <TableCell align="right">{item.deposit ? (
+                                        (item.finalPrice - item.firstPrice * item.depositFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    ) : (
+                                        item.finalPrice.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    )}</TableCell>
                                     <TableCell>
-                                        <Button sx={{marginBottom : "5px"}}  fullWidth variant='contained' onClick={() => openDialog(item)}>
+                                        <Button sx={{ marginBottom: "5px" }} fullWidth variant='contained' onClick={() => openDialog(item)}>
                                             Thanh Toán
                                         </Button>
                                         <Button fullWidth variant='contained' color="error" onClick={() => handleOpen(item)}>
                                             Hủy Thanh Toán
                                         </Button>
                                     </TableCell>
-                                   
+
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -263,6 +267,14 @@ const ShoppingCartForm = () => {
                                         <Typography margin={'1%'} align="right" variant="subtitle1"> {selectedItem?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })} </Typography>
                                     </Typography>
                                     <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
+                                        <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí đặt cọc</Typography>
+                                        <Typography margin={'1%'} align="right" variant="subtitle1"> {selectedItem?.deposit ? (
+                                        (selectedItem.firstPrice * selectedItem.depositFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    ) : (
+                                        "--"
+                                    )}</Typography>
+                                    </Typography>
+                                    <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                         <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
                                         <Typography margin={'1%'} align="right" variant="subtitle1"> -- </Typography>
                                     </Typography>
@@ -278,7 +290,11 @@ const ShoppingCartForm = () => {
                                 <Divider variant="inset" />
                                 <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
-                                    <Typography margin={'1%'} align="right" variant="h4"> {selectedItem?.finalPrice?.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })} </Typography>
+                                    <Typography margin={'1%'} align="right" variant="h4"> {selectedItem?.deposit ? (
+                                         (selectedItem?.finalPrice - selectedItem?.firstPrice * selectedItem?.depositFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    ) : (
+                                        (selectedItem?.finalPrice).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    )} </Typography>
                                 </Typography>
                             </>
                         )}
