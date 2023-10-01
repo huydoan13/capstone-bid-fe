@@ -390,7 +390,7 @@ export default function DashboardAppPage() {
       const updatedChartData = [
         { label: 'Đã chấp nhận', value: response.data.totalAccountAccepted },
         { label: 'Bị cấm', value: response.data.totalAccountBanned },
-        { label: 'Đã từ chối', value: response.data.totalAccountRejected },
+        // { label: 'Đã từ chối', value: response.data.totalAccountRejected },
         { label: 'Đang chờ duyệt', value: response.data.totalAccountWaiting },
         // { label: 'totalCount', value: response.data.totalCount },
       ];
