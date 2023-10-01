@@ -699,7 +699,11 @@ const AuctionForm = () => {
               justifyContent: "space-between",
             }}>
               <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Tiền Đặt Cọc:  </Typography>
-              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)} </Typography>
+              <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle">  {auctionData[0]?.deposit ? (
+                        (formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice))
+                      ) : (
+                        ("0")
+                      )} </Typography>
             </Typography>
             <Typography sx={{
               display: "flex",
@@ -920,7 +924,13 @@ const AuctionForm = () => {
                   </Typography>
                   <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
-                    <Typography margin={'1%'} align="right" variant="subtitle1"> {formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice)}</Typography>
+                    <Typography margin={'1%'} align="right" variant="subtitle1">
+                      {auctionData[0]?.deposit ? (
+                        (formatToVND(auctionData[0]?.depositFee * auctionData[0]?.firstPrice))
+                      ) : (
+                        ("--")
+                      )}
+                    </Typography>
                   </Typography>
                 </Grid>
                 <Divider variant="inset" />
@@ -930,12 +940,23 @@ const AuctionForm = () => {
                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
                     <Typography margin={'1%'} align="right" variant="subtitle1">
 
-                      {formatToVND(
-                        Math.min(
-                          Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
-                          200000
-                        ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+
+                      {auctionData[0]?.deposit ? (
+                        (formatToVND(
+                          Math.min(
+                            Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                            200000
+                          ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                        ))
+                      ) : (
+                        (formatToVND(
+                          Math.min(
+                            Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                            200000
+                          )
+                        ))
                       )}
+
 
                     </Typography>
                   </Typography>
@@ -955,12 +976,25 @@ const AuctionForm = () => {
                 <Divider variant="inset" />
                 <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
                   <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
-                  <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
-                    Math.min(
-                      Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
-                      200000
-                    ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
-                  )}   </Typography>
+                  <Typography margin={'1%'} align="right" variant="h4">
+
+
+
+                    {auctionData[0]?.deposit ? (
+                      (formatToVND(
+                        Math.min(
+                          Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                          200000
+                        ) + (auctionData[0]?.depositFee * auctionData[0]?.firstPrice)
+                      ))
+                    ) : (
+                      (formatToVND(
+                        Math.min(
+                          Math.max(auctionData[0]?.participationFee * auctionData[0]?.firstPrice, 10000),
+                          200000
+                        )
+                      ))
+                    )}   </Typography>
                 </Typography>
               </>
             )}

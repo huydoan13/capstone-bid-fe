@@ -330,7 +330,7 @@ export default function StageProductDetail({ open, onClose, product }) {
                                     justifyContent: "space-between",
                                 }}>
                                     <Typography margin={'1%'} color={"#696969"} align="left" variant="subtitle">Tiền Đặt Cọc:  </Typography>
-                                    <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle"> {formatToVND(product.depositFee * product.firstPrice)} </Typography>
+                                    <Typography margin={'1%'} align="right" color={"#B41712"} variant="subtitle">{ product.deposit ? (formatToVND(product.depositFee * product.firstPrice)):("0")}</Typography>
                                 </Typography>
                                 <Typography sx={{
                                     display: "flex",
@@ -524,7 +524,17 @@ export default function StageProductDetail({ open, onClose, product }) {
                                 </Typography>
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Đặt Cọc</Typography>
-                                    <Typography margin={'1%'} align="right" variant="subtitle1"> {formatToVND(selectedItem?.depositFee * selectedItem?.firstPrice)}</Typography>
+                                    <Typography margin={'1%'} align="right" variant="subtitle1"> 
+                                    
+                                    
+                                    {selectedItem?.deposit ? (
+                                        (selectedItem?.firstPrice * selectedItem?.depositFee).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+                                    ) : (
+                                        "--"
+                                    )}
+                                    
+                                    
+                                    </Typography>
                                 </Typography>
                             </Grid>
                             <Divider variant="inset" />
@@ -533,11 +543,21 @@ export default function StageProductDetail({ open, onClose, product }) {
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng phụ</Typography>
                                     <Typography margin={'1%'} align="right" variant="subtitle1">
-                                        {formatToVND(
+                                    {product?.deposit ? (
+                                        formatToVND(
                                             Math.min(
                                                 Math.max(product.participationFee * product.firstPrice, 10000),
                                                 200000
-                                            ) + (selectedItem?.depositFee * selectedItem?.firstPrice))}   </Typography>
+                                            ) + (selectedItem?.depositFee * selectedItem?.firstPrice)
+                                        )
+                                    ) : (
+                                        formatToVND(
+                                            Math.min(
+                                                Math.max(product.participationFee * product.firstPrice, 10000),
+                                                200000
+                                            ) 
+                                        )
+                                    )}   </Typography>
                                 </Typography>
                                 <Typography sx={{ mt: 1, mb: 1, display: "flex", justifyContent: "space-between" }}>
                                     <Typography margin={'1%'} align="inherit" variant="subtitle1">Phí Vận Chuyển</Typography>
@@ -555,11 +575,22 @@ export default function StageProductDetail({ open, onClose, product }) {
                             <Divider variant="inset" />
                             <Typography sx={{ display: "flex", justifyContent: "space-between" }}>
                                 <Typography margin={'1%'} align="inherit" variant="subtitle1">Tổng tiền phải trả</Typography>
-                                <Typography margin={'1%'} align="right" variant="h4"> {formatToVND(
-                                    Math.min(
-                                        Math.max(product.participationFee * product.firstPrice, 10000),
-                                        200000
-                                    ) + (selectedItem?.depositFee * selectedItem?.firstPrice))}  </Typography>
+                                <Typography margin={'1%'} align="right" variant="h4">      
+                                {product?.deposit ? (
+                                         formatToVND(
+                                            Math.min(
+                                                Math.max(product?.participationFee * product?.firstPrice, 10000),
+                                                200000
+                                            ) + (selectedItem?.depositFee * selectedItem?.firstPrice)
+                                        )
+                                    ) : (
+                                        formatToVND(
+                                            Math.min(
+                                                Math.max(product.participationFee * product.firstPrice, 10000),
+                                                200000
+                                            )
+                                        )
+                                    )}  </Typography>
                             </Typography>
                         </>
                     )}
